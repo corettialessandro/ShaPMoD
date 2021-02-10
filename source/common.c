@@ -180,10 +180,13 @@ void ReadInput(){
 
     NPART = NATOMSPERMOLECULE*NMOLECULES;
     NINTER = (int)round(NATOMSPEC*(NATOMSPEC+1.)/2.);
-
+    // allocate memory for arrays and check if done properly
     if ((PARTPOS_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
     if ((PARTPOS_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 3;
     if ((PARTPOS_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 4;
+    if ((PARTMOM_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
+    if ((PARTMOM_TP05 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
+    if ((PARTMOM_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((PARTVEL = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((SHELLPOS_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 6;
     if ((SHELLPOS_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 7;
@@ -429,7 +432,11 @@ void ReadInput(){
 
         for (i=0; i<NPART; i++) {
 
-            fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_TM1[i].x, &PARTPOS_TM1[i].y, &PARTPOS_TM1[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
+          //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_TM1[i].x, &PARTPOS_TM1[i].y, &PARTPOS_TM1[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
+
+          // scan checkpoint.txt for Velocity Verlet
+          fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
+
         }
 
         fclose(fp_input);
@@ -595,6 +602,9 @@ void FreePointers(void){
     free(PARTPOS_TM1);
     free(PARTPOS_T);
     free(PARTPOS_TP1);
+    free(PARTMOM_T);
+    free(PARTMOM_TP05);
+    free(PARTMOM_TP1);
     free(PARTVEL);
     free(SHELLPOS_TM1);
     free(SHELLPOS_T);

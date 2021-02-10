@@ -1,16 +1,16 @@
-P		Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode)
+S		Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode)
 S		Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
 F		Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
 J		Potential to use ('J' = Jacucci, 'C' = Ciccotti)
-108		Number of molecules
+125		Number of molecules
 2		Number of atomic species
 1		Number of atoms of first species
 1		Number of atoms of the second species
-3.5		Timestep (fs)
-4000		Number of timesteps
-0.04363870186	Density of particles (Å^-3)
-T		Thermostat ('T' = ON, 'F' = OFF)
-306.3		Temperature (K)
+1		Timestep (fs)
+100		Number of timesteps
+0.02752		Density of particles (Å^-3)
+F		Thermostat ('T' = ON, 'F' = OFF)
+1550.		Temperature (K)
 .5		Short-range cut-off scaling factor
 Cl		First species
 35.453		Core Mass

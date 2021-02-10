@@ -53,31 +53,33 @@ void Block_MD_St(void){
             DT2over2 = DT2 * 0.5;
             overM = 1./M[INDX[i]];
 
-            // if (POT == 'J') {
-            //
-            //     CF_t = CoreForce_Jac(PARTPOS_T, SHELLPOS_T, i);
-            //     SF_t = ShellForce_Jac(SHELLPOS_T, PARTPOS_T, i);
-            //
-            // } else if (POT == 'C') {
-            //
-            //     CF_t = CoreForce_Cicc(PARTPOS_T, SHELLPOS_T, i);
-            //     SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
-            // }
-            //
-            // if (DEBUG_FLAG && _D_TOT_FORCES) {
-            //
-            //     CFtot.x += (CF_t.x);
-            //     CFtot.y += (CF_t.y);
-            //     CFtot.z += (CF_t.z);
-            //
-            //     SFtot.x += (SF_t.x);
-            //     SFtot.y += (SF_t.y);
-            //     SFtot.z += (SF_t.z);
-            //
-            //     Ftot.x += (CF_t.x  + SF_t.x);
-            //     Ftot.y += (CF_t.y  + SF_t.y);
-            //     Ftot.z += (CF_t.z  + SF_t.z);
-            // }
+
+            if (POT == 'J') {
+
+                CF_t = CoreForce_Jac(PARTPOS_T, SHELLPOS_T, i);
+                SF_t = ShellForce_Jac(SHELLPOS_T, PARTPOS_T, i);
+
+            } else if (POT == 'C') {
+
+                CF_t = CoreForce_Cicc(PARTPOS_T, SHELLPOS_T, i);
+                SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
+            }
+
+            if (DEBUG_FLAG && _D_TOT_FORCES) {
+
+                CFtot.x += (CF_t.x);
+                CFtot.y += (CF_t.y);
+                CFtot.z += (CF_t.z);
+
+                SFtot.x += (SF_t.x);
+                SFtot.y += (SF_t.y);
+                SFtot.z += (SF_t.z);
+
+                Ftot.x += (CF_t.x  + SF_t.x);
+                Ftot.y += (CF_t.y  + SF_t.y);
+                Ftot.z += (CF_t.z  + SF_t.z);
+            }
+            
 
             // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*(CF_t.x + SF_t.x);
             // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*(CF_t.y + SF_t.y);
@@ -95,7 +97,6 @@ void Block_MD_St(void){
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overM*PARTMOM_TP05[i].x;
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overM*PARTMOM_TP05[i].y;
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overM*PARTMOM_TP05[i].z;
-
             // Recalculate forces w.r. to new positions
             if (POT == 'J') {
 
