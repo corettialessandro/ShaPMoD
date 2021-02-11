@@ -11,7 +11,7 @@
 void FirstStep_St(void){
 
     int i;
-    double DT2 = (DT*DT), DT2overM, DT2over2, overM;
+    double DT2 = (DT*DT), DToverM, DTover2, overM;
     struct point vi, CF_t, SF_t;
 
     struct point Ftot = {0};
@@ -27,8 +27,8 @@ void FirstStep_St(void){
 
     for (i=0; i<NPART; i++) {
 
-        DT2overM = DT2/M[INDX[i]];
-        DT2over2 = DT2 * 0.5;
+        DToverM = DT/M[INDX[i]];
+        DTover2 = DT * 0.5;
         overM = 1./M[INDX[i]];
 
         if (POT == 'J') {
@@ -68,9 +68,9 @@ void FirstStep_St(void){
         PARTMOM_T[i].y = M[INDX[i]]*PARTVEL[i].y;
         PARTMOM_T[i].z = M[INDX[i]]*PARTVEL[i].z;
         // half step on momentum
-        PARTMOM_TP05[i].x = PARTMOM_T[i].x + DT2over2*(CF_t.x + SF_t.x);
-        PARTMOM_TP05[i].y = PARTMOM_T[i].y + DT2over2*(CF_t.y + SF_t.y);
-        PARTMOM_TP05[i].z = PARTMOM_T[i].z + DT2over2*(CF_t.z + SF_t.z);
+        PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x);
+        PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
+        PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
         // full step on positions
         SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overM*PARTMOM_TP05[i].x;
         SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overM*PARTMOM_TP05[i].y;
@@ -103,9 +103,9 @@ void FirstStep_St(void){
             Ftot.z += (CF_t.z  + SF_t.z);
         }
         // final step on momentum
-        PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DT2over2*(CF_t.x + SF_t.x);
-        PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DT2over2*(CF_t.y + SF_t.y);
-        PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DT2over2*(CF_t.z + SF_t.z);
+        PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
+        PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
+        PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
         // momentum -> velocity
         SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overM;
         SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overM;

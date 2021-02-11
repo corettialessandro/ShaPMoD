@@ -2,7 +2,7 @@ S		Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode)
 S		Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
 F		Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
 J		Potential to use ('J' = Jacucci, 'C' = Ciccotti)
-108		Number of molecules
+125		Number of molecules
 2		Number of atomic species
 1		Number of atoms of first species
 1		Number of atoms of the second species
