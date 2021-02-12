@@ -39,6 +39,6 @@ void Write_Gamma(int timestep, int iteration, struct point gamma[], struct point
 void Write_SHAKE_output(int timestep, int iteration, double discr, double kdiscr);
 void Write_S(int timestep, int iteration, struct point rho[], struct point r[]);
 
-void Checkpoint(int timestep, struct point r_tm1[], struct point rho_tm1[], struct point r_t[], struct point rho_t[]);
+void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct point v_t[], struct point vrho_t[]);
 
 #endif /* output_h */

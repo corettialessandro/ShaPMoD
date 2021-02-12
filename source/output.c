@@ -698,14 +698,14 @@ void Write_S(int timestep, int iteration, struct point rho[], struct point r[]) 
     fclose(fp_s_out);
 }
 
-void Checkpoint(int timestep, struct point r_tm1[], struct point rho_tm1[], struct point r_t[], struct point rho_t[]){
+void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct point v_t[], struct point vrho_t[]){
 
     FILE *fp_checkpoint;
 
     int i;
 
 //    struct point zero = {0,0,0};
-    struct point tr_tm1, trho_tm1, tr_t, trho_t;
+    struct point tr_t, trho_t, tv_t, tvrho_t;
 
     if (timestep == 0) {
 
@@ -728,20 +728,28 @@ void Checkpoint(int timestep, struct point r_tm1[], struct point rho_tm1[], stru
 
     for (i=0; i<NPART; i++) {
 
-//        tr_tm1 = d_rirj(r_tm1[i], zero);
-//        tr_tm1 = Distance(r_tm1[i], zero);
-        tr_tm1 = r_tm1[i];
-//        trho_tm1 = d_rhoirj(rho_tm1[i], r_tm1[i], zero);
-//        trho_tm1 = Distance(rho_tm1[i], zero);
-        trho_tm1 = rho_tm1[i];
-//        tr_t = d_rirj(r_t[i], zero);
-//        tr_t = Distance(r_t[i], zero);
-        tr_t = r_t[i];
-//        trho_t = d_rhoirj(rho_t[i], r_t[i], zero);
-//        tr_t = Distance(rho_t[i], zero);
-        trho_t = rho_t[i];
+// //        tr_tm1 = d_rirj(r_tm1[i], zero);
+// //        tr_tm1 = Distance(r_tm1[i], zero);
+//         tr_tm1 = r_tm1[i];
+// //        trho_tm1 = d_rhoirj(rho_tm1[i], r_tm1[i], zero);
+// //        trho_tm1 = Distance(rho_tm1[i], zero);
+//         trho_tm1 = rho_tm1[i];
+// //        tr_t = d_rirj(r_t[i], zero);
+// //        tr_t = Distance(r_t[i], zero);
+//         tr_t = r_t[i];
+// //        trho_t = d_rhoirj(rho_t[i], r_t[i], zero);
+// //        tr_t = Distance(rho_t[i], zero);
+//         trho_t = rho_t[i];
+//
+//         fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_tm1.x, tr_tm1.y, tr_tm1.z, trho_tm1.x, trho_tm1.y, trho_tm1.z, tr_t.x, tr_t.y, tr_t.z, trho_t.x, trho_t.y, trho_t.z);
 
-        fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_tm1.x, tr_tm1.y, tr_tm1.z, trho_tm1.x, trho_tm1.y, trho_tm1.z, tr_t.x, tr_t.y, tr_t.z, trho_t.x, trho_t.y, trho_t.z);
+      // create temporary variables for particle&shell position&velocity
+      tr_t = r_t[i];
+      tv_t = v_t[i];
+      trho_t = rho_t[i];
+      tvrho_t = vrho_t[i];
+      // create checkpoint.txt
+      fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_t.x, tr_t.y, tr_t.z, tv_t.x, tv_t.y, tv_t.z, trho_t.x, trho_t.y, trho_t.z, tvrho_t.x, tvrho_t.y, tvrho_t.z);
     }
 
     fprintf(fp_checkpoint, "\nAverage Thermodynamics Variables of the simulation:\n");

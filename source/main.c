@@ -33,9 +33,9 @@
 #include "Block_MD.h"
 
 int main(int argc, char *argv[]) {
-    
+
     int c;
-    
+
     printf("\nSHAKE POLARIZATION MOLECULAR DYNAMICS (ShaPMoD)\n");
     printf("MD Code for Polarizable Systems (ver. %d.%d.%d).\n\n", _REL, _VER, _SUBVER);
 
@@ -85,77 +85,77 @@ int main(int argc, char *argv[]) {
                 abort();
         }
     }
-    
+
     if (access(INPUTFN, F_OK) == -1) {
-        
+
         printf("\nmain.c -> main() ERROR: Input file '%s' not found.\nExecution aborted.\n\n", INPUTFN);
         exit(EXIT_FAILURE);
     }
-    
+
     if (DEBUG_FLAG == 1 && VERBOSE_FLAG == 1) {
-        
+
         printf("Execution in DEBUG and VERBOSE mode: DEBUG_FLAG = %d, VERBOSE_FLAG = %d.\n", DEBUG_FLAG, VERBOSE_FLAG);
-    
+
     }else if (DEBUG_FLAG == 1){
-        
+
         printf("Execution in DEBUG mode: DEBUG_FLAG = %d.\n", DEBUG_FLAG);
-    
+
     }else if (VERBOSE_FLAG == 1){
-        
+
         printf("Execution in VERBOSE mode: VERBOSE_FLAG = %d.\n", VERBOSE_FLAG);
 
     }else{
-        
+
         printf("Standard 'silent' execution.\n\n");
     }
-    
+
     clock_t t_start, t_end;
     t_start = clock();
-    
+
     SetOutput();
 
     printf("\nReading system parameters from input file: '%s'\n", INPUTFN);
 
-    ReadInput();
+    ReadInput(); // read input from input.txt and initial configuration if a checkpoint.txt exists
 
-    Write_MD_setup();
-    
+    Write_MD_setup(); // write MD setup in terminal
+
     printf("\n#################################################################\n");
     printf("Begin of dynamics:\n");
     printf("t\tETot\tEKin\tEPot\t100*EPol/EPot\tTemperature\tPressure\tVCMx\tVCMy\tVCMz\tSR_ITs\tSR_DISCR\n");
-    
+
     if (EWALD == 'T') {
-        
+
         if (MODE == 'P') {
-            
+
             Block_MD_Pol_Ew();
-            
+
         }else if (MODE == 'S'){
-            
+
             Block_MD_St_Ew();
         }
-        
+
     } else if (EWALD == 'F') {
-        
+
         if (MODE == 'P') {
-            
+
             Block_MD_Pol();
-            
+
         }else if (MODE == 'S'){
-            
+
             Block_MD_St();
         }
     }
-    
+
     printf("#################################################################\n");
-    
+
     printf("\nAverage Thermodynamics Variables of the simulation:\n");
     printf("<E> = %.4e\t∆E/<E> = %.4e\t<K> = %.4e\t<U> = %.4e\t100*<Up>/<U> = %.4e\t<T> = %.4e\t<P> = %.4e\n", ETOTAVG, sqrt(fabs(ETOTAVGSQ - ETOTAVG*ETOTAVG))/fabs(ETOTAVG), EKINAVG, EPOTAVG, 100*EPOLAVG/EPOTAVG, TEMPAVG, PRESSAVG);
 
     FreePointers();
-    
+
     t_end = clock();
-    
+
     printf("\nTotal execution time: %.2f (s)\n\n", (double)(t_end - t_start)/CLOCKS_PER_SEC);
     return 0;
 }
