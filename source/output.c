@@ -748,7 +748,7 @@ void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct p
       tv_t = v_t[i];
       trho_t = rho_t[i];
       tvrho_t = vrho_t[i];
-      // create checkpoint.txt
+      // create save.txt
       fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_t.x, tr_t.y, tr_t.z, tv_t.x, tv_t.y, tv_t.z, trho_t.x, trho_t.y, trho_t.z, tvrho_t.x, tvrho_t.y, tvrho_t.z);
     }
 
@@ -756,4 +756,5 @@ void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct p
     fprintf(fp_checkpoint, "<E> = %.4e\t∆E/<E> = %.4e\t<K> = %.4e\t<U> = %.4e\t100<Up>/<U> = %.4e\t<T> = %.4e\t<P> = %.4e\n", ETOTAVG, sqrt(fabs(ETOTAVGSQ - ETOTAVG*ETOTAVG))/fabs(ETOTAVG), EKINAVG, EPOTAVG, 100*EPOLAVG/EPOTAVG, TEMPAVG, PRESSAVG);
 
     fclose(fp_checkpoint);
+
 }
