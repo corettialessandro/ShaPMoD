@@ -194,7 +194,7 @@ void ReadInput(){
     if ((SHELLPOS_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 7;
     if ((SHELLPOS_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
     if ((SHELLVEL = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
-    
+
     if (EWALD == 'T') {
         if ((CF = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 80;
         if ((SF = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 81;
@@ -439,7 +439,7 @@ void ReadInput(){
           // scan checkpoint.txt for Velocity Verlet
           fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
         }
-
+        
         fclose(fp_input);
 
     }else{

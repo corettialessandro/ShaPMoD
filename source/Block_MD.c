@@ -11,7 +11,7 @@
 void Block_MD_St(void){
 
     int t, i, t0 = 0;
-    double DT2 = (DT*DT), DToverM, DTover2, overM, alpha;
+    double DT2 = (DT*DT), DToverMi, DTover2, overMi, Mi, alpha;
     struct point CF_t, SF_t;
 
     struct point Ftot = {0};
@@ -48,11 +48,11 @@ void Block_MD_St(void){
         }
 
         for (i=0; i<NPART; i++) {
-
-            DToverM = DT/M[INDX[i]];
+          
+            Mi = M[INDX[i]];
+            overMi = 1./Mi;
+            DToverMi = DT*overMi;
             DTover2 = DT * 0.5;
-            overM = 1./M[INDX[i]];
-
 
             if (POT == 'J') {
 
@@ -78,59 +78,65 @@ void Block_MD_St(void){
                 Ftot.x += (CF_t.x  + SF_t.x);
                 Ftot.y += (CF_t.y  + SF_t.y);
                 Ftot.z += (CF_t.z  + SF_t.z);
-            }
+          }
 
 
-            // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*(CF_t.x + SF_t.x);
-            // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*(CF_t.y + SF_t.y);
-            // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*(CF_t.z + SF_t.z);
+          // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*(CF_t.x + SF_t.x);
+          // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*(CF_t.y + SF_t.y);
+          // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*(CF_t.z + SF_t.z);
 
-            // velocity -> momentum
-            PARTMOM_T[i].x = M[INDX[i]]*PARTVEL[i].x*alpha;
-            PARTMOM_T[i].y = M[INDX[i]]*PARTVEL[i].y*alpha;
-            PARTMOM_T[i].z = M[INDX[i]]*PARTVEL[i].z*alpha;
-            // half step on momentum
-            PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x); //forces from actual positions
-            PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
-            PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
-            // full step on positions
-            SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overM*PARTMOM_TP05[i].x;
-            SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overM*PARTMOM_TP05[i].y;
-            SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overM*PARTMOM_TP05[i].z;
-            // Recalculate forces w.r. to new positions
-            if (POT == 'J') {
+          // velocity -> momentum
+          PARTMOM_T[i].x = Mi*PARTVEL[i].x*alpha;
+          PARTMOM_T[i].y = Mi*PARTVEL[i].y*alpha;
+          PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
+          // half step on momentum
+          PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x); //forces from actual positions
+          PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
+          PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
+          // full step on positions
+          SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
+          SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
+          SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+        }
+        for (i=0; i<NPART; i++) {
+          Mi = M[INDX[i]];
+          overMi = 1./Mi;
+          DToverMi = DT*overMi;
+          DTover2 = DT * 0.5;
+          // Recalculate forces w.r. to new positions
+          if (POT == 'J') {
 
-                CF_t = CoreForce_Jac(PARTPOS_TP1, SHELLPOS_TP1, i);
-                SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
+              CF_t = CoreForce_Jac(PARTPOS_TP1, SHELLPOS_TP1, i);
+              SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
 
-            } else if (POT == 'C') {
+          } else if (POT == 'C') {
 
-                CF_t = CoreForce_Cicc(PARTPOS_TP1, SHELLPOS_TP1, i);
-                SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
-            }
+              CF_t = CoreForce_Cicc(PARTPOS_TP1, SHELLPOS_TP1, i);
+              SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
+          }
 
-            if (DEBUG_FLAG && _D_TOT_FORCES) {
+          if (DEBUG_FLAG && _D_TOT_FORCES) {
 
-                CFtot.x += (CF_t.x);
-                CFtot.y += (CF_t.y);
-                CFtot.z += (CF_t.z);
+              CFtot.x += (CF_t.x);
+              CFtot.y += (CF_t.y);
+              CFtot.z += (CF_t.z);
 
-                SFtot.x += (SF_t.x);
-                SFtot.y += (SF_t.y);
-                SFtot.z += (SF_t.z);
+              SFtot.x += (SF_t.x);
+              SFtot.y += (SF_t.y);
+              SFtot.z += (SF_t.z);
 
-                Ftot.x += (CF_t.x  + SF_t.x);
-                Ftot.y += (CF_t.y  + SF_t.y);
-                Ftot.z += (CF_t.z  + SF_t.z);
-            }
-            // final step on momentum
-            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
-            PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
-            PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
-            // momentum -> velocity
-            SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overM;
-            SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overM;
-            SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overM;
+              Ftot.x += (CF_t.x  + SF_t.x);
+              Ftot.y += (CF_t.y  + SF_t.y);
+              Ftot.z += (CF_t.z  + SF_t.z);
+          }
+          // final step on momentum
+          PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
+          PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
+          PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
+          // momentum -> velocity
+          SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
+          SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
+          SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
 
 
         }

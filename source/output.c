@@ -299,7 +299,7 @@ void Write_Analysis(int timestep, double ETot, double EKin, double EPot, double 
     }
 
     fprintf(fp_analysis_out, "%d\t%.15e\t%.10e\t%.10e\t%.10e\t%c%.10e\t%.10e\t%.10e\t%.10e\t%.10e\t%.10e\t%.10e\t%.10e\t%d\t%.10e\n", timestep, ETot, EKin, EPot, 100*EPol/EPot, therm, Temp, Press, CMVelocity.x, CMVelocity.y, CMVelocity.z, AnMom.x, AnMom.y, AnMom.z, SHAKE_IT, SHAKE_DIS);
-
+    fflush(fp_analysis_out);
     fclose(fp_analysis_out);
 }
 
