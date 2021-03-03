@@ -251,8 +251,9 @@ void FirstStep_St_Ew(void){
 void FirstStep_Pol(void){
 
     int i, indx_i;
-    double DT2 = DT*DT, DT2overM, DT2overMU;
+    double DT2 = DT*DT, DT2overM, DT2overMU, DTover2, Mi, overMi;
     struct point vi, CF_t, SF_t, SF_P, SF_tp1;
+    struct point velocityHalfStep;
 
     struct point Ftot = {0};
     struct point CFtot = {0}, SFtot = {0};
@@ -264,12 +265,30 @@ void FirstStep_Pol(void){
     Write_GofR(0, PARTPOS_T);
 
     t_start = clock();
+    //Conjugate Gradient to find SHELLPOS at t=0 from Lattice
+
+    ConjugateGradient(SHELLPOS_T, PARTPOS_T);
+    exit(0);
+
+    // Initialize particles and shells velocities to 0
+    for (i=0; i<NPART; i++) {
+      PARTVEL[i].x = 0;
+      PARTVEL[i].y = 0;
+      PARTVEL[i].z = 0;
+      SHELLVEL[i].x = 0;
+      SHELLVEL[i].y = 0;
+      SHELLVEL[i].z = 0;
+    }
+
 
     for (i=0; i<NPART; i++) {
 
         indx_i = INDX[i];
         DT2overM = DT2/M[indx_i];
         DT2overMU = DT2/MU[indx_i];
+        Mi = M[INDX[i]];
+        overMi = 1./Mi;
+        DTover2 = DT*0.5;
 
         if (POT == 'J') {
 
@@ -299,15 +318,28 @@ void FirstStep_Pol(void){
 
         if (DEBUG_FLAG && _D_FORCES) printf("CF_t[%d] = (%.4e, %.4e, %.4e)\nSF_t[%d] = (%.4e, %.4e, %.4e)\n", i, CF_t.x, CF_t.y, CF_t.z, i, SF_t.x, SF_t.y, SF_t.z);
 
-        PARTPOS_TP1[i].x = PARTPOS_T[i].x + PARTVEL[i].x*DT + .5*DT2overM*CF_t.x;
-        PARTPOS_TP1[i].y = PARTPOS_T[i].y + PARTVEL[i].y*DT + .5*DT2overM*CF_t.y;
-        PARTPOS_TP1[i].z = PARTPOS_T[i].z + PARTVEL[i].z*DT + .5*DT2overM*CF_t.z;
+        // PARTPOS_TP1[i].x = PARTPOS_T[i].x + PARTVEL[i].x*DT + .5*DT2overM*CF_t.x; //Taylor exp. to 2nd order put Velocity verlet instead
+        // PARTPOS_TP1[i].y = PARTPOS_T[i].y + PARTVEL[i].y*DT + .5*DT2overM*CF_t.y;
+        // PARTPOS_TP1[i].z = PARTPOS_T[i].z + PARTVEL[i].z*DT + .5*DT2overM*CF_t.z;
+
+        //Half step on velocity
+        velocityHalfStep.x = PARTVEL[i].x + DTover2*(CF_t.x + SF_t.x);
+        velocityHalfStep.y = PARTVEL[i].y + DTover2*(CF_t.y + SF_t.y);
+        velocityHalfStep.z = PARTVEL[i].z + DTover2*(CF_t.z + SF_t.z);
+        //Full step on position
+        PARTMOM_TP1[i].x = PARTMOM_T[i].x + DT*velocityHalfStep.x;
+        PARTMOM_TP1[i].y = PARTMOM_T[i].y + DT*velocityHalfStep.y;
+        PARTMOM_TP1[i].z = PARTMOM_T[i].z + DT*velocityHalfStep.z;
 
         if (MU[indx_i] == 0.) {
 
-            SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x;
-            SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
-            SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
+            // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x; //sp = s(0) + v(0)*dT + dT²/(2m)F(0) (last part is 0)
+            // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
+            // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
+            //Prediction of the shells positions, Force is zero due to constraints
+            SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + DT*SHELLVEL[i].x;
+            SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + DT*SHELLVEL[i].y;
+            SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + DT*SHELLVEL[i].z;
 
         } else {
 
@@ -393,11 +425,52 @@ void FirstStep_Pol(void){
 
     for (i=0; i<NPART; i++) {
 
-        vi = Velocity(PARTPOS_T[i], PARTPOS_TP1[i]);
+        indx_i = INDX[i];
+        DT2overM = DT2/M[indx_i];
+        DT2overMU = DT2/MU[indx_i];
+        Mi = M[INDX[i]];
+        overMi = 1./Mi;
+        DTover2 = DT*0.5;
+        // Calculation of Forces with new shells positions computed with SHAKE
+        if (POT == 'J') {
 
-        PARTVEL[i].x = 2.*vi.x;
-        PARTVEL[i].y = 2.*vi.y;
-        PARTVEL[i].z = 2.*vi.z;
+            CF_t = CoreForce_Jac(PARTPOS_TP1, SHELLPOS_TP1, i);
+            SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
+
+        } else if (POT == 'C') {
+
+            CF_t = CoreForce_Cicc(PARTPOS_TP1, SHELLPOS_TP1, i);
+            SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
+        }
+
+        if (DEBUG_FLAG && _D_TOT_FORCES) {
+
+            CFtot.x += (CF_t.x);
+            CFtot.y += (CF_t.y);
+            CFtot.z += (CF_t.z);
+
+            SFtot.x += (SF_t.x);
+            SFtot.y += (SF_t.y);
+            SFtot.z += (SF_t.z);
+
+            Ftot.x += (CF_t.x  + SF_t.x);
+            Ftot.y += (CF_t.y  + SF_t.y);
+            Ftot.z += (CF_t.z  + SF_t.z);
+        }
+
+        //Full step on velocity
+        PARTVEL[i].x = velocityHalfStep.x + DTover2*(CF_t.x  + SF_t.x);
+        PARTVEL[i].y = velocityHalfStep.y + DTover2*(CF_t.y  + SF_t.y);
+        PARTVEL[i].z = velocityHalfStep.z + DTover2*(CF_t.z  + SF_t.z);
+    }
+
+    for (i=0; i<NPART; i++) {
+
+        // vi = Velocity(PARTPOS_T[i], PARTPOS_TP1[i]);
+        //
+        // PARTVEL[i].x = 2.*vi.x;
+        // PARTVEL[i].y = 2.*vi.y;
+        // PARTVEL[i].z = 2.*vi.z;
 
         PARTPOS_TM1[i] = PARTPOS_T[i];
         PARTPOS_T[i] = PARTPOS_TP1[i];
