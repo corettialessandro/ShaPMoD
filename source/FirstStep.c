@@ -266,10 +266,7 @@ void FirstStep_Pol(void){
 
     t_start = clock();
     //Conjugate Gradient to find SHELLPOS at t=0 from Lattice
-
     ConjugateGradient(SHELLPOS_T, PARTPOS_T);
-    exit(0);
-
     // Initialize particles and shells velocities to 0
     for (i=0; i<NPART; i++) {
       PARTVEL[i].x = 0;
@@ -327,9 +324,9 @@ void FirstStep_Pol(void){
         velocityHalfStep.y = PARTVEL[i].y + DTover2*(CF_t.y + SF_t.y);
         velocityHalfStep.z = PARTVEL[i].z + DTover2*(CF_t.z + SF_t.z);
         //Full step on position
-        PARTMOM_TP1[i].x = PARTMOM_T[i].x + DT*velocityHalfStep.x;
-        PARTMOM_TP1[i].y = PARTMOM_T[i].y + DT*velocityHalfStep.y;
-        PARTMOM_TP1[i].z = PARTMOM_T[i].z + DT*velocityHalfStep.z;
+        PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*velocityHalfStep.x;
+        PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*velocityHalfStep.y;
+        PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*velocityHalfStep.z;
 
         if (MU[indx_i] == 0.) {
 
