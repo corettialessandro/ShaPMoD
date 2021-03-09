@@ -487,7 +487,7 @@ void Block_MD_Pol(void){
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
-        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTPOS_T, SHELLPOS_T);
+        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_TM1, PARTVEL, SHELLPOS_T);
 
         t_end = clock();
 

@@ -7,7 +7,7 @@ J		Potential to use ('J' = Jacucci, 'C' = Ciccotti)
 1		Number of atoms of first species
 1		Number of atoms of the second species
 1		Timestep (fs)
-1000		Number of timesteps
+5000		Number of timesteps
 0.02752		Density of particles (Å^-3)
 F		Thermostat ('T' = ON, 'F' = OFF)
 1550.		Temperature (K)

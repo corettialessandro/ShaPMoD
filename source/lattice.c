@@ -15,7 +15,7 @@ struct point SC(int part_indx, int npart){
     struct point PartPos;
 
     int i,j,k;
-    double jj,l;
+    double jj,l,a;
     int PartPerSide = (int)round(pow(npart, 1./3.));
     double LattStep = LBOX/(double)PartPerSide;
 
@@ -43,9 +43,9 @@ struct point SC(int part_indx, int npart){
 
         if (MODE == 'P') {
 
-          PartPos.x += ((double)lrand48()/(RAND_MAX+1.) - .5)*2.*0.1*LattStep;
-          PartPos.y += ((double)lrand48()/(RAND_MAX+1.) - .5)*2.*0.1*LattStep;
-          PartPos.z += ((double)lrand48()/(RAND_MAX+1.) - .5)*2.*0.1*LattStep;
+          PartPos.x += ((double)lrand48()/(RAND_MAX+1.) - .5)*0.1*LattStep;
+          PartPos.y += ((double)lrand48()/(RAND_MAX+1.) - .5)*0.1*LattStep;
+          PartPos.z += ((double)lrand48()/(RAND_MAX+1.) - .5)*0.1*LattStep;
 
         }
     }

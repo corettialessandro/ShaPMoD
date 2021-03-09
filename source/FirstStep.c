@@ -318,15 +318,18 @@ void FirstStep_Pol(void){
         // PARTPOS_TP1[i].x = PARTPOS_T[i].x + PARTVEL[i].x*DT + .5*DT2overM*CF_t.x; //Taylor exp. to 2nd order put Velocity verlet instead
         // PARTPOS_TP1[i].y = PARTPOS_T[i].y + PARTVEL[i].y*DT + .5*DT2overM*CF_t.y;
         // PARTPOS_TP1[i].z = PARTPOS_T[i].z + PARTVEL[i].z*DT + .5*DT2overM*CF_t.z;
+        // Velocity -> momentum
+        PARTMOM_T[i].x = Mi*PARTVEL[i].x;
+        PARTMOM_T[i].y = Mi*PARTVEL[i].y;
+        PARTMOM_T[i].z = Mi*PARTVEL[i].z;
+        //Half step on p
+        PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x);
+        PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
+        PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
 
-        //Half step on velocity
-        velocityHalfStep.x = PARTVEL[i].x + DTover2*(CF_t.x + SF_t.x);
-        velocityHalfStep.y = PARTVEL[i].y + DTover2*(CF_t.y + SF_t.y);
-        velocityHalfStep.z = PARTVEL[i].z + DTover2*(CF_t.z + SF_t.z);
-        //Full step on position
-        PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*velocityHalfStep.x;
-        PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*velocityHalfStep.y;
-        PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*velocityHalfStep.z;
+        PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
+        PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
+        PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
 
         if (MU[indx_i] == 0.) {
 
@@ -455,10 +458,14 @@ void FirstStep_Pol(void){
             Ftot.z += (CF_t.z  + SF_t.z);
         }
 
-        //Full step on velocity
-        PARTVEL[i].x = velocityHalfStep.x + DTover2*(CF_t.x  + SF_t.x);
-        PARTVEL[i].y = velocityHalfStep.y + DTover2*(CF_t.y  + SF_t.y);
-        PARTVEL[i].z = velocityHalfStep.z + DTover2*(CF_t.z  + SF_t.z);
+        //Full step on p
+        PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
+        PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
+        PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
+        // p -> v
+        PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
+        PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
+        PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
     }
 
     for (i=0; i<NPART; i++) {
