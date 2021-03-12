@@ -21,7 +21,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
         if (POT == 'J') {
 
-            Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+            Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k); //struct *
 
         }else if (POT == 'C') {
 
@@ -50,7 +50,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
             if (POT == 'J') {
 
-                DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+                DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t) *
 
             }else if (POT == 'C') {
 
@@ -153,7 +153,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
                 if (POT == 'J') {
 
-                    DPhixDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
+                    DPhixDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD struct?
 
                 } else if (POT == 'C'){
 

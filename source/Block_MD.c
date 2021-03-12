@@ -12,8 +12,9 @@ void Block_MD_St(void){
 
     int t, i, t0 = 0;
     double DT2 = (DT*DT), DToverMi, DTover2, DTover4, overMi, Mi, alpha;
-    double B=0.00, cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
-    struct point CF_t, SF_t;
+    double B=0.0, cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
+    double sumLorentzForces, sumIntermolecularForces;
+    struct point CF_t, SF_t, FLorentz;
 
     struct point Ftot = {0};
     struct point CFtot = {0}, SFtot = {0};
@@ -83,6 +84,11 @@ void Block_MD_St(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
+            // collect forces
+            sumIntermolecularForces = sqrt((CF_t.x + SF_t.x)*(CF_t.x + SF_t.x) + (CF_t.y + SF_t.y)*(CF_t.y + SF_t.y) + (CF_t.z + SF_t.z)*(CF_t.z + SF_t.z));
+            FLorentz.x = Q[INDX[i]]*B*PARTVEL[i].y;
+            FLorentz.y = - Q[INDX[i]]*B*PARTVEL[i].x;
+            sumLorentzForces += sqrt(FLorentz.x*FLorentz.x + FLorentz.y*FLorentz.y);
 
 
             // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*(CF_t.x + SF_t.x);
@@ -111,10 +117,10 @@ void Block_MD_St(void){
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
-
-
-
           }
+
+          //print forces
+          printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
 
           for (i=0; i<NPART; i++) {
             Mi = M[INDX[i]];
