@@ -440,9 +440,9 @@ void Block_MD_Pol(void){
                     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
                 }
                 else {
-                  SHELLVEL_TP1[i].x = SHELLVEL[i].x - 0.5*DT*SHELLACC_TM1[i].x;
-                  SHELLVEL_TP1[i].y = SHELLVEL[i].y - 0.5*DT*SHELLACC_TM1[i].y;
-                  SHELLVEL_TP1[i].z = SHELLVEL[i].z - 0.5*DT*SHELLACC_TM1[i].z;
+                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
+                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
+                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
                 }
             }
         }

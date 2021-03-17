@@ -73,6 +73,6 @@
 #define _MAX_STR_LENGTH 100
 
 // Magnetic field
-#define B0 0
+#define B0 0.00000001
 
 #endif /* parameters_h */

@@ -464,7 +464,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
         for (k=0; k<NPART; k++) { //Looping on all constraints
 
             //            X COMPONENT OF THE FORCE
-            denom = 0;
+            //denom = 0;
 
             if (POT == 'J') {
 
@@ -504,14 +504,14 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             // }
 
                 //denom += DPhixDrho_old.y*DPHIDVRHO_T[k][i].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][i].fx.y;
-            denom += (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3);
+            denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3);
 
             //}
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
 
-            GAMMA[k].x = Phi_old.x/(denom*0.5*DT);
+            GAMMA[k].x = Phi_old.x/denom;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
@@ -526,16 +526,16 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     }
             //}
 
-            if (DEBUG_FLAG && _D_SHAKE)  {
-
-                for (i=0; i<NPART; i++) {
-
-                    printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
-                }
-            }
+            // if (DEBUG_FLAG && _D_SHAKE)  {
+            //
+            //     for (i=0; i<NPART; i++) {
+            //
+            //         printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+            //     }
+            // }
 
             //            Y COMPONENT OF THE FORCE
-            denom = 0;
+            //denom = 0;
 
             if (POT == 'J') {
 
@@ -571,12 +571,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             //denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
 
-            denom += (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT);
+            denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3);
 
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
-            GAMMA[k].y = Phi_old.y/(denom*0.5*DT);
+            GAMMA[k].y = Phi_old.y/denom;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
@@ -589,13 +589,13 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     rho_OLD[i].z -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
             // }
 
-            if (DEBUG_FLAG && _D_SHAKE)  {
-
-                for (i=0; i<NPART; i++) {
-
-                    printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
-                }
-            }
+            // if (DEBUG_FLAG && _D_SHAKE)  {
+            //
+            //     for (i=0; i<NPART; i++) {
+            //
+            //         printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+            //     }
+            // }
 
             //            Z COMPONENT OF THE FORCE
             denom = 0;
@@ -617,26 +617,42 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_SHAKE) printf("sigma_old[%d].z = %.4e\n", k, Phi_old.z);
 
+            // for (i=0; i<NPART; i++) {
+            //
+            //     if (POT == 'J') {
+            //
+            //         DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+            //
+            //     } else if (POT == 'C'){
+            //
+            //         DPhizDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+            //     }
+            //
+            //     if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
+            //
+            //     denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
+            // }
 
+            for (i=0; i<NPART; i++) {
 
-            if (POT == 'J') {
+                if (POT == 'J') {
 
-                DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, k).fz; // TO BE COMPUTED FOR r_OLD
+                    DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
 
-            } else if (POT == 'C'){
+                } else if (POT == 'C'){
 
-                DPhizDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, k).fz; // TO BE COMPUTED FOR r_OLD
+                    DPhizDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+                }
+
+                if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
+
+                //denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
+                denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
             }
-
-            if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
-
-            //denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-            denom += (DPhizDrho_old.x*DPHIDRHO_T[k][k].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][k].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][k].fz.z);
-
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
-            GAMMA[k].z = Phi_old.z/(denom*0.5*DT);
+            GAMMA[k].z = Phi_old.z;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
@@ -664,20 +680,22 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             indx_i = INDX[i];
 
-            rho_OLD[i].x += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT;
-            rho_OLD[i].y += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT;
-            rho_OLD[i].z += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT;
+            rho_OLD[i].x += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT);
+            rho_OLD[i].y += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT);
+            rho_OLD[i].z += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT);
 
-            vrho_OLD[i].x += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT;
-            vrho_OLD[i].y += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT;
-            vrho_OLD[i].z += (GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT;
+            vrho_OLD[i].x += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
+            vrho_OLD[i].y += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
+            vrho_OLD[i].z += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
 
         }
     } //End while(constraint condition)
+    for (i=0; i<NPART; i++) {
 
-    SHELLACC_TM1[i].x = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x;
-    SHELLACC_TM1[i].y = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y;
-    SHELLACC_TM1[i].z = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z + GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z + GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z;
+        SHELLACC_TM1[i].x = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x;
+        SHELLACC_TM1[i].y = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y;
+        SHELLACC_TM1[i].z = GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z;
+    }
 
     SR_ITERS = count;
     SR_DISCR = discr;
