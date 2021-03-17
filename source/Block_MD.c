@@ -12,7 +12,7 @@ void Block_MD_St(void){
 
     int t, i, t0 = 0;
     double DT2 = (DT*DT), DToverMi, DTover2, DTover4, overMi, Mi, alpha;
-    double B=0.0, cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
+    double cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
     double sumLorentzForces, sumIntermolecularForces;
     struct point CF_t, SF_t, FLorentz;
 
@@ -52,7 +52,7 @@ void Block_MD_St(void){
 
             Mi = M[INDX[i]];
             overMi = 1./Mi;
-            cyclotronFreq = Q[INDX[i]]*B*overMi*0.5;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
             DToverMi = DT*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
@@ -85,9 +85,9 @@ void Block_MD_St(void){
             }
 
             // collect forces
-            sumIntermolecularForces = sqrt((CF_t.x + SF_t.x)*(CF_t.x + SF_t.x) + (CF_t.y + SF_t.y)*(CF_t.y + SF_t.y) + (CF_t.z + SF_t.z)*(CF_t.z + SF_t.z));
-            FLorentz.x = Q[INDX[i]]*B*PARTVEL[i].y;
-            FLorentz.y = - Q[INDX[i]]*B*PARTVEL[i].x;
+            sumIntermolecularForces += sqrt((CF_t.x + SF_t.x)*(CF_t.x + SF_t.x) + (CF_t.y + SF_t.y)*(CF_t.y + SF_t.y) + (CF_t.z + SF_t.z)*(CF_t.z + SF_t.z));
+            FLorentz.x = Q[INDX[i]]*B0*PARTVEL[i].y;
+            FLorentz.y = - Q[INDX[i]]*B0*PARTVEL[i].x;
             sumLorentzForces += sqrt(FLorentz.x*FLorentz.x + FLorentz.y*FLorentz.y);
 
 
@@ -96,9 +96,10 @@ void Block_MD_St(void){
             // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*(CF_t.z + SF_t.z);
 
             // velocity -> momentum
-            PARTMOM_T[i].x = Mi*PARTVEL[i].x*alpha;
-            PARTMOM_T[i].y = Mi*PARTVEL[i].y*alpha;
+            PARTMOM_T[i].x = Mi*(PARTVEL[i].x - cyclotronFreq*PARTPOS_T[i].y)*alpha;
+            PARTMOM_T[i].y = Mi*(PARTVEL[i].y + cyclotronFreq*PARTPOS_T[i].x)*alpha;
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
+
 
             // half step on momentum
             // PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x); //forces from actual positions
@@ -121,11 +122,14 @@ void Block_MD_St(void){
 
           //print forces
           printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
+          sumIntermolecularForces = 0;
+          sumLorentzForces = 0;
+
 
           for (i=0; i<NPART; i++) {
             Mi = M[INDX[i]];
             overMi = 1./Mi;
-            cyclotronFreq = Q[INDX[i]]*B*overMi*0.5;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
             DToverMi = DT*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
@@ -166,8 +170,8 @@ void Block_MD_St(void){
             PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
 
             // momentum -> velocity
-            SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
-            SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
+            SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
+            SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
             SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
 
 
@@ -320,6 +324,7 @@ void Block_MD_Pol(void){
 
     int t, i, t0 = 0;
     double DT2 = (DT*DT), DT2overM, DTover2, DTover4, overMi, Mi, alpha;
+    double cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
     struct point CF_t, SF_t;
 
     struct point Ftot = {0};
@@ -360,6 +365,7 @@ void Block_MD_Pol(void){
             DT2overM = DT2/M[INDX[i]];
             Mi = M[INDX[i]];
             overMi = 1./Mi;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
 
@@ -389,24 +395,56 @@ void Block_MD_Pol(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            PARTMOM_T[i].x = Mi*PARTVEL[i].x*alpha;
-            PARTMOM_T[i].y = Mi*PARTVEL[i].y*alpha;
+            // PARTMOM_T[i].x = Mi*PARTVEL[i].x*alpha;
+            // PARTMOM_T[i].y = Mi*PARTVEL[i].y*alpha;
+            // PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
+            //
+            // PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x);
+            // PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
+            // PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
+            //
+            // PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
+            // PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
+            // PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+            PARTMOM_T[i].x = Mi*(PARTVEL[i].x - cyclotronFreq*PARTPOS_T[i].y)*alpha;
+            PARTMOM_T[i].y = Mi*(PARTVEL[i].y + cyclotronFreq*PARTPOS_T[i].x)*alpha;
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
 
-            PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x);
-            PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
+            PARTMOM_Tilday = PARTMOM_T[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_T[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
+            PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_T[i].x)); //forces from actual positions
+            PARTMOM_TP05[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
             PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
 
-            PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
-            PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
+            PARTPOS_Tilday = PARTPOS_T[i].y + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_T[i].x);
+            PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
+            PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+
             // PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*CF_t.x;
             // PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*CF_t.y;
             // PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*CF_t.z;
             //
-            SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
-            SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
-            SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+            if (B0 == 0) {
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+            }
+            else {
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha; // alpha?
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
+
+                if (t == 0){
+                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
+                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
+                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
+                }
+                else {
+                  SHELLVEL_TP1[i].x = SHELLVEL[i].x - 0.5*DT*SHELLACC_TM1[i].x;
+                  SHELLVEL_TP1[i].y = SHELLVEL[i].y - 0.5*DT*SHELLACC_TM1[i].y;
+                  SHELLVEL_TP1[i].z = SHELLVEL[i].z - 0.5*DT*SHELLACC_TM1[i].z;
+                }
+            }
         }
 
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
@@ -414,7 +452,12 @@ void Block_MD_Pol(void){
         if (SRMODE == 'S') {
 
 //            ML_SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
-            SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
+            if (B0 == 0){
+                SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
+            }
+            else{
+                BSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, SHELLVEL, SHELLVEL_TP1, 1, 0);
+            }
 
         } else if (SRMODE == 'D') {
 
@@ -430,6 +473,7 @@ void Block_MD_Pol(void){
             DT2overM = DT2/M[INDX[i]];
             Mi = M[INDX[i]];
             overMi = 1./Mi;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
 

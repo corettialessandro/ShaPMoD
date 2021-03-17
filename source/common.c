@@ -19,8 +19,11 @@ struct point *SHELLPOS_TM1;
 struct point *SHELLPOS_T;
 struct point *SHELLPOS_TP1;
 struct point *SHELLVEL;
+struct point *SHELLVEL_TP1;
+struct point *SHELLACC_TM1;
 
 struct tensor **DPHIDRHO_T;
+struct tensor **DPHIDVRHO_T;
 struct point *GAMMA;
 
 struct point *PHI;
@@ -194,6 +197,8 @@ void ReadInput(){
     if ((SHELLPOS_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 7;
     if ((SHELLPOS_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
     if ((SHELLVEL = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
+    if ((SHELLVEL_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
+    if ((SHELLACC_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
 
     if (EWALD == 'T') {
         if ((CF = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 80;
@@ -203,11 +208,13 @@ void ReadInput(){
     if (SRMODE == 'S') {
 
         if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
+        if ((DPHIDVRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
         for (i=0; i<NPART; i++) {
 
             if ((DPHIDRHO_T[i] = (struct tensor *)calloc(NPART, sizeof(struct tensor))) == NULL) pointer_flag = 100+1+i;
+            if ((DPHIDVRHO_T[i] = (struct tensor *)calloc(NPART, sizeof(struct tensor))) == NULL) pointer_flag = 100+1+i;
         }
     }
 
@@ -630,6 +637,8 @@ void FreePointers(void){
     free(SHELLPOS_T);
     free(SHELLPOS_TP1);
     free(SHELLVEL);
+    free(SHELLVEL_TP1);
+    free(SHELLACC_TM1);
 
     if (EWALD == 'T') {
 
@@ -640,6 +649,7 @@ void FreePointers(void){
     if (SRMODE == 'S') {
 
         free(DPHIDRHO_T);
+        free(DPHIDVRHO_T);
         free(GAMMA);
     }
 

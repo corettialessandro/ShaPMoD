@@ -41,7 +41,7 @@
 #define _MAX_ITER 1e2           //Maximum number of allowed iterations for reaching convergence
 #define _MAX_ATT 2              //Maximum number of attempts to get out from a local minimum
 #define _SR_CG_LOW_TOL 1e-11     //Lower Tolerance for shell relaxation - Conjugate Gradient
-#define _SR_SHAKE_LOW_TOL 1e-11 //Lower Tolerance for shell relaxation - Shake
+#define _SR_SHAKE_LOW_TOL 5e-11 //Lower Tolerance for shell relaxation - Shake
 
 //Ewald Parameters
 #define _ALPHA 6.
@@ -71,5 +71,8 @@
 #define _O_SHAKE 0
 
 #define _MAX_STR_LENGTH 100
+
+// Magnetic field
+#define B0 0
 
 #endif /* parameters_h */

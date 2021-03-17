@@ -31,11 +31,14 @@ extern struct point *SHELLPOS_TM1;
 extern struct point *SHELLPOS_T;
 extern struct point *SHELLPOS_TP1;
 extern struct point *SHELLVEL;
+extern struct point *SHELLVEL_TP1;
+extern struct point *SHELLACC_TM1;
 
 extern struct point *CF;
 extern struct point *SF;
 
 extern struct tensor **DPHIDRHO_T;
+extern struct tensor **DPHIDVRHO_T;
 extern struct point *GAMMA;
 
 extern struct point *PHI;
