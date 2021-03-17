@@ -647,12 +647,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
 
                 //denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
+                denom += (DPhizDrho_old.x*DPHIDVRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDVRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDVRHO_T[k][i].fz.z);
             }
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
-            GAMMA[k].z = Phi_old.z;
+            GAMMA[k].z = Phi_old.z/denom;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
@@ -665,6 +665,35 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
             // }
 
+            SHELLACC_TM1[k].x = GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+            SHELLACC_TM1[k].y = GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+            SHELLACC_TM1[k].z = 0;
+
+            for (i=0; i<NPART; i++) {
+
+                SHELLACC_TM1[k].x = GAMMA[i].z*DPHIDVRHO_T[i][k].fz.x;
+                SHELLACC_TM1[k].y = GAMMA[i].z*DPHIDVRHO_T[i][k].fz.y;
+                SHELLACC_TM1[k].z = GAMMA[i].z*DPHIDVRHO_T[i][k].fz.z;
+
+                // rho_OLD[i].x -= (GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT);
+                // rho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT);
+                // rho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT);
+                //
+                // vrho_OLD[i].x -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
+                // vrho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
+                // vrho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
+            }
+
+            rho_OLD[k].x -= (0.5*DT*DT*SHELLACC_TM1[k].x);
+            rho_OLD[k].y -= (0.5*DT*DT*SHELLACC_TM1[k].y);
+            rho_OLD[k].z -= (0.5*DT*DT*SHELLACC_TM1[k].z);
+
+            vrho_OLD[k].x -= (1.5*DT*SHELLACC_TM1[k].x);
+            vrho_OLD[k].y -= (1.5*DT*SHELLACC_TM1[k].y);
+            vrho_OLD[k].z -= (1.5*DT*SHELLACC_TM1[k].z);
+
+            // rho_OLD[k].x -= (GAMMA[k].x*DPHIDVRHO_T[k][k].fx.x+GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x)*0.5*DT*DT;
+
             if (DEBUG_FLAG && _D_SHAKE)  {
 
                 for (i=0; i<NPART; i++) {
@@ -676,19 +705,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
         } //End loop on constraints
 
-        for (i=0; i<NPART; i++) {
 
-            indx_i = INDX[i];
-
-            rho_OLD[i].x += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT);
-            rho_OLD[i].y += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT);
-            rho_OLD[i].z += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT);
-
-            vrho_OLD[i].x += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
-            vrho_OLD[i].y += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
-            vrho_OLD[i].z += ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
-
-        }
     } //End while(constraint condition)
     for (i=0; i<NPART; i++) {
 
