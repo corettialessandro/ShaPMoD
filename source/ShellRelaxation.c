@@ -683,9 +683,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
             rho_OLD[k].z -= 0;
 
-            vrho_OLD[i].x -= (1.5*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-            vrho_OLD[i].y -= (1.5*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
-            vrho_OLD[i].z -= 0;
+            vrho_OLD[k].x -= (1.5*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+            vrho_OLD[k].y -= (1.5*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+            vrho_OLD[k].z -= 0;
 
             // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
             // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
