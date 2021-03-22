@@ -339,6 +339,15 @@ void Block_MD_Pol(void){
         FirstStep_Pol();
         t0 = 1;
     }
+    // before the first step shell vel has to found from shellpos
+    for (i=0; i<NPART; i++) {
+
+        SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_T[i]);
+        SHELLVEL[i].x = SHELLVEL[i].x*2.;
+        SHELLVEL[i].y = SHELLVEL[i].y*2.;
+        SHELLVEL[i].z = SHELLVEL[i].z*2.;
+
+    }
 
     for (t=t0; t<NTIMESTEPS; t++) {
 

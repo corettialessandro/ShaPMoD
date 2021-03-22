@@ -342,6 +342,10 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;//predicted?
             Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
             Phi_old.z = ShellForce_Jac(rho_OLD, r_tp1, k).z;
+            // Phi_old.x = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;//predicted?
+            // Phi_old.y = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
+            // Phi_old.z = 0;
+            printf("%.4e\n",vrho_OLD[k].y);
 
 
         }else if (POT == 'C') {
@@ -386,6 +390,10 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 DPHIDVRHO_T[k][i].fz.y = DPHIDRHO_T[k][i].fz.y;
                 DPHIDVRHO_T[k][i].fz.z = DPHIDRHO_T[k][i].fz.z;
 
+                // DPHIDVRHO_T[k][i].fz.x = 0;
+                // DPHIDVRHO_T[k][i].fz.y = 0;
+                // DPHIDVRHO_T[k][i].fz.z = 0;
+
             }else if (POT == 'C') {
 
                 DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
@@ -402,6 +410,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
         DPHIDVRHO_T[k][k].fy.x = -0.5*Q[INDX[k]]*B0;
     }
+    printf("discr = %e\n", discr);
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
@@ -481,6 +490,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (POT == 'J') {
 
                 Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;
+                // Phi_old.x = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;
 
             } else if (POT == 'C'){
 
@@ -500,6 +510,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (POT == 'J') {
 
                 DPhixDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, k).fx; // TO BE COMPUTED FOR r_OLD struct?
+                // DPhixDrho_old.x = 0;
+                // DPhixDrho_old.y = 0;
+                // DPhixDrho_old.z = 0;
 
                 DPhixDvrho_old.y = 0.5*Q[INDX[k]]*B0;
 
@@ -553,6 +566,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (POT == 'J') {
 
                 Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
+                // Phi_old.y = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
 
             } else if (POT == 'C'){
 
@@ -572,6 +586,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (POT == 'J') {
 
                 DPhiyDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, k).fy; // TO BE COMPUTED FOR r_OLD
+                // DPhiyDrho_old.x = 0;
+                // DPhiyDrho_old.y = 0;
+                // DPhiyDrho_old.z = 0;
 
                 DPhiyDvrho_old.x = -0.5*Q[INDX[k]]*B0;
 
@@ -617,6 +634,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (POT == 'J') {
 
                 Phi_old.z = ShellForce_Jac(rho_OLD, r_tp1, k).z;
+                // Phi_old.z = 0;
 
             } else if (POT == 'C'){
 
@@ -652,6 +670,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 if (POT == 'J') {
 
                     DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+                    // DPhizDrho_old.x = 0; // TO BE COMPUTED FOR r_OLD
+                    // DPhizDrho_old.y = 0;
+                    // DPhizDrho_old.z = 0;
 
                 } else if (POT == 'C'){
 
