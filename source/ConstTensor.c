@@ -149,15 +149,6 @@ struct tensor ConstTens_Jac(struct point rho[], struct point r[], int i, int k){
             W.fz.z = SSr2i_expmSSr*((SS_d.z*SS_d.z-SS_r2)/SS_r + (SS_d.z*SS_d.z)/LAMBDA) - S_DVCUT[indx_int]/SS_r3*(SS_d.x*SS_d.x + SS_d.y*SS_d.y) - S_DDVCUT[indx_int]*(1-RCUT/SS_r3*(SS_d.x*SS_d.x + SS_d.y*SS_d.y));
         }
     }
-    // W.fx.x = 0;
-    // W.fx.y = 0;
-    // W.fx.z = 0;
-    // W.fy.x = 0;
-    // W.fy.y = 0;
-    // W.fy.z = 0;
-    // W.fz.x = 0;
-    // W.fz.y = 0;
-    // W.fz.z = 0;
     return W;
 }
 

@@ -175,10 +175,6 @@ struct point ShellForce_Jac(struct point rho[], struct point r[], int i){
 
         if (DEBUG_FLAG && _D_FORCES) printf("+F[%d][%d] = (%.4e, %.4e, %.4e)\n", i, j, F.x, F.y, F.z);
     }
-    // test with no shell Forces
-    // F.x = 0;
-    // F.y = 0;
-    // F.z = 0;
 
     return F;
 }

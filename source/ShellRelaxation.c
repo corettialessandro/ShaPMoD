@@ -339,13 +339,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
         if (POT == 'J') {
 
-            Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;//predicted?
-            Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
+            Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*CHI[INDX[k]]*B0*vrho_OLD[k].y;//predicted?
+            Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*CHI[INDX[k]]*B0*vrho_OLD[k].x;
             Phi_old.z = ShellForce_Jac(rho_OLD, r_tp1, k).z;
             // Phi_old.x = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;//predicted?
             // Phi_old.y = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
             // Phi_old.z = 0;
-            printf("%.4e\n",vrho_OLD[k].y);
 
 
         }else if (POT == 'C') {
@@ -406,9 +405,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 printf("%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
             }
         }
-        DPHIDVRHO_T[k][k].fx.y = 0.5*Q[INDX[k]]*B0;
+        DPHIDVRHO_T[k][k].fx.y = 0.5*CHI[INDX[k]]*B0;
 
-        DPHIDVRHO_T[k][k].fy.x = -0.5*Q[INDX[k]]*B0;
+        DPHIDVRHO_T[k][k].fy.x = -0.5*CHI[INDX[k]]*B0;
     }
     printf("discr = %e\n", discr);
 
@@ -489,7 +488,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (POT == 'J') {
 
-                Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;
+                Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + 0.5*CHI[INDX[k]]*B0*vrho_OLD[k].y;
                 // Phi_old.x = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].y;
 
             } else if (POT == 'C'){
@@ -514,7 +513,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 // DPhixDrho_old.y = 0;
                 // DPhixDrho_old.z = 0;
 
-                DPhixDvrho_old.y = 0.5*Q[INDX[k]]*B0;
+                DPhixDvrho_old.y = 0.5*CHI[INDX[k]]*B0;
 
 
             } else if (POT == 'C'){
@@ -538,6 +537,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
 
             GAMMA[k].x = Phi_old.x/denom;
+            //printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
@@ -565,7 +565,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (POT == 'J') {
 
-                Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
+                Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y - 0.5*CHI[INDX[k]]*B0*vrho_OLD[k].x;
                 // Phi_old.y = 0.5*Q[INDX[k]]*B0*vrho_OLD[k].x;
 
             } else if (POT == 'C'){
@@ -590,7 +590,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 // DPhiyDrho_old.y = 0;
                 // DPhiyDrho_old.z = 0;
 
-                DPhiyDvrho_old.x = -0.5*Q[INDX[k]]*B0;
+                DPhiyDvrho_old.x = -0.5*CHI[INDX[k]]*B0;
 
             } else if (POT == 'C'){
 
@@ -608,6 +608,8 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
             GAMMA[k].y = Phi_old.y/denom;
+            //printf("Charge = %.4e", CHI[INDX[k]]);
+            //printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
@@ -749,7 +751,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
         } //End loop on constraints
-        printf("nb of iter = %d,\t discr = %e \n", count, discr);
+        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
 
     } //End while(constraint condition)
     // for (i=0; i<NPART; i++) {

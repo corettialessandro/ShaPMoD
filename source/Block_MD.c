@@ -443,16 +443,20 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
-                if (t == 0){
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
-                }
-                else {
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
-                }
+                SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
+                SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
+                SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
+
+                // if (t == 0){
+                //     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
+                //     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
+                //     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
+                // }
+                // else {
+                //     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
+                //     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
+                //     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
+                //}
             }
         }
 
@@ -516,8 +520,8 @@ void Block_MD_Pol(void){
             PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
             PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
 
-            PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
-            PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
+            PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
+            PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
             PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
 
         }
