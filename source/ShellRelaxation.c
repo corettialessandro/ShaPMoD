@@ -411,7 +411,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
         DPHIDVRHO_T[k][k].fy.x = -0.5*CHI[INDX[k]]*B0;
 
     }
-    printf("discr = %e\n", discr);
+    // printf("discr = %e\n", discr);
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
@@ -538,7 +538,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
 
-            GAMMA[k].x = Phi_old.x/denom;
+            GAMMA[k].x = SOR*Phi_old.x/denom;
             //printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
@@ -609,7 +609,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
-            GAMMA[k].y = Phi_old.y/denom;
+            GAMMA[k].y = SOR*Phi_old.y/denom;
             //printf("Charge = %.4e", CHI[INDX[k]]);
             //printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
@@ -692,7 +692,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
-            GAMMA[k].z = Phi_old.z/denom;
+            GAMMA[k].z = SOR*Phi_old.z/denom;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
@@ -753,7 +753,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
         } //End loop on constraints
-        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        // printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
 
     } //End while(constraint condition)
 
@@ -780,10 +780,10 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
 
 
-    CS_d.x = (r_tp1[1].x - rho_OLD[1].x);
-    CS_d.y = (r_tp1[1].y - rho_OLD[1].y);
-    CS_d.z = (r_tp1[1].z - rho_OLD[1].z);
-    printf("Distance part 1 = (%.4e, %.4e, %.4e) \n", CS_d.x, CS_d.y, CS_d.z);
+    // CS_d.x = (r_tp1[1].x - rho_OLD[1].x);
+    // CS_d.y = (r_tp1[1].y - rho_OLD[1].y);
+    // CS_d.z = (r_tp1[1].z - rho_OLD[1].z);
+    // printf("Distance part 1 = (%.4e, %.4e, %.4e) \n", CS_d.x, CS_d.y, CS_d.z);
 
 
     SR_ITERS = count;

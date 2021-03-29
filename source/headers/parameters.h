@@ -73,6 +73,9 @@
 #define _MAX_STR_LENGTH 100
 
 // Magnetic field
-#define B0 0.0
+#define B0 0.
+
+// Over-relaxation parameter
+#define SOR 0.35
 
 #endif /* parameters_h */
