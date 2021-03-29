@@ -444,16 +444,16 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
 
-                if (t == 0){
+                // if (t == 0){
                     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
                     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
                     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
-                }
-                else {
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
-                }
+                // }
+                // else {
+                    // SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
+                    // SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
+                    // SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
+                // }
             }
         }
 
