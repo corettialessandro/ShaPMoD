@@ -121,9 +121,9 @@ void Block_MD_St(void){
           }
 
           //print forces
-          printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
-          sumIntermolecularForces = 0;
-          sumLorentzForces = 0;
+          // printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
+          // sumIntermolecularForces = 0;
+          // sumLorentzForces = 0;
 
 
           for (i=0; i<NPART; i++) {
@@ -346,6 +346,16 @@ void Block_MD_Pol(void){
         SHELLVEL[i].x = SHELLVEL[i].x*2.;
         SHELLVEL[i].y = SHELLVEL[i].y*2.;
         SHELLVEL[i].z = SHELLVEL[i].z*2.;
+        SHELLACC_TM1[i].x = 0;
+        SHELLACC_TM1[i].y = 0;
+        SHELLACC_TM1[i].z = 0;
+        SHELLACC_T[i].x = 0;
+        SHELLACC_T[i].y = 0;
+        SHELLACC_T[i].z = 0;
+        SHELLACC_TP1[i].x = 0;
+        SHELLACC_TP1[i].y = 0;
+        SHELLACC_TP1[i].z = 0;
+
 
     }
 
@@ -444,7 +454,7 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
 
-                if (t == 0){
+                if (t < 2){
                     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
                     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
                     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
@@ -466,7 +476,7 @@ void Block_MD_Pol(void){
                 SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
             }
             else{
-                BSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, SHELLVEL, SHELLVEL_TP1, 1, 0);
+                BSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, SHELLVEL, SHELLVEL_TP1, 1, 0, t);
             }
 
         } else if (SRMODE == 'D') {
@@ -528,6 +538,8 @@ void Block_MD_Pol(void){
             //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
             SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
 
+            SHELLACC_TM1[i] = SHELLACC_T[i];
+            SHELLACC_T[i] = SHELLACC_TP1[i];
             PARTPOS_TM1[i] = PARTPOS_T[i];
             PARTPOS_T[i] = PARTPOS_TP1[i];
             SHELLPOS_TM1[i] = SHELLPOS_T[i];

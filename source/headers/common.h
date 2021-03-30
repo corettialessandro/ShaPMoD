@@ -33,6 +33,8 @@ extern struct point *SHELLPOS_TP1;
 extern struct point *SHELLVEL;
 extern struct point *SHELLVEL_TP1;
 extern struct point *SHELLACC_TM1;
+extern struct point *SHELLACC_T;
+extern struct point *SHELLACC_TP1;
 
 extern struct point *CF;
 extern struct point *SF;

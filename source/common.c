@@ -21,6 +21,8 @@ struct point *SHELLPOS_TP1;
 struct point *SHELLVEL;
 struct point *SHELLVEL_TP1;
 struct point *SHELLACC_TM1;
+struct point *SHELLACC_T;
+struct point *SHELLACC_TP1;
 
 struct tensor **DPHIDRHO_T;
 struct tensor **DPHIDVRHO_T;
@@ -199,6 +201,8 @@ void ReadInput(){
     if ((SHELLVEL = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
     if ((SHELLVEL_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
     if ((SHELLACC_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
+    if ((SHELLACC_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
+    if ((SHELLACC_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 8;
 
     if (EWALD == 'T') {
         if ((CF = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 80;
@@ -639,6 +643,8 @@ void FreePointers(void){
     free(SHELLVEL);
     free(SHELLVEL_TP1);
     free(SHELLACC_TM1);
+    free(SHELLACC_T);
+    free(SHELLACC_TP1);
 
     if (EWALD == 'T') {
 

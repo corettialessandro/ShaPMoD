@@ -325,7 +325,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
     if (VERBOSE_FLAG && _V_SHAKE) printf("Convergence of SHAKE reached after %d iteration(s)\ndiscr = (%.4e)\n\n", count, discr);
 }
 
-void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], struct point r_tp1[], struct point vrho_t[], struct point vrho_OLD[], int timestep, int ccount){
+void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], struct point r_tp1[], struct point vrho_t[], struct point vrho_OLD[], int timestep, int ccount, int timeMD){
 
     int k, i, indx_i, count = 0;
     double discr = 0, kdiscr = -1.;
@@ -478,9 +478,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
         for (k=0; k<NPART; k++){
 
-            SHELLACC_TM1[k].x = 0;
-            SHELLACC_TM1[k].y = 0;
-            SHELLACC_TM1[k].z = 0;
+            SHELLACC_TP1[k].x = 0;
+            SHELLACC_TP1[k].y = 0;
+            SHELLACC_TP1[k].z = 0;
         }
 
         for (k=0; k<NPART; k++) { //Looping on all constraints
@@ -530,7 +530,13 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             // }
 
                 //denom += DPhixDrho_old.y*DPHIDVRHO_T[k][i].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][i].fx.y;
-            denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3);
+            if (timeMD < 2){
+                denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*2.);
+            }
+            else {
+                denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
+            }
+            // denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
             // printf("denom.x (part %d) = %.4e \t",denom, k);
 
             //}
@@ -602,8 +608,13 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhiyDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhiyDrho_old.x, DPhiyDrho_old.y, DPhiyDrho_old.z);
 
             //denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-
-            denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3);
+            if (timeMD < 2){
+                denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*2.);
+            }
+            else {
+                denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3.);
+            }
+            //denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3);
             // printf("denom.y (part %d) = %.4e \t",denom, k);
 
 
@@ -704,40 +715,68 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
             //     rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
             // }
-            rho_OLD[k].x -= 0.5*DT*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-            rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-            rho_OLD[k].z -= 0;
+            if (timeMD < 2){
+              
+                rho_OLD[k].x -= 0.5*DT*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                rho_OLD[k].z -= 0;
 
-            vrho_OLD[k].x -= (0.5*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-            vrho_OLD[k].y -= (0.5*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
-            vrho_OLD[k].z -= 0;
+                vrho_OLD[k].x -= (1.*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+                vrho_OLD[k].y -= (1.*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+                vrho_OLD[k].z -= 0;
 
-            // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-            // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-            // SHELLACC_TM1[k].z += 0;
+                // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                // SHELLACC_TM1[k].z += 0;
 
-            for (i=0; i<NPART; i++) {
+                for (i=0; i<NPART; i++) {
 
-                rho_OLD[i].x -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    rho_OLD[i].x -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
-                vrho_OLD[i].x -= (0.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                vrho_OLD[i].y -= (0.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                vrho_OLD[i].z -= (0.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    vrho_OLD[i].x -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    vrho_OLD[i].y -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    vrho_OLD[i].z -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
-                // SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
-                // SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
-                // SHELLACC_TM1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
+                    // SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
+                    // SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
+                    // SHELLACC_TM1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
 
-                // rho_OLD[i].x -= (GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT);
-                // rho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT);
-                // rho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT);
-                //
-                // vrho_OLD[i].x -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
-                // vrho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
-                // vrho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
+                    // rho_OLD[i].x -= (GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*0.5*DT*DT);
+                    // rho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*0.5*DT*DT);
+                    // rho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*0.5*DT*DT);
+                    //
+                    // vrho_OLD[i].x -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
+                    // vrho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
+                    // vrho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
+                }
             }
+            else{
+                rho_OLD[k].x -= 0.5*DT*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                rho_OLD[k].z -= 0;
+
+                vrho_OLD[k].x -= (1.5*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+                vrho_OLD[k].y -= (1.5*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+                vrho_OLD[k].z -= 0;
+
+                // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                // SHELLACC_TM1[k].z += 0;
+
+                for (i=0; i<NPART; i++) {
+
+                    rho_OLD[i].x -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+
+                    vrho_OLD[i].x -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    vrho_OLD[i].y -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    vrho_OLD[i].z -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                }
+            }
+
 
             // printf("Shell acc (part %d , iter %d) = (%.4e,%.4e,%.4e) \t",k,count,SHELLACC_TM1[k].x,SHELLACC_TM1[k].y,SHELLACC_TM1[k].z);
             // printf("Phi (part %d , iter %d) = (%.4e,%.4e,%.4e) \n",k,count, Phi_old.x, Phi_old.y, Phi_old.z);
@@ -759,21 +798,21 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
     //Calculate Shell acceleration needed for the next provisional
     for (i=0; i<NPART; i++) {
-        SHELLACC_TM1[i].x = 0;
-        SHELLACC_TM1[i].y = 0;
-        SHELLACC_TM1[i].z = 0;
+        SHELLACC_TP1[i].x = 0;
+        SHELLACC_TP1[i].y = 0;
+        SHELLACC_TP1[i].z = 0;
     }
 
     for (k=0; k<NPART; k++) {
-        SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-        SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-        SHELLACC_TM1[k].z += 0;
+        SHELLACC_TP1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+        SHELLACC_TP1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+        SHELLACC_TP1[k].z += 0;
 
         for (i=0; i<NPART; i++) {
 
-            SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
-            SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
-            SHELLACC_TM1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
+            SHELLACC_TP1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
+            SHELLACC_TP1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
+            SHELLACC_TP1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
         }
     }
     //printf("Acc part 1 = (%.4e, %.4e, %.4e) \n", SHELLACC_TM1[1].x, SHELLACC_TM1[1].y, SHELLACC_TM1[1].z);
