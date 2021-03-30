@@ -38,6 +38,7 @@ extern struct point *CF;
 extern struct point *SF;
 
 extern struct tensor **DPHIDRHO_T;
+extern struct point *DPHIZDRHO_TP1;
 extern struct tensor **DPHIDVRHO_T;
 extern struct point *GAMMA;
 

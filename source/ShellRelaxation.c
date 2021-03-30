@@ -673,7 +673,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
                 if (POT == 'J') {
 
-                    DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+                    DPHIZDRHO_TP1[i] = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
                     // DPhizDrho_old.x = 0; // TO BE COMPUTED FOR r_OLD
                     // DPhizDrho_old.y = 0;
                     // DPhizDrho_old.z = 0;
@@ -686,7 +686,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
 
                 //denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                denom += 0.5*DT*(DPhizDrho_old.x*DPHIDVRHO_T[k][i].fz.x*DT + DPhizDrho_old.y*DPHIDVRHO_T[k][i].fz.y*DT + DPhizDrho_old.z*DPHIDVRHO_T[k][i].fz.z*DT);
+                denom += 0.5*DT*(DPHIZDRHO_TP1[i].x*DPHIDVRHO_T[k][i].fz.x*DT + DPHIZDRHO_TP1[i].y*DPHIDVRHO_T[k][i].fz.y*DT + DPHIZDRHO_TP1[i].z*DPHIDVRHO_T[k][i].fz.z*DT);
             }
             // printf("denom.z (part %d) = %.4e \n",denom, k);
 
@@ -722,9 +722,9 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
                 rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
-                vrho_OLD[i].x -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.x + DPhizDrho_old.x));
-                vrho_OLD[i].y -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.y + DPhizDrho_old.y));
-                vrho_OLD[i].z -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.z + DPhizDrho_old.z));
+                vrho_OLD[i].x -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.x + DPHIZDRHO_TP1[i].x));
+                vrho_OLD[i].y -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.y + DPHIZDRHO_TP1[i].y));
+                vrho_OLD[i].z -= (0.5*DT*GAMMA[k].z*(DPHIDVRHO_T[k][i].fz.z + DPHIZDRHO_TP1[i].z));
 
                 // SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
                 // SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
