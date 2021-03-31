@@ -454,7 +454,7 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
 
-                if (t < 2){
+                if (t < 1){
                     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
                     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
                     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
@@ -523,8 +523,9 @@ void Block_MD_Pol(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
-            PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
+            PARTMOM_Tilday = PARTMOM_TP05[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
+            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_TP1[i].x));
+            PARTMOM_TP1[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP1[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
             PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
 
             PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
@@ -536,7 +537,8 @@ void Block_MD_Pol(void){
         for (i=0; i<NPART; i++) {
 
             //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
-            SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+            //SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+            SHELLVEL[i] = SHELLVEL_TP1[i];
 
             SHELLACC_TM1[i] = SHELLACC_T[i];
             SHELLACC_T[i] = SHELLACC_TP1[i];
