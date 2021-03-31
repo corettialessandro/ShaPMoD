@@ -23,6 +23,7 @@ struct point *SHELLVEL_TP1;
 struct point *SHELLACC_TM1;
 
 struct tensor **DPHIDRHO_T;
+struct point *DPHIZDRHO_TP1;
 struct tensor **DPHIDVRHO_T;
 struct point *GAMMA;
 
@@ -208,6 +209,9 @@ void ReadInput(){
     if (SRMODE == 'S') {
 
         if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
+        if (B0 > 0) {
+           if ((DPHIZDRHO_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 100;
+        }
         if ((DPHIDVRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
@@ -649,6 +653,7 @@ void FreePointers(void){
     if (SRMODE == 'S') {
 
         free(DPHIDRHO_T);
+        if (B0 > 0) free(DPHIZDRHO_TP1);
         free(DPHIDVRHO_T);
         free(GAMMA);
     }
