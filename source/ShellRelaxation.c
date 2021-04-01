@@ -334,7 +334,6 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
     struct point DPhixDvrho_old, DPhiyDvrho_old;
 
     //    struct point s;
-
     for (k=0; k<NPART; k++) {
 
         if (POT == 'J') {
@@ -412,6 +411,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
     }
     // printf("discr = %e\n", discr);
+    for (k=0; k<NPART; k++){
+
+        SHELLACC_TP1[k].x = 0;
+        SHELLACC_TP1[k].y = 0;
+        SHELLACC_TP1[k].z = 0;
+    }
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
@@ -476,12 +481,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
         discr = 0;
 
-        for (k=0; k<NPART; k++){
 
-            SHELLACC_TP1[k].x = 0;
-            SHELLACC_TP1[k].y = 0;
-            SHELLACC_TP1[k].z = 0;
-        }
 
         for (k=0; k<NPART; k++) { //Looping on all constraints
 
@@ -530,11 +530,11 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             // }
 
                 //denom += DPhixDrho_old.y*DPHIDVRHO_T[k][i].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][i].fx.y;
-            if (timeMD < 1){
-                denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*2.);
+            if (timeMD < INITIALIZED){
+                denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*1.);
             }
             else {
-                denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
+                denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
             }
             // denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
             // printf("denom.x (part %d) = %.4e \t",denom, k);
@@ -608,11 +608,11 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhiyDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhiyDrho_old.x, DPhiyDrho_old.y, DPhiyDrho_old.z);
 
             //denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-            if (timeMD < 1){
-                denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*2.);
+            if (timeMD < INITIALIZED){
+                denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*1.);
             }
             else {
-                denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3.);
+                denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3.);
             }
             //denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3);
             // printf("denom.y (part %d) = %.4e \t",denom, k);
@@ -697,7 +697,7 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
 
                 //denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                denom += 0.5*DT*(DPhizDrho_old.x*DPHIDVRHO_T[k][i].fz.x*DT + DPhizDrho_old.y*DPHIDVRHO_T[k][i].fz.y*DT + DPhizDrho_old.z*DPHIDVRHO_T[k][i].fz.z*DT);
+                denom += (DPhizDrho_old.x*DPHIDVRHO_T[k][i].fz.x*DT + DPhizDrho_old.y*DPHIDVRHO_T[k][i].fz.y*DT + DPhizDrho_old.z*DPHIDVRHO_T[k][i].fz.z*DT);
             }
             // printf("denom.z (part %d) = %.4e \n",denom, k);
 
@@ -715,14 +715,14 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
             //     rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
             // }
-            if (timeMD < 1){
+            if (timeMD < INITIALIZED){
 
-                rho_OLD[k].x -= 0.5*DT*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
                 rho_OLD[k].z -= 0;
 
-                vrho_OLD[k].x -= (1.*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-                vrho_OLD[k].y -= (1.*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+                vrho_OLD[k].x -= (2.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+                vrho_OLD[k].y -= (2.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
                 vrho_OLD[k].z -= 0;
 
                 // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
@@ -731,13 +731,13 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
                 for (i=0; i<NPART; i++) {
 
-                    rho_OLD[i].x -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
-                    vrho_OLD[i].x -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    vrho_OLD[i].y -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    vrho_OLD[i].z -= (1.*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    vrho_OLD[i].x -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    vrho_OLD[i].y -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    vrho_OLD[i].z -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
                     // SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
                     // SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
@@ -753,12 +753,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 }
             }
             else{
-                rho_OLD[k].x -= 0.5*DT*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                rho_OLD[k].y -= 0.5*DT*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+                rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+                rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
                 rho_OLD[k].z -= 0;
 
-                vrho_OLD[k].x -= (1.5*DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-                vrho_OLD[k].y -= (1.5*DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+                vrho_OLD[k].x -= (3.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+                vrho_OLD[k].y -= (3.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
                 vrho_OLD[k].z -= 0;
 
                 // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
@@ -767,13 +767,13 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
                 for (i=0; i<NPART; i++) {
 
-                    rho_OLD[i].x -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    rho_OLD[i].y -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    rho_OLD[i].z -= (0.5*DT*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
-                    vrho_OLD[i].x -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    vrho_OLD[i].y -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    vrho_OLD[i].z -= (1.5*DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                    vrho_OLD[i].x -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                    vrho_OLD[i].y -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                    vrho_OLD[i].z -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
                 }
             }
 
@@ -791,30 +791,30 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             }
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
+        //printf("gamma = %.4e %.4e %.4e\n", GAMMA[0].x, GAMMA[0].y, GAMMA[0].z);
+        // exit(0);
         } //End loop on constraints
-        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
 
     } //End while(constraint condition)
 
     //Calculate Shell acceleration needed for the next provisional
-    for (i=0; i<NPART; i++) {
-        SHELLACC_T[i].x = 0;
-        SHELLACC_T[i].y = 0;
-        SHELLACC_T[i].z = 0;
-    }
-
     for (k=0; k<NPART; k++) {
-        SHELLACC_T[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-        SHELLACC_T[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-        SHELLACC_T[k].z += 0;
+        SHELLACC_TP1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+        SHELLACC_TP1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+        SHELLACC_TP1[k].z += 0;
+
 
         for (i=0; i<NPART; i++) {
 
-            SHELLACC_T[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
-            SHELLACC_T[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
-            SHELLACC_T[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
+            SHELLACC_TP1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
+            SHELLACC_TP1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
+            SHELLACC_TP1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
         }
+        //printf("gamma = %.4e %.4e %.4e\n", GAMMA[0].x, GAMMA[0].y, GAMMA[0].z);
+        //printf("Shell acc t+1 = %.4e %.4e %.4e\n", SHELLACC_TP1[0].x, SHELLACC_TP1[0].y, SHELLACC_TP1[0].z);
     }
+    //printf("Shell acc t+1 = %.4e %.4e %.4e\n", SHELLACC_TP1[0].x, SHELLACC_TP1[0].y, SHELLACC_TP1[0].z);
     //printf("Acc part 1 = (%.4e, %.4e, %.4e) \n", SHELLACC_TM1[1].x, SHELLACC_TM1[1].y, SHELLACC_TM1[1].z);
 
 

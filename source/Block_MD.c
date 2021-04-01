@@ -190,7 +190,7 @@ void Block_MD_St(void){
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, therm);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
@@ -299,7 +299,7 @@ void Block_MD_St_Ew(void){
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, therm);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
@@ -358,6 +358,7 @@ void Block_MD_Pol(void){
 
 
     }
+    //printf("Shell vel = %.4e %.4e %.4e\n", SHELLVEL[0].x, SHELLVEL[0].y, SHELLVEL[0].z);
 
     for (t=t0; t<NTIMESTEPS; t++) {
 
@@ -454,18 +455,20 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
 
-                if (t < 1){
+                if (t < INITIALIZED){
                     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
                     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
                     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
                 }
                 else {
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - 0.5*DT*SHELLACC_TM1[i].x;
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - 0.5*DT*SHELLACC_TM1[i].y;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - 0.5*DT*SHELLACC_TM1[i].z;
+                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - SHELLACC_TM1[i].x; // 0.5*dt is in the gamma
+                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - SHELLACC_TM1[i].y;
+                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - SHELLACC_TM1[i].z;
+                    //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[i].x, SHELLACC_TM1[i].y, SHELLACC_TM1[i].z);
                 }
             }
         }
+        //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[0].x, SHELLACC_TM1[0].y, SHELLACC_TM1[0].z);
 
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
 
@@ -557,7 +560,7 @@ void Block_MD_Pol(void){
             }
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, therm);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
