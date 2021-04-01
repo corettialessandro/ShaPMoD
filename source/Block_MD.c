@@ -121,7 +121,7 @@ void Block_MD_St(void){
           }
 
           //print forces
-          printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
+          // printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
           sumIntermolecularForces = 0;
           sumLorentzForces = 0;
 
@@ -262,12 +262,12 @@ void Block_MD_Pol(void){
 
         for (i=0; i<NPART; i++) {
 
-            DT2overM = DT2/M[INDX[i]];
             Mi = M[INDX[i]];
             overMi = 1./Mi;
-            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
+            DT2overM = DT2*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
 
             if (POT == 'J') {
 
@@ -348,15 +348,15 @@ void Block_MD_Pol(void){
 
             ConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
         }
-
+        
         for (i=0; i<NPART; i++) {
 
-            DT2overM = DT2/M[INDX[i]];
             Mi = M[INDX[i]];
             overMi = 1./Mi;
-            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
+            DT2overM = DT2*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
 
             if (POT == 'J') {
 
@@ -392,6 +392,7 @@ void Block_MD_Pol(void){
             PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
             PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
             PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
+
         }
 
         for (i=0; i<NPART; i++) {
