@@ -392,7 +392,8 @@ void Block_MD_Pol(void){
             if (POT == 'J') {
 
                 CF_t = CoreForce_Jac(PARTPOS_T, SHELLPOS_T, i);
-                SF_t = ShellForce_Jac(SHELLPOS_T, PARTPOS_T, i);
+                //SF_t = ShellForce_Jac(SHELLPOS_T, PARTPOS_T, i);
+                SF_t.x = SF_t.y = SF_t.z = 0;
 
             } else if (POT == 'C'){
 
@@ -453,6 +454,9 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha; // alpha?
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
 
 
                 if (t < INITIALIZED){
@@ -503,7 +507,8 @@ void Block_MD_Pol(void){
             if (POT == 'J') {
 
                 CF_t = CoreForce_Jac(PARTPOS_TP1, SHELLPOS_TP1, i);
-                SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
+                //SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
+                SF_t.x = SF_t.y = SF_t.z = 0;
 
             } else if (POT == 'C'){
 
