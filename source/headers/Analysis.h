@@ -23,6 +23,7 @@ struct point Velocity(struct point r_tm1, struct point r_tp1);
 struct point CMVelocity(struct point v[]);
 
 double EnerKin(struct point v[]);
+double BEnerKin(struct point vrho[], struct point rho[], struct point r[]);
 double EnerPot_HM(struct point r[]);
 double EnerPot_Jac(struct point r[], struct point rho[]);
 double EnerPot_Cicc(struct point r[], struct point rho[]);
@@ -33,6 +34,6 @@ double Pressure_Cicc(struct point r[], struct point rho[]);
 struct point Angular_Momentum(struct point r[], struct point v[]);
 void GofR(struct point r[]);
 
-void Analyse(int timestep, struct point r[], struct point rho[], struct point v[], char therm);
+void Analyse(int timestep, struct point r[], struct point rho[], struct point v[], struct point vrho[], char therm);
 
 #endif /* Analysis_h */

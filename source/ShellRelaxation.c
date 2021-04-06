@@ -382,7 +382,6 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                 DPHIDVRHO_T[k][i].fz.y = DPHIDRHO_T[k][i].fz.y;
                 DPHIDVRHO_T[k][i].fz.z = DPHIDRHO_T[k][i].fz.z;
 
-
             } else if (POT == 'C') {
 
                 DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
@@ -427,12 +426,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
         discr = 0;
 
-        for (k=0; k<NPART; k++){
-
-            SHELLACC_TM1[k].x = 0;
-            SHELLACC_TM1[k].y = 0;
-            SHELLACC_TM1[k].z = 0;
-        }
+        // for (k=0; k<NPART; k++){
+        //
+        //     SHELLACC_TM1[k].x = 0;
+        //     SHELLACC_TM1[k].y = 0;
+        //     SHELLACC_TM1[k].z = 0;
+        // }
 
         for (k=0; k<NPART; k++) { //Looping on all constraints
 
@@ -588,24 +587,24 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
     } //End while(constraint condition)
 
     //Calculate Shell acceleration needed for the next provisional
-    for (i=0; i<NPART; i++) {
-        SHELLACC_TM1[i].x = 0;
-        SHELLACC_TM1[i].y = 0;
-        SHELLACC_TM1[i].z = 0;
-    }
-
-    for (k=0; k<NPART; k++) {
-        SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-        SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-        SHELLACC_TM1[k].z += 0;
-
-        for (i=0; i<NPART; i++) {
-
-            SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
-            SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
-            SHELLACC_TM1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
-        }
-    }
+    // for (i=0; i<NPART; i++) {
+    //     SHELLACC_TM1[i].x = 0;
+    //     SHELLACC_TM1[i].y = 0;
+    //     SHELLACC_TM1[i].z = 0;
+    // }
+    //
+    // for (k=0; k<NPART; k++) {
+    //     SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+    //     SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+    //     SHELLACC_TM1[k].z += 0;
+    //
+    //     for (i=0; i<NPART; i++) {
+    //
+    //         SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
+    //         SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
+    //         SHELLACC_TM1[i].z += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z;
+    //     }
+    // }
 
     SR_ITERS = count;
     SR_DISCR = discr;

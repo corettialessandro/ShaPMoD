@@ -58,6 +58,20 @@ double EnerKin(struct point v[]){
     return EKin*.5;
 }
 
+double BEnerKin(struct point vrho[], struct point rho[], struct point r[]){
+
+    double BEKin = 0, contr;
+
+    int i=0;
+
+    for (i=0; i<NPART; i++) {
+
+      BEKin += CHI[INDX[i]]*(-vrho[i].x*(rho[i].y - r[i].y) + vrho[i].y*(rho[i].x - r[i].x));
+    }
+
+    return -BEKin*B0*.25;
+}
+
 double EnerPot_HM(struct point r[]){
     
     double EPot = 0;
@@ -519,15 +533,15 @@ struct point Angular_Momentum(struct point r[], struct point v[]){
     return Omega_tot;
 }
 
-void Analyse(int timestep, struct point r[], struct point rho[], struct point v[], char therm){
-    
+void Analyse(int timestep, struct point r[], struct point rho[], struct point v[], struct point vrho[], char therm){
+
     int i;
-    double ETot, EKin, EPot = 0, EPol, Temp, Press = 0;
+    double ETot, EKin, BEKin = 0, EPot = 0, EPol, Temp, Press = 0;
     struct point CMV, AnMom;
-    
+
     EKin = EnerKin(v)*_E_CONV;
+    if (B0 != 0) BEKin = BEnerKin(vrho, rho, r)*_E_CONV;
     ITEMP = Temp = Temperature(v);
-    
     for (i=0; i<NINTER; i++) {
         
         Press = C_PTAIL[i] + S_PTAIL[i];
@@ -549,7 +563,7 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
     EPol = EPot - EnerPot_HM(r)*_E_CONV;
 
     Temp *= _TEMP_CONV;
-    ETot = EKin + EPot;
+    ETot = EKin + BEKin + EPot;
     CMV = CMVelocity(v);
     AnMom = Angular_Momentum(r, v);
     

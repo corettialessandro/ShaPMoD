@@ -172,7 +172,7 @@ void Block_MD_St(void){
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
@@ -303,6 +303,10 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+
                 SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
                 SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
                 SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
@@ -397,7 +401,7 @@ void Block_MD_Pol(void){
             }
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
