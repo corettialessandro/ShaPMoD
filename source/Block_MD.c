@@ -90,30 +90,18 @@ void Block_MD_St(void){
             FLorentz.y = - Q[INDX[i]]*B0*PARTVEL[i].x;
             sumLorentzForces += sqrt(FLorentz.x*FLorentz.x + FLorentz.y*FLorentz.y);
 
-
-            // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*(CF_t.x + SF_t.x);
-            // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*(CF_t.y + SF_t.y);
-            // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*(CF_t.z + SF_t.z);
-
             // velocity -> momentum
             PARTMOM_T[i].x = Mi*(PARTVEL[i].x - cyclotronFreq*PARTPOS_T[i].y)*alpha;
             PARTMOM_T[i].y = Mi*(PARTVEL[i].y + cyclotronFreq*PARTPOS_T[i].x)*alpha;
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
 
-
             // half step on momentum
-            // PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x); //forces from actual positions
-            // PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
-            // PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
             PARTMOM_Tilday = PARTMOM_T[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_T[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
             PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_T[i].x)); //forces from actual positions
             PARTMOM_TP05[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
             PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
 
             // // full step on positions
-            // SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
-            // SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
-            // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
             PARTPOS_Tilday = PARTPOS_T[i].y + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_T[i].x);
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
@@ -124,7 +112,6 @@ void Block_MD_St(void){
           // printf("\n Intermolecular vs Lorentz : F=%.4e \t FL=%.4e \n", sumIntermolecularForces/NPART, sumLorentzForces/NPART);
           sumIntermolecularForces = 0;
           sumLorentzForces = 0;
-
 
           for (i=0; i<NPART; i++) {
             Mi = M[INDX[i]];
@@ -161,9 +148,6 @@ void Block_MD_St(void){
             }
 
             // final step on momentum
-            // PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
-            // PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
-            // PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
             PARTMOM_Tilday = PARTMOM_TP05[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
             PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_TP1[i].x));
             PARTMOM_TP1[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP1[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
@@ -173,8 +157,6 @@ void Block_MD_St(void){
             SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
             SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
             SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
-
-
         }
 
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
@@ -190,8 +172,8 @@ void Block_MD_St(void){
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, therm);
-        if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
+        if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
@@ -348,7 +330,7 @@ void Block_MD_Pol(void){
 
             ConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
         }
-        
+
         for (i=0; i<NPART; i++) {
 
             Mi = M[INDX[i]];
@@ -415,8 +397,8 @@ void Block_MD_Pol(void){
             }
         }
 
-        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, therm);
-        if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
+        if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
+        if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_TM1, PARTVEL, SHELLPOS_T);
