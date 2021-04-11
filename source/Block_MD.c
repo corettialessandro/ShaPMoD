@@ -96,8 +96,8 @@ void Block_MD_St(void){
             // SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*(CF_t.z + SF_t.z);
 
             // velocity -> momentum
-            PARTMOM_T[i].x = Mi*(PARTVEL[i].x - cyclotronFreq*PARTPOS_T[i].y)*alpha;
-            PARTMOM_T[i].y = Mi*(PARTVEL[i].y + cyclotronFreq*PARTPOS_T[i].x)*alpha;
+            PARTMOM_T[i].x = Mi*(PARTVEL[i].x*alpha - cyclotronFreq*PARTPOS_T[i].y);
+            PARTMOM_T[i].y = Mi*(PARTVEL[i].y*alpha + cyclotronFreq*PARTPOS_T[i].x);
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
 
 
@@ -427,8 +427,8 @@ void Block_MD_Pol(void){
             // PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
             // PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
             // PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
-            PARTMOM_T[i].x = Mi*(PARTVEL[i].x - cyclotronFreq*PARTPOS_T[i].y)*alpha;
-            PARTMOM_T[i].y = Mi*(PARTVEL[i].y + cyclotronFreq*PARTPOS_T[i].x)*alpha;
+            PARTMOM_T[i].x = Mi*(PARTVEL[i].x*alpha - cyclotronFreq*PARTPOS_T[i].y);
+            PARTMOM_T[i].y = Mi*(PARTVEL[i].y*alpha + cyclotronFreq*PARTPOS_T[i].x);
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
 
             PARTMOM_Tilday = PARTMOM_T[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_T[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));

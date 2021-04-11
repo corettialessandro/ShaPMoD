@@ -74,7 +74,7 @@
 
 // Magnetic field
 #define B0 5.5
-#define INITIALIZED 100
+#define INITIALIZED 1e10
 
 // Over-relaxation parameter
 #define SOR 0.25
