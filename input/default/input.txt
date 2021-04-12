@@ -6,8 +6,8 @@ J		Potential to use ('J' = Jacucci, 'C' = Ciccotti)
 2		Number of atomic species
 1		Number of atoms of first species
 1		Number of atoms of the second species
-1		Timestep (fs)
-100		Number of timesteps
+0.25		Timestep (fs)
+1000		Number of timesteps
 0.02752		Density of particles (Å^-3)
 F		Thermostat ('T' = ON, 'F' = OFF)
 1550.		Temperature (K)
@@ -22,10 +22,10 @@ Cl		First species
 Na              Second species
 22.98977        Core Mass
 0.		Shell starting mass
-+1		Core Charge
-0.		Shell Charge
++3.17		Core Charge +1.
+-2.17		Shell Charge 0.
 3.69            Atom 'radius'
-882.995		Core-Shell coupling constant
+454.621		Core-Shell coupling constant 454.621 882.995
 1.0		B
 1.0		LAMBDA
 0.75		b--
@@ -37,7 +37,7 @@ Na              Second species
 1.25		b++
 4898.2056	C++
 23211.285	D++
-5.e-11		Tolerance for shell relaxation
+1.e-10		Tolerance for shell relaxation
 # ##############Frequencies for data analysis
 1		General output on screen
 1		General output on file

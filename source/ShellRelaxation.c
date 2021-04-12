@@ -330,8 +330,19 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
     int k, i, indx_i, count = 0;
     double discr = 0, kdiscr = -1.;
     double denom;
+    double sumPhi = 0, meanPhi = 0;
     struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, CS_d;
     struct point DPhixDvrho_old, DPhiyDvrho_old;
+
+    FILE *fp_constraints_out;
+    char outputpath[_MAX_STR_LENGTH];
+    sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
+
+    if ((fp_constraints_out = fopen(outputpath, "a")) == NULL){
+
+        printf("\noutput.c -> Analysis_output() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath);
+        exit(EXIT_FAILURE);
+    }
 
     //    struct point s;
     for (k=0; k<NPART; k++) {
@@ -793,11 +804,21 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
         //printf("gamma = %.4e %.4e %.4e\n", GAMMA[0].x, GAMMA[0].y, GAMMA[0].z);
         // exit(0);
+        //sumPhi += sqrt(Phi_old.x*Phi_old.x + Phi_old.y*Phi_old.y + Phi_old.z*Phi_old.z);
+
+
+
+
         } //End loop on constraints
         //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        fprintf(fp_constraints_out, "%d \t %.10e \t %d \n", count, discr, kdiscr);
+
+
 
     } //End while(constraint condition)
-
+    fprintf(fp_constraints_out, "\n");
+    fflush(fp_constraints_out);
+    fclose(fp_constraints_out);
     //Calculate Shell acceleration needed for the next provisional
     for (k=0; k<NPART; k++) {
         SHELLACC_TP1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
