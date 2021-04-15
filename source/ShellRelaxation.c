@@ -15,6 +15,16 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
     double denom;
     struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old;
 
+    FILE *fp_constraints_out;
+    char outputpath[_MAX_STR_LENGTH];
+    sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
+
+    if ((fp_constraints_out = fopen(outputpath, "a")) == NULL){
+
+        printf("\noutput.c -> Analysis_output() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath);
+        exit(EXIT_FAILURE);
+    }
+
     //    struct point s;
 
     for (k=0; k<NPART; k++) {
@@ -308,7 +318,14 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
         } //End loop on constraints
+        fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
+
+
+
     } //End while(constraint condition)
+    fprintf(fp_constraints_out, "\n");
+    fflush(fp_constraints_out);
+    fclose(fp_constraints_out);
 
     SR_ITERS = count;
     SR_DISCR = discr;
@@ -810,8 +827,8 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
 
         } //End loop on constraints
-        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
-        fprintf(fp_constraints_out, "%d \t %.10e \t %d \n", count, discr, kdiscr);
+        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
 
 
 
