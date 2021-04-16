@@ -558,12 +558,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             // }
 
                 //denom += DPhixDrho_old.y*DPHIDVRHO_T[k][i].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][i].fx.y;
-            if (timeMD < INITIALIZED){
-                denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*1.);
-            }
-            else {
-                denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
-            }
+
+            denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*1.);
+
+            // else {
+            //     denom = (DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
+            // }
             // denom = 0.5*DT*(DPhixDrho_old.y*DPHIDVRHO_T[k][k].fx.y*DT + DPhixDvrho_old.y*DPHIDVRHO_T[k][k].fx.y*3.);
             // printf("denom.x (part %d) = %.4e \t",denom, k);
 
@@ -636,12 +636,12 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhiyDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhiyDrho_old.x, DPhiyDrho_old.y, DPhiyDrho_old.z);
 
             //denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-            if (timeMD < INITIALIZED){
-                denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*1.);
-            }
-            else {
-                denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3.);
-            }
+
+            denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*1.);
+
+            // else {
+            //     denom = (DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3.);
+            // }
             //denom = 0.5*DT*(DPhiyDrho_old.x*DPHIDVRHO_T[k][k].fy.x*DT + DPhiyDvrho_old.x*DPHIDVRHO_T[k][k].fy.x*3);
             // printf("denom.y (part %d) = %.4e \t",denom, k);
 
@@ -743,29 +743,29 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             //     rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
             //     rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
             // }
-            if (timeMD < INITIALIZED){
 
-                rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-                rho_OLD[k].z -= 0;
 
-                vrho_OLD[k].x -= (2.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-                vrho_OLD[k].y -= (2.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
-                vrho_OLD[k].z -= 0;
+            rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+            rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+            rho_OLD[k].z -= 0;
 
-                // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-                // SHELLACC_TM1[k].z += 0;
+            vrho_OLD[k].x -= (2.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+            vrho_OLD[k].y -= (2.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+            vrho_OLD[k].z -= 0;
 
-                for (i=0; i<NPART; i++) {
+            // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+            // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+            // SHELLACC_TM1[k].z += 0;
 
-                    rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+            for (i=0; i<NPART; i++) {
 
-                    vrho_OLD[i].x -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    vrho_OLD[i].y -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    vrho_OLD[i].z -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+                rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+
+                vrho_OLD[i].x -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+                vrho_OLD[i].y -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+                vrho_OLD[i].z -= (2.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
 
                     // SHELLACC_TM1[i].x += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x;
                     // SHELLACC_TM1[i].y += GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y;
@@ -778,32 +778,32 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
                     // vrho_OLD[i].x -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.x+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.x+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.x)*1.5*DT);
                     // vrho_OLD[i].y -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.y+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.y+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.y)*1.5*DT);
                     // vrho_OLD[i].z -= ((GAMMA[i].x*DPHIDVRHO_T[i][i].fx.z+GAMMA[i].y*DPHIDVRHO_T[i][i].fy.z+GAMMA[i].z*DPHIDVRHO_T[i][i].fz.z)*1.5*DT);
-                }
+                //}
             }
-            else{
-                rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-                rho_OLD[k].z -= 0;
-
-                vrho_OLD[k].x -= (3.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
-                vrho_OLD[k].y -= (3.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
-                vrho_OLD[k].z -= 0;
-
-                // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
-                // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
-                // SHELLACC_TM1[k].z += 0;
-
-                for (i=0; i<NPART; i++) {
-
-                    rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
-
-                    vrho_OLD[i].x -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
-                    vrho_OLD[i].y -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
-                    vrho_OLD[i].z -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
-                }
-            }
+            // else{
+            //     rho_OLD[k].x -= DT*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+            //     rho_OLD[k].y -= DT*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+            //     rho_OLD[k].z -= 0;
+            //
+            //     vrho_OLD[k].x -= (3.*GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x);
+            //     vrho_OLD[k].y -= (3.*GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y);
+            //     vrho_OLD[k].z -= 0;
+            //
+            //     // SHELLACC_TM1[k].x += GAMMA[k].y*DPHIDVRHO_T[k][k].fy.x;
+            //     // SHELLACC_TM1[k].y += GAMMA[k].x*DPHIDVRHO_T[k][k].fx.y;
+            //     // SHELLACC_TM1[k].z += 0;
+            //
+            //     for (i=0; i<NPART; i++) {
+            //
+            //         rho_OLD[i].x -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+            //         rho_OLD[i].y -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+            //         rho_OLD[i].z -= (DT*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+            //
+            //         vrho_OLD[i].x -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.x);
+            //         vrho_OLD[i].y -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.y);
+            //         vrho_OLD[i].z -= (3.*GAMMA[k].z*DPHIDVRHO_T[k][i].fz.z);
+            //     }
+            // }
 
 
             // printf("Shell acc (part %d , iter %d) = (%.4e,%.4e,%.4e) \t",k,count,SHELLACC_TM1[k].x,SHELLACC_TM1[k].y,SHELLACC_TM1[k].z);

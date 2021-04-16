@@ -451,25 +451,26 @@ void Block_MD_Pol(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
             }
             else {
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha; // alpha?
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
-                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
-                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
-                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].x; // alpha?
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].y;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].z;
+                //printf("%.4e ", SHELLACC_T[i].x);
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x + SHELLPOS_TM1[i].x)*alpha;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y + SHELLPOS_TM1[i].y)*alpha;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z + SHELLPOS_TM1[i].z)*alpha;
 
 
-                if (t < INITIALIZED){
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
-                }
-                else {
-                    SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - SHELLACC_TM1[i].x; // 0.5*dt is in the gamma
-                    SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - SHELLACC_TM1[i].y;
-                    SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - SHELLACC_TM1[i].z;
-                    //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[i].x, SHELLACC_TM1[i].y, SHELLACC_TM1[i].z);
-                }
+
+                SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;// + DT*SHELLACC_T[i].x;
+                SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;// + DT*SHELLACC_T[i].y;
+                SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;// + DT*SHELLACC_T[i].z;
+
+                // else {
+                //     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - SHELLACC_TM1[i].x; // 0.5*dt is in the gamma
+                //     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - SHELLACC_TM1[i].y;
+                //     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - SHELLACC_TM1[i].z;
+                //     //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[i].x, SHELLACC_TM1[i].y, SHELLACC_TM1[i].z);
+                // }
             }
         }
         //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[0].x, SHELLACC_TM1[0].y, SHELLACC_TM1[0].z);

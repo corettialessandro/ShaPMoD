@@ -18,7 +18,7 @@
 #define _LATTICE SC     //Lattice type for initial configuration (SC)
 
 //Temperature deviation tolerance
-#define _TEMP_TOL .1
+#define _TEMP_TOL .05
 
 //Physical constants and conversion Factors
 #define _KB 1                       //Boltzmann constant (eV/K)
@@ -74,9 +74,9 @@
 
 // Magnetic field
 #define B0 5.5
-#define INITIALIZED 1e10
+//#define INITIALIZED 1e10
 
 // Over-relaxation parameter
-#define SOR 0.25
+#define SOR 0.5
 
 #endif /* parameters_h */
