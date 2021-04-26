@@ -158,7 +158,7 @@ void FirstStep_St(void){
     if (1 % IPS == 0)  Write_PSConfig(1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
     if (1 % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
     if (1 % IGOFR == 0) Write_GofR(1, PARTPOS_T);
-    Checkpoint(0, PARTPOS_TM1, SHELLPOS_TM1, PARTPOS_T, SHELLPOS_T);
+    Checkpoint(0, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
     t_end = clock();
 
@@ -241,7 +241,7 @@ void FirstStep_St_Ew(void){
     if (1 % IPS == 0)  Write_PSConfig(1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
     if (1 % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
     if (1 % IGOFR == 0) Write_GofR(1, PARTPOS_T);
-    Checkpoint(0, PARTPOS_TM1, SHELLPOS_TM1, PARTPOS_T, SHELLPOS_T);
+    Checkpoint(0, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
     t_end = clock();
 
@@ -486,7 +486,7 @@ void FirstStep_Pol(void){
     if (1 % IPS == 0)  Write_PSConfig(1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
     if (1 % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
     if (1 % IGOFR == 0) Write_GofR(1, PARTPOS_T);
-    Checkpoint(0, PARTPOS_TM1, SHELLPOS_TM1, PARTPOS_T, SHELLPOS_T);
+    Checkpoint(0, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
     t_end = clock();
 

@@ -194,7 +194,7 @@ void Block_MD_St(void){
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
-        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, SHELLVEL);
+        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
         t_end = clock();
 
@@ -303,7 +303,7 @@ void Block_MD_St_Ew(void){
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
-        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTPOS_T, SHELLPOS_T);
+        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
         t_end = clock();
 
@@ -342,10 +342,10 @@ void Block_MD_Pol(void){
     // before the first step shell vel has to found from shellpos
     for (i=0; i<NPART; i++) {
 
-        SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_T[i]);
-        SHELLVEL[i].x = SHELLVEL[i].x*2.;
-        SHELLVEL[i].y = SHELLVEL[i].y*2.;
-        SHELLVEL[i].z = SHELLVEL[i].z*2.;
+        // SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_T[i]);
+        // SHELLVEL[i].x = SHELLVEL[i].x*2.;
+        // SHELLVEL[i].y = SHELLVEL[i].y*2.;
+        // SHELLVEL[i].z = SHELLVEL[i].z*2.;
         SHELLACC_TM1[i].x = 0;
         SHELLACC_TM1[i].y = 0;
         SHELLACC_TM1[i].z = 0;
@@ -361,7 +361,11 @@ void Block_MD_Pol(void){
     //printf("Shell vel = %.4e %.4e %.4e\n", SHELLVEL[0].x, SHELLVEL[0].y, SHELLVEL[0].z);
 
     for (t=t0; t<NTIMESTEPS; t++) {
-
+        if (t<2){
+            SORR = 0;
+        }else{
+            SORR = 0;
+        }
         t_start = clock();
 
         therm = ' ';
@@ -570,7 +574,7 @@ void Block_MD_Pol(void){
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
         if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
-        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_TM1, PARTVEL, SHELLPOS_T);
+        if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
         t_end = clock();
 

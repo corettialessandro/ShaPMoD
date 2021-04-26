@@ -698,14 +698,14 @@ void Write_S(int timestep, int iteration, struct point rho[], struct point r[]) 
     fclose(fp_s_out);
 }
 
-void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct point v_t[], struct point vrho_t[]){
+void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct point rho_tm1[], struct point v_t[], struct point vrho_t[]){
 
     FILE *fp_checkpoint;
 
     int i;
 
 //    struct point zero = {0,0,0};
-    struct point tr_t, trho_t, tv_t, tvrho_t;
+    struct point tr_t, trho_t, trho_tm1, tv_t, tvrho_t;
 
     if (timestep == 0) {
 
@@ -745,11 +745,13 @@ void Checkpoint(int timestep, struct point r_t[], struct point rho_t[], struct p
 
       // create temporary variables for particle&shell position&velocity
       tr_t = r_t[i];
+      //tr_tm1 = r_t[i];
       tv_t = v_t[i];
       trho_t = rho_t[i];
+      trho_tm1 = rho_tm1[i];
       tvrho_t = vrho_t[i];
       // create save.txt
-      fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_t.x, tr_t.y, tr_t.z, tv_t.x, tv_t.y, tv_t.z, trho_t.x, trho_t.y, trho_t.z, tvrho_t.x, tvrho_t.y, tvrho_t.z);
+      fprintf(fp_checkpoint, "%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\t%.15lf\n", tr_t.x, tr_t.y, tr_t.z, trho_t.x, trho_t.y, trho_t.z, trho_tm1.x, trho_tm1.y, trho_tm1.z, tv_t.x, tv_t.y, tv_t.z, tvrho_t.x, tvrho_t.y, tvrho_t.z);
     }
 
     fprintf(fp_checkpoint, "\nAverage Thermodynamics Variables of the simulation:\n");

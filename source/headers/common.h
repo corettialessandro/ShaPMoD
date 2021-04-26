@@ -42,6 +42,7 @@ extern struct point *SF;
 extern struct tensor **DPHIDRHO_T;
 extern struct tensor **DPHIDVRHO_T;
 extern struct point *GAMMA;
+extern struct point *GAMMATOT;
 
 extern struct point *PHI;
 extern struct point *PHI_OLD;
@@ -53,6 +54,7 @@ extern char SRMODE;
 extern char EWALD;
 extern char POT;
 
+extern double SORR;
 extern int NMOLECULES;
 extern int NATOMSPEC;
 extern int *NATOMSPERSPEC;

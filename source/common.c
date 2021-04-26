@@ -27,6 +27,7 @@ struct point *SHELLACC_TP1;
 struct tensor **DPHIDRHO_T;
 struct tensor **DPHIDVRHO_T;
 struct point *GAMMA;
+struct point *GAMMATOT;
 
 struct point *PHI;
 struct point *PHI_OLD;
@@ -38,6 +39,7 @@ char SRMODE;
 char EWALD;
 char POT;
 
+double SORR;
 int NMOLECULES;
 int NATOMSPEC;
 int *NATOMSPERSPEC;
@@ -214,6 +216,7 @@ void ReadInput(){
         if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((DPHIDVRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
+        if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
         for (i=0; i<NPART; i++) {
 
@@ -450,16 +453,17 @@ void ReadInput(){
           // scan checkpoint.txt for Velocity Verlet
           //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
           //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
+
+
+          //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
+          //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
+
           if (EWALD == 'F') {
-
-              if (MODE == 'P') {
-
-                fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
-              }
+              fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
 
               if (MODE == 'S') {
 
-                fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
+                //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
                 SHELLVEL[i].x = PARTVEL[i].x;
                 SHELLVEL[i].y = PARTVEL[i].y;
                 SHELLVEL[i].z = PARTVEL[i].z;
@@ -657,6 +661,7 @@ void FreePointers(void){
         free(DPHIDRHO_T);
         free(DPHIDVRHO_T);
         free(GAMMA);
+        free(GAMMATOT);
     }
 
     if (SRMODE == 'C') {
