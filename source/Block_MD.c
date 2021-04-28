@@ -361,11 +361,6 @@ void Block_MD_Pol(void){
     //printf("Shell vel = %.4e %.4e %.4e\n", SHELLVEL[0].x, SHELLVEL[0].y, SHELLVEL[0].z);
 
     for (t=t0; t<NTIMESTEPS; t++) {
-        if (t<2){
-            SORR = 0;
-        }else{
-            SORR = 0;
-        }
         t_start = clock();
 
         therm = ' ';

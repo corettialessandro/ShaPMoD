@@ -165,6 +165,7 @@ void ReadInput(){
     int pointer_flag = 0, tnpart, *dens_red_count, ilr_vcut = 1., isr_vcut = 1., i_vtail = 1.;
     double tlbox, sigmaij;
     char dummy;
+    struct point CMV;
 
     if ((fp_input = fopen(INPUTFN, "r+")) == NULL){
         printf("\ninput.c -> ReadInput() Error: File '%s' not found!\n", INPUTFN);
@@ -475,6 +476,13 @@ void ReadInput(){
         }
 
         fclose(fp_input);
+        CMV = CMVelocity(PARTVEL);
+        for (i=0; i<NPART; i++) {
+
+            PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+            PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+            PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+        }
 
     }else{
 
