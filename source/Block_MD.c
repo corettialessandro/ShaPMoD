@@ -339,13 +339,9 @@ void Block_MD_Pol(void){
         FirstStep_Pol();
         t0 = 1;
     }
-    // before the first step shell vel has to found from shellpos
+
     for (i=0; i<NPART; i++) {
 
-        // SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_T[i]);
-        // SHELLVEL[i].x = SHELLVEL[i].x*2.;
-        // SHELLVEL[i].y = SHELLVEL[i].y*2.;
-        // SHELLVEL[i].z = SHELLVEL[i].z*2.;
         SHELLACC_TM1[i].x = 0;
         SHELLACC_TM1[i].y = 0;
         SHELLACC_TM1[i].z = 0;
@@ -358,7 +354,6 @@ void Block_MD_Pol(void){
 
 
     }
-    //printf("Shell vel = %.4e %.4e %.4e\n", SHELLVEL[0].x, SHELLVEL[0].y, SHELLVEL[0].z);
 
     for (t=t0; t<NTIMESTEPS; t++) {
         t_start = clock();
@@ -415,17 +410,6 @@ void Block_MD_Pol(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            // PARTMOM_T[i].x = Mi*PARTVEL[i].x*alpha;
-            // PARTMOM_T[i].y = Mi*PARTVEL[i].y*alpha;
-            // PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
-            //
-            // PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*(CF_t.x + SF_t.x);
-            // PARTMOM_TP05[i].y = PARTMOM_T[i].y + DTover2*(CF_t.y + SF_t.y);
-            // PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
-            //
-            // PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*overMi*PARTMOM_TP05[i].x;
-            // PARTPOS_TP1[i].y = PARTPOS_T[i].y + DT*overMi*PARTMOM_TP05[i].y;
-            // PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
             PARTMOM_T[i].x = Mi*(PARTVEL[i].x*alpha - cyclotronFreq*PARTPOS_T[i].y);
             PARTMOM_T[i].y = Mi*(PARTVEL[i].y*alpha + cyclotronFreq*PARTPOS_T[i].x);
             PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
@@ -440,45 +424,27 @@ void Block_MD_Pol(void){
             PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
 
-            // PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha + DT2overM*CF_t.x;
-            // PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha + DT2overM*CF_t.y;
-            // PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha + DT2overM*CF_t.z;
-            //
+
             if (B0 == 0) {
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
             }
             else {
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].x; // alpha?
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].y;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha; //+ 0.5*DT2*SHELLACC_T[i].z;
-                //printf("%.4e ", SHELLACC_T[i].x);
-                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x + SHELLPOS_TM1[i].x)*alpha;
-                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y + SHELLPOS_TM1[i].y)*alpha;
-                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z + SHELLPOS_TM1[i].z)*alpha;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + SHELLVEL[i].x*DT*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + SHELLVEL[i].y*DT*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + SHELLVEL[i].z*DT*alpha;
 
-
-
-                SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;// + DT*SHELLACC_T[i].x;
-                SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;// + DT*SHELLACC_T[i].y;
-                SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;// + DT*SHELLACC_T[i].z;
-
-                // else {
-                //     SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha - SHELLACC_TM1[i].x; // 0.5*dt is in the gamma
-                //     SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha - SHELLACC_TM1[i].y;
-                //     SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha - SHELLACC_TM1[i].z;
-                //     //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[i].x, SHELLACC_TM1[i].y, SHELLACC_TM1[i].z);
-                // }
+                SHELLVEL_TP1[i].x = SHELLVEL[i].x*alpha;
+                SHELLVEL_TP1[i].y = SHELLVEL[i].y*alpha;
+                SHELLVEL_TP1[i].z = SHELLVEL[i].z*alpha;
             }
         }
-        //printf("Shell acc t-1 = %.4e %.4e %.4e\n", SHELLACC_TM1[0].x, SHELLACC_TM1[0].y, SHELLACC_TM1[0].z);
 
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
 
         if (SRMODE == 'S') {
 
-//            ML_SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
             if (B0 == 0){
                 SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
             }
@@ -544,10 +510,7 @@ void Block_MD_Pol(void){
 
         for (i=0; i<NPART; i++) {
 
-            //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
-            //SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
             SHELLVEL[i] = SHELLVEL_TP1[i];
-
             SHELLACC_TM1[i] = SHELLACC_T[i];
             SHELLACC_T[i] = SHELLACC_TP1[i];
             PARTPOS_TM1[i] = PARTPOS_T[i];

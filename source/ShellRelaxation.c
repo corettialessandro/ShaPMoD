@@ -178,6 +178,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
             GAMMA[k].x = Phi_old.x/denom;
+            GAMMATOT[k].x += GAMMA[k].x;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
@@ -237,6 +238,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
             GAMMA[k].y = Phi_old.y/denom;
+            GAMMATOT[k].y += GAMMA[k].y;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
@@ -296,6 +298,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
             GAMMA[k].z = Phi_old.z/denom;
+            GAMMATOT[k].z += GAMMA[k].z;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
@@ -445,6 +448,67 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
         SHELLACC_TP1[k].y = 0;
         SHELLACC_TP1[k].z = 0;
     }
+    //printf(" prov gamma %.4e\n", GAMMA[0].x);
+
+    // printf("before %.20e\n", rho_OLD[0].x);
+    // printf("before %.20e\n", rho_OLD[1].x);
+    // printf("before %.20e\n", rho_OLD[2].x);
+    // printf("before %.20e\n", rho_OLD[3].x);
+    // printf("before %.20e\n", rho_OLD[4].x);
+    // printf("before %.20e\n", rho_OLD[5].x);
+    // printf("before %.20e\n", rho_OLD[0].y);
+    // printf("before %.20e\n", rho_OLD[1].y);
+    // printf("before %.20e\n", rho_OLD[2].y);
+    // printf("before %.20e\n", rho_OLD[3].y);
+    // printf("before %.20e\n", rho_OLD[4].y);
+    // printf("before %.20e\n", rho_OLD[5].y);
+    // printf("before %.20e\n", rho_OLD[0].z);
+    // printf("before %.20e\n", rho_OLD[1].z);
+    // printf("before %.20e\n", rho_OLD[2].z);
+    // printf("before %.20e\n", rho_OLD[3].z);
+    // printf("before %.20e\n", rho_OLD[4].z);
+    // printf("before %.20e\n\n", rho_OLD[5].z);
+
+    //test with old GAMMA
+    for (k=0; k<NPART; k++) {
+        rho_OLD[k].x -= DT*GAMMATOT[k].y*DPHIDVRHO_T[k][k].fy.x;
+        rho_OLD[k].y -= DT*GAMMATOT[k].x*DPHIDVRHO_T[k][k].fx.y;
+        rho_OLD[k].z -= 0;
+
+        vrho_OLD[k].x -= (2.*GAMMATOT[k].y*DPHIDVRHO_T[k][k].fy.x);
+        vrho_OLD[k].y -= (2.*GAMMATOT[k].x*DPHIDVRHO_T[k][k].fx.y);
+        vrho_OLD[k].z -= 0;
+
+        for (i=0; i<NPART; i++) {
+
+            rho_OLD[i].x -= (DT*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.x);
+            rho_OLD[i].y -= (DT*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.y);
+            rho_OLD[i].z -= (DT*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.z);
+
+            vrho_OLD[i].x -= (2.*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.x);
+            vrho_OLD[i].y -= (2.*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.y);
+            vrho_OLD[i].z -= (2.*GAMMATOT[k].z*DPHIDVRHO_T[k][i].fz.z);
+        }
+    }
+    // printf("after %.20e\n", rho_OLD[0].x);
+    // printf("after %.20e\n", rho_OLD[1].x);
+    // printf("after %.20e\n", rho_OLD[2].x);
+    // printf("after %.20e\n", rho_OLD[3].x);
+    // printf("after %.20e\n", rho_OLD[4].x);
+    // printf("after %.20e\n", rho_OLD[5].x);
+    // printf("after %.20e\n", rho_OLD[0].y);
+    // printf("after %.20e\n", rho_OLD[1].y);
+    // printf("after %.20e\n", rho_OLD[2].y);
+    // printf("after %.20e\n", rho_OLD[3].y);
+    // printf("after %.20e\n", rho_OLD[4].y);
+    // printf("after %.20e\n", rho_OLD[5].y);
+    // printf("after %.20e\n", rho_OLD[0].z);
+    // printf("after %.20e\n", rho_OLD[1].z);
+    // printf("after %.20e\n", rho_OLD[2].z);
+    // printf("after %.20e\n", rho_OLD[3].z);
+    // printf("after %.20e\n", rho_OLD[4].z);
+    // printf("after %.20e\n", rho_OLD[5].z);
+
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
@@ -515,7 +579,6 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             //            X COMPONENT OF THE FORCE
             //denom = 0;
-
             if (POT == 'J') {
 
                 Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x + CHI[INDX[k]]*B0*vrho_OLD[k].y;
@@ -572,7 +635,8 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
 
-            GAMMA[k].x = SOR*Phi_old.x/denom;
+            GAMMA[k].x = (SOR+SORR)*Phi_old.x/denom;
+            GAMMATOT[k].x += GAMMA[k].x;
             //printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
@@ -648,7 +712,8 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
-            GAMMA[k].y = SOR*Phi_old.y/denom;
+            GAMMA[k].y = (SOR+SORR)*Phi_old.y/denom;
+            GAMMATOT[k].y += GAMMA[k].y;
             //printf("Charge = %.4e", CHI[INDX[k]]);
             //printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
@@ -731,7 +796,8 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
-            GAMMA[k].z = SOR*Phi_old.z/denom;
+            GAMMA[k].z = Phi_old.z/denom;
+            GAMMATOT[k].z += GAMMA[k].z;
 
             if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
@@ -827,12 +893,49 @@ void BSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], st
 
 
         } //End loop on constraints
-        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
-        fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
+        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+
+        //fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
 
 
 
     } //End while(constraint condition)
+    // printf("after iteration %.20e\n", rho_OLD[0].x);
+    // printf("after iteration %.20e\n", rho_OLD[1].x);
+    // printf("after iteration %.20e\n", rho_OLD[2].x);
+    // printf("after iteration %.20e\n", rho_OLD[3].x);
+    // printf("after iteration %.20e\n", rho_OLD[4].x);
+    // printf("after iteration %.20e\n", rho_OLD[5].x);
+    // printf("after iteration %.20e\n", rho_OLD[0].y);
+    // printf("after iteration %.20e\n", rho_OLD[1].y);
+    // printf("after iteration %.20e\n", rho_OLD[2].y);
+    // printf("after iteration %.20e\n", rho_OLD[3].y);
+    // printf("after iteration %.20e\n", rho_OLD[4].y);
+    // printf("after iteration %.20e\n", rho_OLD[5].y);
+    // printf("after iteration %.20e\n", rho_OLD[0].z);
+    // printf("after iteration %.20e\n", rho_OLD[1].z);
+    // printf("after iteration %.20e\n", rho_OLD[2].z);
+    // printf("after iteration %.20e\n", rho_OLD[3].z);
+    // printf("after iteration %.20e\n", rho_OLD[4].z);
+    // printf("after iteration %.20e\n", rho_OLD[5].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[0].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[1].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[2].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[3].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[4].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[5].x);
+    // printf("end loop gamma %.4e\n", GAMMATOT[0].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[1].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[2].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[3].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[4].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[5].y);
+    // printf("end loop gamma %.4e\n", GAMMATOT[0].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[1].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[2].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[3].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[4].z);
+    // printf("end loop gamma %.4e\n", GAMMATOT[5].z);
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);
     fclose(fp_constraints_out);
