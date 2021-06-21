@@ -67,6 +67,12 @@ void Block_MD_St(void){
 
                 CF_t = CoreForce_Cicc(PARTPOS_T, SHELLPOS_T, i);
                 SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
+
+            } else if (POT == 'W') {
+                CF_t = CoreForce_WCA(PARTPOS_T, i);
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
             }
 
             if (DEBUG_FLAG && _D_TOT_FORCES) {
@@ -143,8 +149,14 @@ void Block_MD_St(void){
 
                 CF_t = CoreForce_Cicc(PARTPOS_TP1, SHELLPOS_TP1, i);
                 SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
-            }
 
+            } else if (POT == 'W') {
+                CF_t = CoreForce_WCA(PARTPOS_T, i);
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
+            }
+            
             if (DEBUG_FLAG && _D_TOT_FORCES) {
 
                 CFtot.x += (CF_t.x);

@@ -79,4 +79,8 @@
 // Over-relaxation parameter
 #define SOR 0.33333 //0.333333
 
+//Lennard_Jones parameters
+#define LJ_SIGMA 3.405
+#define LJ_EPSILON 1.
+
 #endif /* parameters_h */

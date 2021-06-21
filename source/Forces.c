@@ -349,6 +349,58 @@ struct point ShellForce_Cicc(struct point rho[], struct point r[], int i){
     return F;
 }
 
+struct point CoreForce_WCA(struct point r[], int i){
+
+    struct point F;
+
+    int  j, indx_i = INDX[i], indx_j, indx_int;
+    struct point CC_d, CS_d;
+    double CC_r, CC_r2, CC_r3, CC_r6, CC_r8, CC_r10, CC_r12;
+    double LJ_sigma6, LJ_sigma12;
+
+//    CS_d = d_rirhoj(r[i], rho[i], r[i]);
+//    CS_d = Distance(r[i], rho[i]);
+    F.x += 0.;
+    F.y += 0.;
+    F.z += 0.;
+
+
+    LJ_sigma6 = pow((double)LJ_SIGMA,6.);
+    LJ_sigma12 = pow((double)LJ_SIGMA,12.);
+
+
+    for(j=0; j<NPART; j++){
+
+        if (i!=j){
+
+            indx_j = INDX[j];
+            indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+            //Core-Core interactions
+//            CC_d = d_rirj(r[i], r[j]);
+            CC_d = Distance(r[i], r[j]);
+            CC_r = mod(CC_d);
+
+            if (CC_r <= (LJ_SIGMA*pow(2., 1./6.))){
+
+                CC_r2 = CC_r*CC_r;
+                CC_r3 = CC_r*CC_r2;
+                CC_r6 = CC_r3*CC_r3;
+                CC_r12 = CC_r6*CC_r6;
+
+                F.x += 48.*CC_d.x*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
+                F.y += 48.*CC_d.y*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
+                F.z += 48.*CC_d.z*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
+
+
+
+            }
+        }
+    }
+
+    return F;
+}
+
 double CoreVirial_Jac(struct point r[], struct point rho[], int i){
 
     struct point W;

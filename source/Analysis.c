@@ -391,6 +391,66 @@ double EnerPot_Cicc(struct point r[], struct point rho[]){
     return .5*EPot + cut_corr;
 }
 
+double EnerPot_WAC(struct point r[]){
+
+    double EPot = 0;
+
+    int i, j, indx_i, indx_j, indx_int;
+    //    int n1, n2;
+    double SC_r, CS_r, SC_r2, CC_r, CC_r2, SS_r, CC_r3, CC_r6, CC_r8, CC_r12;
+    struct point SC_d, CS_d, CC_d, SS_d;
+    double LJ_sigma6, LJ_sigma12;
+
+    double cut_corr = 0;
+
+    LJ_sigma6 = pow((double)LJ_SIGMA,6.);
+    LJ_sigma12 = pow((double)LJ_SIGMA,12.);
+
+    for (i=0; i<NPART; i++) {
+
+        indx_i = INDX[i];
+
+//        SC_d = d_rhoirj(rho[i], r[i], r[i]);
+//        SC_d = Distance(rho[i], r[i]);
+
+        for (j=0; j<NPART; j++) {
+
+            if (i!=j) {
+
+                indx_j = INDX[j];
+                indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+                //Core-Core interactions
+//                CC_d = d_rirj(r[i], r[j]);
+                CC_d = Distance(r[i], r[j]);
+                CC_r = mod(CC_d);
+
+                if (CC_r <= (LJ_SIGMA*pow(2., 1./6.))){
+
+                    CC_r2 = CC_r*CC_r;
+                    CC_r3 = CC_r*CC_r2;
+                    CC_r6 = CC_r3*CC_r3;
+                    CC_r12 = CC_r6*CC_r6;
+
+                    EPot += 4.*(CC_r12*LJ_sigma12 - CC_r6*LJ_sigma6)*LJ_EPSILON;
+
+                }
+
+            }
+        }
+    }
+
+    // for (i=0; i<NINTER; i++) {
+    //
+    //     //        n1 = (int) floor(i/2.);
+    //     //        n2 = (int) floor((i+1)/2.);
+    //
+    //     cut_corr += C_VTAIL[i];
+    // }
+
+    return EPot;
+}
+
 double EnerTot(struct point r[], struct point rho[], struct point v[]){
 
     double ETot = 0;
@@ -406,6 +466,11 @@ double EnerTot(struct point r[], struct point rho[], struct point v[]){
     }else if (POT == 'C') {
 
         EPot = EnerPot_Cicc(r, rho);
+
+    }else if (POT == 'C') {
+
+        EPot = EnerPot_WAC(r);
+
     }
 
     ETot = EKin + EPot;
@@ -544,6 +609,11 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
 
         EPot = EnerPot_Cicc(r, rho)*_E_CONV;
         Press += (DENSITY*_KB*Temp + Pressure_Cicc(r, rho))*_PRESS_CONV;
+
+    } else if (POT == 'W'){
+
+        EPot = EnerPot_WAC(r)*_E_CONV;
+        Press += 0;
     }
 
     EPol = EPot - EnerPot_HM(r)*_E_CONV;

@@ -398,6 +398,8 @@ void ReadInput(){
             C_PTAIL[i] = i_vtail*(-2./3.*M_PI*DENS_RED[i]*DENSITY*DENSITY*(2.*C[i]/RCUT/RCUT/RCUT + 8.*D[i]/5./RCUT/RCUT/RCUT/RCUT/RCUT - A[i]*exp(-RCUT/LAMBDA)*(RCUT*RCUT*RCUT + 3.*RCUT*RCUT*LAMBDA + 6.*RCUT*LAMBDA*LAMBDA + 6.*LAMBDA*LAMBDA*LAMBDA)));
             S_VTAIL[i] = 0;
 
+        } else if (POT == 'W'){
+            printf("What should I do there?\n");
         } else {
 
             printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Potential Model: POT = %c\n", POT);
@@ -551,7 +553,12 @@ void ReadInput(){
 
         printf("* Using Ciccotti Potential\n\n");
 
-    }else{
+    } else if (POT == 'W'){
+
+        printf("* Using Weeks-Chandler-Anderson Potential\n\n");
+
+    }
+    else{
 
         printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Potential Model: POT = '%c'\n", POT);
         exit(EXIT_FAILURE);
