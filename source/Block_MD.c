@@ -127,8 +127,8 @@ void Block_MD_St(void){
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
 
             // Updating the cells
-            Rem_Point_From_Cell(i);
-            Add_Point_To_Cell(PARTPOS_T[i],i);
+            //Rem_Point_From_Cell(i);
+            //Add_Point_To_Cell(PARTPOS_T[i],i);
           }
 
           //print forces
