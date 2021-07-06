@@ -392,7 +392,7 @@ struct point CoreForce_WCA(struct point r[], int i) {
                 r2inv = 1.0/(CC_r*CC_r);
                 r6inv = r2inv*r2inv*r2inv;
                 rc2inv = 1.0/(rCUT*rCUT);
-                rc6inv = rc2inv*rc2inv*rc3inv;
+                rc6inv = rc2inv*rc2inv*rc2inv;
                 ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
                 forcelj = 24.0 * LJEPS[indx_i][indx_j] * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
                 // rounding the force - TODO
@@ -431,13 +431,16 @@ struct point CoreForce_WCA(struct point r[], int i) {
 
                 r2inv = 1.0/(CC_r*CC_r);
                 r6inv = r2inv*r2inv*r2inv;
+                rc2inv = 1.0/(rCUT*rCUT);
+                rc6inv = rc2inv*rc2inv*rc2inv;
+                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
                 forcelj = 24.0 * LJEPS[indx_i][indx_j] * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
-                fpair = forcelj*r2inv;
                 // rounding the force - TODO
-                //if (CC_r > (rCUT-lround)) {
-                //  fpair *= ???
-                //  fpair += ???
-                //}
+                if (CC_r > (rCUT-lround)) {
+                    Rround = (CC_r - rCUT + lround)/lround;
+                    fpair = 24.0 * LJEPS[indx_i][indx_j] * (Rround * (Rround-1) * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)/lround + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJ_sigma6/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                }
+                fpair = forcelj/CC_r;
 
                 if (i==20) { //check!!!
                     printf("Fx,%d = %lf (%lf)\n",i,F.x,CC_d.x*fpair);

@@ -7,6 +7,7 @@
 //
 
 #include "Analysis.h"
+#include "cells.h"
 
 struct point Velocity(struct point r_tm1, struct point r_tp1){
 
@@ -403,9 +404,6 @@ double EnerPot_WAC(struct point r[]){
 
     double cut_corr = 0;
 
-    LJ_sigma6 = pow((double)LJ_SIGMA,6.);
-    LJ_sigma12 = pow((double)LJ_SIGMA,12.);
-
     for (i=0; i<NPART; i++) {
 
         indx_i = INDX[i];
@@ -413,30 +411,36 @@ double EnerPot_WAC(struct point r[]){
 //        SC_d = d_rhoirj(rho[i], r[i], r[i]);
 //        SC_d = Distance(rho[i], r[i]);
 
-        for (j=0; j<NPART; j++) {
-
+        int p;
+        int neighlist[50];
+        List_Of_Neighs(i,neighlist,1);
+        for (p=1;p<=neighlist[0];p++) {
+            j = neighlist[p];
             if (i!=j) {
 
                 indx_j = INDX[j];
                 indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
+                LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+                LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+
                 //Core-Core interactions
-//                CC_d = d_rirj(r[i], r[j]);
+//              CC_d = d_rirj(r[i], r[j]);
                 CC_d = Distance(r[i], r[j]);
                 CC_r = mod(CC_d);
 
-                if (CC_r <= (LJ_SIGMA*pow(2., 1./6.))){
+                if (CC_r <= LJRCUT[indx_i][indx_j]) {
 
                     CC_r2 = CC_r*CC_r;
                     CC_r3 = CC_r*CC_r2;
                     CC_r6 = CC_r3*CC_r3;
                     CC_r12 = CC_r6*CC_r6;
 
-                    EPot += 4.*(CC_r12*LJ_sigma12 - CC_r6*LJ_sigma6)*LJ_EPSILON;
+                    EPot += 4.*(CC_r12*LJ_sigma12 - CC_r6*LJ_sigma6)*LJEPS[indx_i][indx_j];
 
                 }
-
             }
+
         }
     }
 

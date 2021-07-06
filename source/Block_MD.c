@@ -7,6 +7,7 @@
 //
 
 #include "Block_MD.h"
+#include "cells.h"
 
 void Block_MD_St(void){
 
@@ -124,6 +125,10 @@ void Block_MD_St(void){
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+
+            // Updating the cells
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(PARTPOS_T[i],i);
           }
 
           //print forces
