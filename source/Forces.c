@@ -7,6 +7,7 @@
 //
 
 #include "Forces.h"
+#include "cells.h"
 
 struct point CoreForce_Jac(struct point r[], struct point rho[], int i){
 
@@ -349,13 +350,16 @@ struct point ShellForce_Cicc(struct point rho[], struct point r[], int i){
     return F;
 }
 
-struct point CoreForce_WCA(struct point r[], int i){
+struct point CoreForce_WCA(struct point r[], int i) {
 
     struct point F;
 
-    int  j, indx_i = INDX[i], indx_j, indx_int;
-    struct point CC_d, CS_d;
-    double CC_r, CC_r2, CC_r3, CC_r6, CC_r8, CC_r10, CC_r12;
+    double rCUT;
+    double lround = 0.01;
+    double Rround, R2round;
+    int j, indx_i = INDX[i], indx_j, indx_int;
+    struct point CC_d;
+    double CC_r, r2inv, r6inv, rc2inv, rc6inv, ljatrc, forcelj, fpair, ljrc;
     double LJ_sigma6, LJ_sigma12;
 
 //    CS_d = d_rirhoj(r[i], rho[i], r[i]);
@@ -364,10 +368,48 @@ struct point CoreForce_WCA(struct point r[], int i){
     F.y += 0.;
     F.z += 0.;
 
+    int p;
+    int neighlist[50];
+    List_Of_Neighs(i,neighlist,1);
+    for (p=1;p<=neighlist[0];p++) {
+        j = neighlist[p];
+        if (i!=j) {
 
-    LJ_sigma6 = pow((double)LJ_SIGMA,6.);
-    LJ_sigma12 = pow((double)LJ_SIGMA,12.);
+            indx_j = INDX[j];
+            indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
+            rCUT = LJRCUT[indx_i][indx_j];
+            LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+            LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+
+            //Core-Core interactions
+//            CC_d = d_rirj(r[i], r[j]);
+            CC_d = Distance(r[i], r[j]);
+            CC_r = mod(CC_d);
+
+            if (CC_r <= rCUT){
+
+                r2inv = 1.0/(CC_r*CC_r);
+                r6inv = r2inv*r2inv*r2inv;
+                rc2inv = 1.0/(rCUT*rCUT);
+                rc6inv = rc2inv*rc2inv*rc3inv;
+                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+                forcelj = 24.0 * LJEPS[indx_i][indx_j] * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
+                // rounding the force - TODO
+                if (CC_r > (rCUT-lround)) {
+                    Rround = (CC_r - rCUT + lround)/lround;
+                    fpair = 24.0 * LJEPS[indx_i][indx_j] * (Rround * (Rround-1) * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)/lround + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJ_sigma6/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                }
+                fpair = forcelj/CC_r;
+
+                F.x += CC_d.x*fpair;
+                F.y += CC_d.y*fpair;
+                F.z += CC_d.z*fpair;
+
+            }
+        }
+
+    }
 
     for(j=0; j<NPART; j++){
 
@@ -376,23 +418,32 @@ struct point CoreForce_WCA(struct point r[], int i){
             indx_j = INDX[j];
             indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
+            rCUT = LJRCUT[indx_i][indx_j];
+            LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+            LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+
             //Core-Core interactions
 //            CC_d = d_rirj(r[i], r[j]);
             CC_d = Distance(r[i], r[j]);
             CC_r = mod(CC_d);
 
-            if (CC_r <= (LJ_SIGMA*pow(2., 1./6.))){
+            if (CC_r <= rCUT){
 
-                CC_r2 = CC_r*CC_r;
-                CC_r3 = CC_r*CC_r2;
-                CC_r6 = CC_r3*CC_r3;
-                CC_r12 = CC_r6*CC_r6;
+                r2inv = 1.0/(CC_r*CC_r);
+                r6inv = r2inv*r2inv*r2inv;
+                forcelj = 24.0 * LJEPS[indx_i][indx_j] * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
+                fpair = forcelj*r2inv;
+                // rounding the force - TODO
+                //if (CC_r > (rCUT-lround)) {
+                //  fpair *= ???
+                //  fpair += ???
+                //}
 
-                F.x += 48.*CC_d.x*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
-                F.y += 48.*CC_d.y*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
-                F.z += 48.*CC_d.z*CC_r2*(CC_r12*LJ_sigma12 - 0.5*CC_r6*LJ_sigma6)*LJ_EPSILON;
-
-
+                if (i==20) { //check!!!
+                    printf("Fx,%d = %lf (%lf)\n",i,F.x,CC_d.x*fpair);
+                    printf("Fy,%d = %lf (%lf)\n",i,F.y,CC_d.y*fpair);
+                    printf("Fz,%d = %lf (%lf)\n",i,F.z,CC_d.z*fpair);
+                }
 
             }
         }

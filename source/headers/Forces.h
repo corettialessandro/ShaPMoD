@@ -25,6 +25,8 @@ struct point ShellForce_Jac(struct point rho[], struct point r[], int i);
 struct point CoreForce_Cicc(struct point r[], struct point rho[], int i);
 struct point ShellForce_Cicc(struct point rho[], struct point r[], int i);
 
+struct point CoreForce_WCA(struct point r[], int i);
+
 double CoreVirial_Jac(struct point r[], struct point rho[], int i);
 double ShellVirial_Jac(struct point rho[], struct point r[], int i);
 
