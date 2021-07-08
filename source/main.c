@@ -144,6 +144,9 @@ int main(int argc, char *argv[]) {
         }else if (MODE == 'S'){
 
             Block_MD_St();
+        // }else if (MODE == 'M'){
+            
+        //     Block_MD_MultiMaze();
         }
     }
 

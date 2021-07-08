@@ -43,6 +43,9 @@ void FirstStep_St(void){
 
             CF_t = CoreForce_Cicc(PARTPOS_T, SHELLPOS_T, i);
             SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
+        } else if (POT == 'W') {
+
+            CF_t = CoreForce_WCA(PARTPOS_T, i);
         }
 
         if (DEBUG_FLAG && _D_TOT_FORCES) {

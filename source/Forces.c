@@ -368,9 +368,6 @@ struct point CoreForce_WCA(struct point r[], int i) {
     F.y = 0.;
     F.z = 0.;
 
-    double fx=0.0, fy=0.0, fz=0.0;
-
-
     int p;
     int neighlist[1000];
     List_Of_Neighs(i,neighlist,1);

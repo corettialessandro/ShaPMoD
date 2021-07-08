@@ -30,4 +30,6 @@ void Block_MD_St_Ew(void);
 void Block_MD_Pol(void);
 void Block_MD_Pol_Ew(void);
 
+void Block_MD_MultiMaze(void);
+
 #endif /* Block_MD_h */
