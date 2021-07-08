@@ -444,6 +444,7 @@ void ReadInput(){
     CELL_SIZE_X = LBOX/N_CELLS_X;
     CELL_SIZE_Y = LBOX/N_CELLS_Y;
     CELL_SIZE_Z = LBOX/N_CELLS_Z;
+    printf("Cell list: %d X %d X %d cells of size %lf\n",N_CELLS_X,N_CELLS_Y,N_CELLS_Z,CELL_SIZE_X);
     if ((HEADS = (int *)calloc(N_CELLS_X*N_CELLS_Y*N_CELLS_Z, sizeof(int))) == NULL) pointer_flag = 111;
     for (i=0;i<N_CELLS_X*N_CELLS_Y*N_CELLS_Z;i++) HEADS[i] = -1;
     if ((LINKS = (int *)calloc(NPART, sizeof(int))) == NULL) pointer_flag = 111;
@@ -505,9 +506,6 @@ void ReadInput(){
 
           if (EWALD == 'F') {
               fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
-
-              // Filling the list of cells
-              //Add_Point_To_Cell(PARTPOS_T[i],i);
 
               if (MODE == 'S') {
 

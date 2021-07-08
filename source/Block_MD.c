@@ -29,6 +29,10 @@ void Block_MD_St(void){
         FirstStep_St();
         t0 = 1;
     }
+
+    // Filling the list of cells
+    for (i=0; i<NPART; i++) Add_Point_To_Cell(PARTPOS_T[i],i);
+
     for (t=t0; t<NTIMESTEPS; t++) {
 
         t_start = clock();
@@ -71,6 +75,7 @@ void Block_MD_St(void){
 
             } else if (POT == 'W') {
                 CF_t = CoreForce_WCA(PARTPOS_T, i);
+                //if (i==0) printf("%lf %lf %lf\n\n",CF_t.x,CF_t.y,CF_t.z);
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;

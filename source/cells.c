@@ -31,9 +31,9 @@
 
 int Find_Cell ( const struct point p )
 {
-	int i = (int)(p.x/CELL_SIZE_X);
-	int j = (int)(p.y/CELL_SIZE_Y);
-	int k = (int)(p.z/CELL_SIZE_Z);
+	int i = (int)((p.x+0.5*LBOX)/CELL_SIZE_X);
+	int j = (int)((p.y+0.5*LBOX)/CELL_SIZE_Y);
+	int k = (int)((p.z+0.5*LBOX)/CELL_SIZE_Z);
 	return ID3D(i,j,k);
 }
 
@@ -48,8 +48,12 @@ void Find_Ind ( const int cell_label, int *i, int *j, int *k ) //CHECK THIS
 void Add_Point_To_Cell ( const struct point p, const int label)
 {
 	int n = Find_Cell(p);
+	//printf("Adding particle %d [%lf,%lf,%lf] -> [%lf,%lf,%lf] into cell %d [%d,%d,%d]\n",label,p.x,p.y,p.z,p.x+0.5*LBOX,p.y+0.5*LBOX,p.z+0.5*LBOX,n,(int)((p.x+0.5*LBOX)/CELL_SIZE_X),(int)((p.y+0.5*LBOX)/CELL_SIZE_Y),(int)((p.z+0.5*LBOX)/CELL_SIZE_Z));
+	//printf("LINKS[%d] = HEADS[%d]\n",label,n);
 	LINKS[label] = HEADS[n];
+	//printf("HEADS[%d] = %d\n",n,label);
 	HEADS[n] = label;
+	//printf("HOST[%d] = %d\n",label,n);
 	HOST[label] = n;
 }
 
