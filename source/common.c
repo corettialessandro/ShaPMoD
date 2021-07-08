@@ -678,6 +678,16 @@ void ReadInput(){
 
     printf("\nTotal Mass of the system: MTOT = %lf (%lf Amu)\n", MTOT, MTOT*_M_CONV);
     printf("SHAKE Tolerance: %.4e\n", LOW_TOL);
+    printf("LJ parameters: \n");
+    printf("B-B sigma = %.4e \n",LJSIGMA[0][0]);
+    printf("B-B epsilon = %.4e \n",LJEPS[0][0]);
+    printf("B-B rcut = %.4e \n",LJRCUT[0][0]);
+    printf("S-S sigma = %.4e \n",LJSIGMA[1][1]);
+    printf("S-S epsilon = %.4e \n",LJEPS[1][1]);
+    printf("S-S rcut = %.4e \n",LJRCUT[1][1]);
+    printf("B-S sigma = %.4e \n",LJSIGMA[0][1]);
+    printf("B-S epsilon = %.4e \n",LJEPS[0][1]);
+    printf("B-S rcut = %.4e \n",LJRCUT[0][1]);
     printf("Output frequencies:\n");
     printf(" - Screen: ISCREEN = %d\n", IANSCREEN);
     printf(" - File: IFILE = %d\n", IANFILE);

@@ -398,6 +398,10 @@ double EnerPot_WAC(struct point r[]){
 
     int i, j, indx_i, indx_j, indx_int;
     //    int n1, n2;
+    double rCUT;
+    double lround = 0.01;
+    double Rround, R2round;
+    double  r2inv, r6inv, rc2inv, rc6inv;
     double SC_r, CS_r, SC_r2, CC_r, CC_r2, SS_r, CC_r3, CC_r6, CC_r8, CC_r12;
     struct point SC_d, CS_d, CC_d, SS_d;
     double LJ_sigma6, LJ_sigma12;
@@ -411,37 +415,72 @@ double EnerPot_WAC(struct point r[]){
 //        SC_d = d_rhoirj(rho[i], r[i], r[i]);
 //        SC_d = Distance(rho[i], r[i]);
 
-        int p;
-        int neighlist[50];
-        List_Of_Neighs(i,neighlist,1);
-        for (p=1;p<=neighlist[0];p++) {
-            j = neighlist[p];
-            if (i!=j) {
+        // int p;
+        // int neighlist[50];
+        // List_Of_Neighs(i,neighlist,1);
+//         for (p=1;p<=neighlist[0];p++) {
+//             j = neighlist[p];
+//             if (i!=j) {
+//
+//                 indx_j = INDX[j];
+//                 indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+//
+//                 LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+//                 LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+//
+//                 //Core-Core interactions
+// //              CC_d = d_rirj(r[i], r[j]);
+//                 CC_d = Distance(r[i], r[j]);
+//                 CC_r = mod(CC_d);
+//
+//                 if (CC_r <= LJRCUT[indx_i][indx_j]) {
+//
+//                   r2inv = 1.0/(CC_r*CC_r);
+//                   r6inv = r2inv*r2inv*r2inv;
+//                   rc2inv = 1.0/(rCUT*rCUT);
+//                   rc6inv = rc2inv*rc2inv*rc2inv;
+//
+//                   EPot += 4.*(CC_r12*LJ_sigma12 - CC_r6*LJ_sigma6)*LJEPS[indx_i][indx_j];
+//
+//                 }
+//             }
+//
+//         }
+        for(j=0; j<NPART; j++){
 
-                indx_j = INDX[j];
-                indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+            if (i!=j){
 
-                LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
-                LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+              indx_j = INDX[j];
 
-                //Core-Core interactions
+              indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+              rCUT = LJRCUT[indx_i][indx_j];
+              LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+              LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+
+              //Core-Core interactions
 //              CC_d = d_rirj(r[i], r[j]);
-                CC_d = Distance(r[i], r[j]);
-                CC_r = mod(CC_d);
+              CC_d = Distance(r[i], r[j]);
+              CC_r = mod(CC_d);
 
-                if (CC_r <= LJRCUT[indx_i][indx_j]) {
+              if (CC_r <= rCUT) {
 
-                    CC_r2 = CC_r*CC_r;
-                    CC_r3 = CC_r*CC_r2;
-                    CC_r6 = CC_r3*CC_r3;
-                    CC_r12 = CC_r6*CC_r6;
+                  r2inv = 1.0/(CC_r*CC_r);
+                  r6inv = r2inv*r2inv*r2inv;
+                  rc2inv = 1.0/(rCUT*rCUT);
+                  rc6inv = rc2inv*rc2inv*rc2inv;
 
-                    EPot += 4.*(CC_r12*LJ_sigma12 - CC_r6*LJ_sigma6)*LJEPS[indx_i][indx_j];
+                  EPot += 4.*r6inv*(r6inv*LJ_sigma12 - LJ_sigma6)*LJEPS[indx_i][indx_j];
+                  if (CC_r > (rCUT-lround)) {
+                      Rround = (CC_r - rCUT + lround)/lround;
+                      EPot += Rround*Rround*(2.*Rround - 3.)*4.*r6inv*(r6inv*LJ_sigma12 - LJ_sigma6)*LJEPS[indx_i][indx_j];
 
-                }
+                  }
+
+              }
             }
+          }
 
-        }
     }
 
     // for (i=0; i<NINTER; i++) {

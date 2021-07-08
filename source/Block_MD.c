@@ -156,12 +156,12 @@ void Block_MD_St(void){
                 SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
 
             } else if (POT == 'W') {
-                CF_t = CoreForce_WCA(PARTPOS_T, i);
+                CF_t = CoreForce_WCA(PARTPOS_TP1, i);
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
             }
-            
+
             if (DEBUG_FLAG && _D_TOT_FORCES) {
 
                 CFtot.x += (CF_t.x);
@@ -190,6 +190,7 @@ void Block_MD_St(void){
             SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
             SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
             SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
+            //printf("%.4e \n", PARTPOS_T[0].x);
 
 
         }
