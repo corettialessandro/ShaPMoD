@@ -26,6 +26,7 @@ double EnerKin(struct point v[]);
 double EnerPot_HM(struct point r[]);
 double EnerPot_Jac(struct point r[], struct point rho[]);
 double EnerPot_Cicc(struct point r[], struct point rho[]);
+double EnerPot_WCA(struct point r[]);
 double EnerTot(struct point r[], struct point rho[], struct point v[]);
 double Temperature(struct point v[]);
 double Pressure_Jac(struct point r[], struct point rho[]);

@@ -46,6 +46,9 @@ void FirstStep_St(void){
         } else if (POT == 'W') {
 
             CF_t = CoreForce_WCA(PARTPOS_T, i);
+            SF_t.x = 0;
+            SF_t.y = 0;
+            SF_t.z = 0;
         }
 
         if (DEBUG_FLAG && _D_TOT_FORCES) {

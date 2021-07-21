@@ -427,20 +427,20 @@ void ReadInput(){
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][0]);
-    LJRCUT[0][0] = SIGMA[0]+SIGMA[0];
-    LJSIGMA[0][0] = pow(2.0,1./6.) * LJRCUT[0][0];
+    // LJRCUT[0][0] = SIGMA[0]+SIGMA[0];
+    // LJSIGMA[0][0] = pow(2.0,1./6.) * LJRCUT[0][0];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[1][1]);
-    LJRCUT[1][1] = SIGMA[1]+SIGMA[1];
-    LJSIGMA[1][1] = pow(2.0,1./6.) * LJRCUT[1][1];
+    // LJRCUT[1][1] = SIGMA[1]+SIGMA[1];
+    // LJSIGMA[1][1] = pow(2.0,1./6.) * LJRCUT[1][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][1]); LJSIGMA[1][0] = LJSIGMA[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][1]); LJEPS[1][0] = LJEPS[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][1]); LJRCUT[1][0] = LJRCUT[0][1];
-    LJRCUT[0][1] = SIGMA[0]+SIGMA[1];
-    LJSIGMA[0][1] = pow(2.0,1./6.) * LJRCUT[0][1];
-    LJRCUT[1][0] = SIGMA[0]+SIGMA[1];
-    LJSIGMA[1][0] = pow(2.0,1./6.) * LJRCUT[1][0];
+    // LJRCUT[0][1] = SIGMA[0]+SIGMA[1];
+    // LJSIGMA[0][1] = pow(2.0,1./6.) * LJRCUT[0][1];
+    // LJRCUT[1][0] = SIGMA[0]+SIGMA[1];
+    // LJSIGMA[1][0] = pow(2.0,1./6.) * LJRCUT[1][0];
 
     // Cell list
     double LJRCUTMAX = LJRCUT[0][0];

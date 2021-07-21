@@ -1,48 +1,57 @@
-P		Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode)
-S		Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
-F		Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
-J		Potential to use ('J' = Jacucci, 'C' = Ciccotti)
-108		Number of molecules
-2		Number of atomic species
-1		Number of atoms of first species
-1		Number of atoms of the second species
-0.25		Timestep (fs)
-5000		Number of timesteps
-0.02752		Density of particles (Å^-3)
-F		Thermostat ('T' = ON, 'F' = OFF)
-1365.		Temperature (K)
-.5		Short-range cut-off scaling factor
-Cl		First species
-35.453		Core Mass
-0.		Shell starting mass
-+2.17		Core Charge
--3.17		Shell Charge
-5.0		Atom 'radius'
-20.5140266244	Core-Shell coupling constant
-Na              Second species
-22.98977        Core Mass
-0.		Shell starting mass
-+3.17		Core Charge +1.
--2.17		Shell Charge 0.
-3.69            Atom 'radius'
-454.621		Core-Shell coupling constant 454.621 882.995
-1.0		B
-1.0		LAMBDA
-0.75		b--
-338209.43	C--
-6760286.8	D--
-1.		b-+
-32654.704	C-+
-403296.08	D-+
-1.25		b++
-4898.2056	C++
-23211.285	D++
-1.e-10		Tolerance for shell relaxation
+S       	Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode)
+S       	Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
+F       	Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
+W       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA)
+1       	Number of molecules
+2       	Number of atomic species
+1		Number of atoms of the first species
+215     	Number of atoms of the second species
+1	    	Timestep (fs)
+500	   	Number of timesteps
+0.0127  	Density of particles (Å^-3)
+F       	Thermostat ('T' = ON, 'F' = OFF)
+179.7		Temperature (K)
+.5      	Short-range cut-off scaling factor
+Na      	First species
+39.948      	Core Mass
+0.      	Shell starting mass
++2.17       	Core Charge
+-3.17       	Shell Charge
+3.0     	Atom 'radius'
+20.5140266244   Core-Shell coupling constant
+Cl              Second species
+39.948          Core Mass
+0.      	Shell starting mass
++3.17       	Core Charge +1.
+-2.17       	Shell Charge 0.
+1.0         	Atom 'radius'
+454.621     	Core-Shell coupling constant 454.621 882.995
+1.0     	B
+1.0     	LAMBDA
+0.75        	b--
+338209.43   	C--
+6760286.8   	D--
+1.      	b-+
+32654.704   	C-+
+403296.08   	D-+
+1.25        	b++
+4898.2056   	C++
+23211.285   	D++
+1.e-10      	Tolerance for shell relaxation
+10.74           LJsigma B-B
+0.049           LJeps B-B
+34.7         	LJcut B-B
+10.74           LJsigma S-S
+0.049         	LJeps S-S
+34.7         	LJcut S-S
+10.74           LJsigma B-S
+0.049           LJeps B-S
+34.7         	LJcut B-S
 # ##############Frequencies for data analysis
-1		General output on screen
-1		General output on file
-1		Phase Space output
-1		VMD trajectory output
-1		SHAKE output
-1		GofR sampling
-1		Checkpoint
+1       General output on screen
+1       General output on file
+1       Phase Space output
+1       VMD trajectory output
+1       SHAKE output
+1       GofR sampling
+1       Checkpoint
