@@ -23,7 +23,7 @@ void Block_MD_St(void){
     char therm;
 
     clock_t t_start, t_end;
-
+    for (i=0; i<NPART; i++) Add_Point_To_Cell(PARTPOS_T[i],i);
     if (PRECONFIG_FLAG == 1) {
 
         FirstStep_St();
@@ -31,7 +31,7 @@ void Block_MD_St(void){
     }
 
     // Filling the list of cells
-    for (i=0; i<NPART; i++) Add_Point_To_Cell(PARTPOS_T[i],i);
+
 
     for (t=t0; t<NTIMESTEPS; t++) {
 

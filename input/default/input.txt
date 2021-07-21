@@ -4,8 +4,8 @@ F       	Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
 W       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA)
 1       	Number of molecules
 2       	Number of atomic species
-1		Number of atoms of the first species
-215     	Number of atoms of the second species
+0		Number of atoms of the first species
+216     	Number of atoms of the second species
 1	    	Timestep (fs)
 500	   	Number of timesteps
 0.0127  	Density of particles (Å^-3)

@@ -372,6 +372,7 @@ struct point CoreForce_WCA(struct point r[], int i) {
     int p;
     int neighlist[1000];
     List_Of_Neighs(i,neighlist,1);
+    if (i==0) printf("Cell :");
     for (p=1;p<=neighlist[0];p++) {
         j = neighlist[p];
         if (i!=j) {
@@ -391,6 +392,7 @@ struct point CoreForce_WCA(struct point r[], int i) {
           // exit(0);
 
           if (CC_r <= rCUT){
+              if (i==0) printf("%d ",j);
 
               r2inv = 1.0/(CC_r*CC_r);
               r6inv = r2inv*r2inv*r2inv;
@@ -421,7 +423,8 @@ struct point CoreForce_WCA(struct point r[], int i) {
         }
 
     }
-
+    if (i==0) printf("\n");
+    if (i==0) printf("No Cell :");
     for(j=0; j<NPART; j++){
 
         if (i!=j){
@@ -442,6 +445,7 @@ struct point CoreForce_WCA(struct point r[], int i) {
             // exit(0);
 
             if (CC_r <= rCUT){
+                if (i==0) printf("%d ",j);
 
                 r2inv = 1.0/(CC_r*CC_r);
                 r6inv = r2inv*r2inv*r2inv;
@@ -471,7 +475,8 @@ struct point CoreForce_WCA(struct point r[], int i) {
             }
         }
     }
-    if (i==0) {printf("Fcell = %lf %lf %lf\nFnocell = %lf %lf %lf \n",F.x,F.y,F.z,fx,fy,fz);}
+    if (i==0) printf("\n");
+    //if (i==0) {printf("Fcell = %lf %lf %lf\nFnocell = %lf %lf %lf \n",F.x,F.y,F.z,fx,fy,fz);}
 
     return F;
 }
