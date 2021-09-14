@@ -45,7 +45,7 @@ void FirstStep_St(void){
             SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
         } else if (POT == 'W') {
 
-            CF_t = CoreForce_WCA(PARTPOS_T, i);
+            CF_t = Force_WCA(PARTPOS_T, i);
             SF_t.x = 0;
             SF_t.y = 0;
             SF_t.z = 0;
@@ -158,6 +158,10 @@ void FirstStep_St(void){
         PARTPOS_T[i] = PARTPOS_TP1[i];
         SHELLPOS_TM1[i] = SHELLPOS_T[i];
         SHELLPOS_T[i] = SHELLPOS_TP1[i];
+
+        // Updating the cells
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(PARTPOS_T[i],i);
     }
 
     if (1 % IANFILE == 0) Analyse(1, PARTPOS_T, SHELLPOS_T, PARTVEL, ' ');

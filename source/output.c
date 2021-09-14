@@ -347,22 +347,30 @@ void Write_GofR(int timestep, struct point r[]){
 
 void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct point v[], struct point sv[]){
 
+    int y, z, tlog;
     if (timestep == 0) {
 
         Write_InitConfig(r, rho, v);
 
-    }else{
+    } else {
 
         if (MODE == 'S') {
 
-            Write_PartPositions(r);
-            Write_PartVelocities(v);
+//            for (z=0;z<=7;z++) {
+//                for (y=1;y<=9;y++) {
+//                    tlog = y*(int)(pow(10.,z));
+//                    if (timestep==0 || timestep==tlog) {
+                        Write_PartPositions(r,timestep);
+                        Write_PartVelocities(v,timestep);
+//                    }
+//                }
+//            }
 
         } else if (MODE == 'P'){
 
-            Write_PartPositions(r);
+            Write_PartPositions(r,timestep);
             Write_ShellPositions(rho);
-            Write_PartVelocities(v);
+            Write_PartVelocities(v,timestep);
             Write_ShellVelocities(sv);
         }
     }
@@ -395,7 +403,7 @@ void Write_InitConfig(struct point r[], struct point rho[], struct point v[]){
     fclose(fp_psconfig_out);
 }
 
-void Write_PartPositions(struct point r[]){
+void Write_PartPositions(struct point r[], int time){
 
     FILE *fp_partpos_out0;
     FILE *fp_partpos_out1;
@@ -405,8 +413,49 @@ void Write_PartPositions(struct point r[]){
     char outputpath0[_MAX_STR_LENGTH];
     char outputpath1[_MAX_STR_LENGTH];
 
-    sprintf(outputpath0, "%sPSconfig/r_neg.txt", OUTPUTFOL);
-    sprintf(outputpath1, "%sPSconfig/r_pos.txt", OUTPUTFOL);
+    sprintf(outputpath0, "%sPSconfig/r_neg_t%d.txt", OUTPUTFOL,time);
+    sprintf(outputpath1, "%sPSconfig/r_pos_t%d.txt", OUTPUTFOL,time);
+
+    if ((fp_partpos_out0 = fopen(outputpath0, "a")) == NULL){
+
+        printf("\noutput.c -> Write_PartPositions() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath0);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp_partpos_out1 = fopen(outputpath1, "a")) == NULL){
+
+        printf("\noutput.c -> Write_PartPositions() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath1);
+        exit(EXIT_FAILURE);
+    }
+
+    for (i=0; i<NPART; i++) {
+
+        if (INDX[i] == 0) {
+
+            fprintf(fp_partpos_out0, "%.10e\t%.10e\t%.10e\n", r[i].x, r[i].y, r[i].z);
+
+        } else if (INDX[i] == 1) {
+
+            fprintf(fp_partpos_out1, "%.10e\t%.10e\t%.10e\n", r[i].x, r[i].y, r[i].z);
+        }
+    }
+
+    fclose(fp_partpos_out0);
+    fclose(fp_partpos_out1);
+}
+
+void Write_LogPartPositions(struct point r[], int timestep){
+
+    FILE *fp_partpos_out0;
+    FILE *fp_partpos_out1;
+
+    int i;
+
+    char outputpath0[_MAX_STR_LENGTH];
+    char outputpath1[_MAX_STR_LENGTH];
+
+    sprintf(outputpath0, "%sPSconfig/r_neg_logt%d.txt", OUTPUTFOL,timestep);
+    sprintf(outputpath1, "%sPSconfig/r_pos_logt%d.txt", OUTPUTFOL,timestep);
 
     if ((fp_partpos_out0 = fopen(outputpath0, "a")) == NULL){
 
@@ -477,7 +526,7 @@ void Write_ShellPositions(struct point rho[]){
     fclose(fp_shellpos_out1);
 }
 
-void Write_PartVelocities(struct point v[]){
+void Write_PartVelocities(struct point v[], int time){
 
     FILE *fp_partvel_out0;
     FILE *fp_partvel_out1;
@@ -487,8 +536,49 @@ void Write_PartVelocities(struct point v[]){
     char outputpath0[_MAX_STR_LENGTH];
     char outputpath1[_MAX_STR_LENGTH];
 
-    sprintf(outputpath0, "%sPSconfig/v_neg.txt", OUTPUTFOL);
-    sprintf(outputpath1, "%sPSconfig/v_pos.txt", OUTPUTFOL);
+    sprintf(outputpath0, "%sPSconfig/v_neg_t%d.txt", OUTPUTFOL,time);
+    sprintf(outputpath1, "%sPSconfig/v_pos_t%d.txt", OUTPUTFOL,time);
+
+    if ((fp_partvel_out0 = fopen(outputpath0, "a")) == NULL){
+
+        printf("\noutput.c -> Write_PartVelocities() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath0);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((fp_partvel_out1 = fopen(outputpath1, "a")) == NULL){
+
+        printf("\noutput.c -> Write_PartVelocities() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath1);
+        exit(EXIT_FAILURE);
+    }
+
+    for (i=0; i<NPART; i++) {
+
+        if (INDX[i] == 0) {
+
+            fprintf(fp_partvel_out0, "%.10e\t%.10e\t%.10e\n", v[i].x, v[i].y, v[i].z);
+
+        } else if (INDX[i] == 1) {
+
+            fprintf(fp_partvel_out1, "%.10e\t%.10e\t%.10e\n", v[i].x, v[i].y, v[i].z);
+        }
+    }
+
+    fclose(fp_partvel_out0);
+    fclose(fp_partvel_out1);
+}
+
+void Write_LogPartVelocities(struct point v[], int timestep){
+
+    FILE *fp_partvel_out0;
+    FILE *fp_partvel_out1;
+
+    int i;
+
+    char outputpath0[_MAX_STR_LENGTH];
+    char outputpath1[_MAX_STR_LENGTH];
+
+    sprintf(outputpath0, "%sPSconfig/v_neg_logt%d.txt", OUTPUTFOL,timestep);
+    sprintf(outputpath1, "%sPSconfig/v_pos_logt%d.txt", OUTPUTFOL,timestep);
 
     if ((fp_partvel_out0 = fopen(outputpath0, "a")) == NULL){
 

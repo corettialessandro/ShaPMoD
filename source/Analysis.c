@@ -399,26 +399,33 @@ double EnerPot_WCA(struct point r[]){
     int i, j, indx_i, indx_j, indx_int;
     //    int n1, n2;
     double rCUT;
-    double lround = 0.01;
+    double lround;
     double Rround, R2round;
     double r2inv, r6inv, rc2inv, rc6inv;
     double ljatrc;
     double ep;
+    double epi, epi1;
     double SC_r, CS_r, SC_r2, CC_r, CC_r2, SS_r, CC_r3, CC_r6, CC_r8, CC_r12;
     struct point SC_d, CS_d, CC_d, SS_d;
     double LJ_sigma6, LJ_sigma12;
 
     double cut_corr = 0;
 
+    int p;
+    int neighlist[1000];
+    int n1, n2;
+    int neigh1[1000], neigh2[1000];
+
     for (i=0; i<NPART; i++) {
+
+        epi = 0.;
+        n1 = 0;
 
         indx_i = INDX[i];
 
 //        SC_d = d_rhoirj(rho[i], r[i], r[i]);
 //        SC_d = Distance(rho[i], r[i]);
 
-        int p;
-        int neighlist[1000];
         List_Of_Neighs(i,neighlist,1);
         for (p=1;p<=neighlist[0];p++) {
             j = neighlist[p];
@@ -429,6 +436,7 @@ double EnerPot_WCA(struct point r[]){
               indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
               rCUT = LJRCUT[indx_i][indx_j];
+              lround = LJLROUND[indx_i][indx_j];
               LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
               LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
 
@@ -438,6 +446,9 @@ double EnerPot_WCA(struct point r[]){
               CC_r = mod(CC_d);
 
               if (CC_r <= rCUT) {
+
+                  neigh1[n1] = j;
+                  n1++;
                   r2inv = 1.0/(CC_r*CC_r);
                   r6inv = r2inv*r2inv*r2inv;
                   rc2inv = 1.0/(rCUT*rCUT);
@@ -452,14 +463,17 @@ double EnerPot_WCA(struct point r[]){
 
                   }
 
-
                   EPot += ep;
+                  epi += ep;
 
                 }
             }
 
         }
+
         for(j=0; j<NPART; j++){
+
+            n2 = 0;
 
             if (i!=j){
 
@@ -477,6 +491,9 @@ double EnerPot_WCA(struct point r[]){
               CC_r = mod(CC_d);
 
               if (CC_r <= rCUT) {
+
+                  neigh2[n2] = j;
+                  n2++;
                   r2inv = 1.0/(CC_r*CC_r);
                   r6inv = r2inv*r2inv*r2inv;
                   rc2inv = 1.0/(rCUT*rCUT);
@@ -491,12 +508,23 @@ double EnerPot_WCA(struct point r[]){
 
                   }
 
-
-                  // EPot += ep;
+                  //EPot += ep;
+                  epi -= ep;
 
               }
             }
-          }
+        }
+
+        if (epi>0.001 || epi<-0.001) {
+            printf("Wrong computation of force for particle %d\n",i);
+            printf("%d neighbours: [ ",n1);
+            for (j=0;j<n1;j++) printf("%d ",neigh1[j]);
+            printf("]\n");
+            printf("%d neighbours: [ ",n2);
+            for (j=0;j<n2;j++) printf("%d ",neigh2[j]);
+            printf("]\n");
+        }
+
 
     }
 

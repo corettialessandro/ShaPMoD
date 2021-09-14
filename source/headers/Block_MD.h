@@ -16,6 +16,7 @@
 #include "structs.h"
 #include "common.h"
 
+#include "cells.h"
 #include "FirstStep.h"
 #include "Analysis.h"
 #include "Forces.h"

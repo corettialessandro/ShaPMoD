@@ -79,6 +79,7 @@ extern double ALPHA;
 extern double LJSIGMA[2][2];
 extern double LJEPS[2][2];
 extern double LJRCUT[2][2];
+extern double LJLROUND[2][2];
 
 extern int N_CELLS_X;
 extern int N_CELLS_Y;
@@ -181,12 +182,4 @@ extern struct point ANMOMAVG;
 void ReadInput(void);
 void FreePointers(void);
 
-/*
-void Init_Cell ( int cut );
-int Find_Cell ( const struct point p );
-void Find_Ind ( const int cell_label, int *i, int *j, int *k ); //CHECK THIS
-void Add_Point_To_Cell ( const struct point p, const int label );
-void Rem_Point_From_Cell (const int label );
-void List_Of_Neighs ( const int label, int *list, int nshells );
-*/
 #endif /* common_h */

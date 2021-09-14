@@ -64,6 +64,7 @@ double ALPHA;
 double LJSIGMA[2][2];
 double LJEPS[2][2];
 double LJRCUT[2][2];
+double LJLROUND[2][2];
 
 int N_CELLS_X;
 int N_CELLS_Y;
@@ -427,25 +428,26 @@ void ReadInput(){
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][0]);
-    // LJRCUT[0][0] = SIGMA[0]+SIGMA[0];
-    // LJSIGMA[0][0] = pow(2.0,1./6.) * LJRCUT[0][0];
+    LJRCUT[0][0] = pow(2.0,1./6.) * LJSIGMA[0][0];
+    LJLROUND[0][0] = 0.01*LJRCUT[0][0];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[1][1]);
-    // LJRCUT[1][1] = SIGMA[1]+SIGMA[1];
-    // LJSIGMA[1][1] = pow(2.0,1./6.) * LJRCUT[1][1];
+    LJRCUT[1][1] = pow(2.0,1./6.) * LJSIGMA[1][1];
+    LJLROUND[1][1] = 0.01*LJRCUT[1][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][1]); LJSIGMA[1][0] = LJSIGMA[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][1]); LJEPS[1][0] = LJEPS[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][1]); LJRCUT[1][0] = LJRCUT[0][1];
-    // LJRCUT[0][1] = SIGMA[0]+SIGMA[1];
-    // LJSIGMA[0][1] = pow(2.0,1./6.) * LJRCUT[0][1];
-    // LJRCUT[1][0] = SIGMA[0]+SIGMA[1];
-    // LJSIGMA[1][0] = pow(2.0,1./6.) * LJRCUT[1][0];
+    LJRCUT[0][1] = pow(2.0,1./6.) * LJSIGMA[0][1];
+    LJLROUND[0][1] = 0.01*LJRCUT[0][1];
+    LJRCUT[1][0] = pow(2.0,1./6.) * LJSIGMA[1][0];
+    LJLROUND[1][0] = 0.01*LJRCUT[1][0];
 
     // Cell list
     double LJRCUTMAX = LJRCUT[0][0];
     if (LJRCUT[0][1]>LJRCUTMAX) LJRCUTMAX = LJRCUT[0][1];
     if (LJRCUT[1][1]>LJRCUTMAX) LJRCUTMAX = LJRCUT[1][1];
+    //LJRCUTMAX+=1.0;
     N_CELLS_X = (int)(floor(LBOX/LJRCUTMAX));
     N_CELLS_Y = (int)(floor(LBOX/LJRCUTMAX));
     N_CELLS_Z = (int)(floor(LBOX/LJRCUTMAX));
@@ -773,67 +775,3 @@ void FreePointers(void){
     free(S_PTAIL);
     free(DENS_RED);
 }
-
-/*
-int Find_Cell ( const struct point p )
-{
-    int i = (int)(p.x/CELL_SIZE_X);
-    int j = (int)(p.y/CELL_SIZE_Y);
-    int k = (int)(p.z/CELL_SIZE_Z);
-    return (k + (j + i*N_CELLS_Y)*N_CELLS_Z);
-}
-
-void Find_Ind ( const int cell_label, int *i, int *j, int *k ) //CHECK THIS
-{
-    *i = (int)(cell_label/(N_CELLS_Y*N_CELLS_Z));
-    *j = (int)(cell_label/N_CELLS_Z) - (int)(cell_label/(N_CELLS_Y*N_CELLS_Z))*N_CELLS_Y;
-    *k = cell_label % N_CELLS_Z;
-//  printf("%d -> %d\n",l,ID3D(*i,*j,*k));
-}
-
-void Add_Point_To_Cell ( const struct point p, const int label)
-{
-    int n = Find_Cell(p);
-    LINKS[label] = HEADS[n];
-    HEADS[n] = label;
-    HOST[label] = n;
-}
-
-void Rem_Point_From_Cell (const int label)
-{
-    int n = HEADS[HOST[label]];
-    if (n==label) HEADS[HOST[label]] = LINKS[n];
-    else { while(LINKS[n]!=label) n = LINKS[n]; }
-    LINKS[n] = LINKS[label];
-    HOST[label] = -1;
-}
-
-void List_Of_Neighs ( const int label, int *list, int nshells )
-{
-// Writes neighbors' labels on list
-// The first element is the number of neighbors
-// and the remaining elements are the labels of the neighboring particles.
-// The list also contains the particle itself!!!
-    int i,j,k,ii,jj,kk,pi,pj,pk;
-    int c,l;
-    int n=0;
-    Find_Ind(HOST[label],&i,&j,&k);
-    for (ii=-nshells;ii<=nshells;ii++) {
-        for (jj=-nshells;jj<=nshells;jj++) {
-            for (kk=-nshells;kk<=nshells;kk++) {
-                pi = (i + ii + N_CELLS_X) % N_CELLS_X;
-                pj = (j + jj + N_CELLS_Y) % N_CELLS_Y;
-                pk = (k + kk + N_CELLS_Z) % N_CELLS_Z;
-                c = (pk + (pj + pi*N_CELLS_Y)*N_CELLS_Z);;
-                l = HEADS[c];
-                while (l>=0) {
-                    list[n+1] = l;
-                    l = LINKS[l];
-                    n++;
-                }
-            }
-        }
-    }
-    *list = n;
-}
-*/

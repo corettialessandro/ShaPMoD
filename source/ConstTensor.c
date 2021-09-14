@@ -258,3 +258,107 @@ struct tensor ConstTens_Cicc(struct point rho[], struct point r[], int i, int k)
 
     return W;
 }
+
+struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) {
+
+//Here k is the index of the constraint (one component of the force) and i is the index in the derivative
+    struct tensor W;
+
+    struct point SS_d;
+    double SS_r;
+    double rCUT, lround, Rround;
+    double r2inv, r6inv, rc2inv, rc6inv;
+    double LJ_eps, LJ_sigma6, LJ_sigma12;
+    double ljatrc;
+
+    int j, indx_i = INDX[i], indx_j, indx_int;
+
+    if (i==k) {
+
+        W.fx.x = W.fx.y = W.fx.z = 0.;
+        W.fy.x = W.fy.y = W.fy.z = 0.;
+        W.fz.x = W.fz.y = W.fz.z = 0.;
+
+        //for (j=0; j<NPART; j++){
+        int p;
+        int neighlist[1000];
+        List_Of_Neighs(k,neighlist,1);
+        for (p=1;p<=neighlist[0];p++) {
+
+            j = neighlist[p];
+
+            if (j!=k) {
+
+                indx_j = INDX[j];
+                indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+                rCUT = LJRCUT[indx_i][indx_j];
+                lround = LJLROUND[indx_i][indx_j];
+                LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+                LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+                SS_d = Distance(rho[i], rho[j]);
+                SS_r = mod(SS_d);
+
+                if (SS_r <= rCUT) {
+
+                    r2inv = 1.0/(SS_r*SS_r);
+                    r6inv = r2inv*r2inv*r2inv;
+                    rc2inv = 1.0/(rCUT*rCUT);
+                    rc6inv = rc2inv*rc2inv*rc2inv;
+                    ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+
+
+                    W.fx.x += 0.;
+                    W.fx.y += 0.;
+                    W.fx.z += 0.;
+                    W.fy.x += 0.;
+                    W.fy.y += 0.;
+                    W.fy.z += 0.;
+                    W.fz.x += 0.;
+                    W.fz.y += 0.;
+                    W.fz.z += 0.;
+                }
+            }
+        }
+
+    } else {
+
+        W.fx.x = W.fx.y = W.fx.z = W.fy.x = W.fy.y = W.fy.z = W.fz.x = W.fz.y = W.fz.z = 0.;
+
+        j=i;
+
+        if (j!=k) {
+
+            indx_j = INDX[j];
+            indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+            rCUT = LJRCUT[indx_i][indx_j];
+            lround = LJLROUND[indx_i][indx_j];
+            LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+            LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+            SS_d = Distance(rho[i], rho[j]);
+            SS_r = mod(SS_d);
+
+            if (SS_r <= rCUT) {
+
+                r2inv = 1.0/(SS_r*SS_r);
+                r6inv = r2inv*r2inv*r2inv;
+                rc2inv = 1.0/(rCUT*rCUT);
+                rc6inv = rc2inv*rc2inv*rc2inv;
+                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+
+                W.fx.x += 0.;
+                W.fx.y += 0.;
+                W.fx.z += 0.;
+                W.fy.x += 0.;
+                W.fy.y += 0.;
+                W.fy.z += 0.;
+                W.fz.x += 0.;
+                W.fz.y += 0.;
+                W.fz.z += 0.;
+            }
+        }
+    }
+
+    return W;
+}

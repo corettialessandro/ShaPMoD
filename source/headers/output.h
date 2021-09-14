@@ -28,9 +28,11 @@ void Write_GofR(int timestep, struct point r[]);
 
 void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct point v[], struct point sv[]);
 void Write_InitConfig(struct point r[], struct point rho[], struct point v[]);
-void Write_PartPositions(struct point r[]);
+void Write_PartPositions(struct point r[], int time);
+void Write_LogPartPositions(struct point r[], int time);
 void Write_ShellPositions(struct point rho[]);
-void Write_PartVelocities(struct point v[]);
+void Write_PartVelocities(struct point v[], int time);
+void Write_LogPartVelocities(struct point v[], int time);
 void Write_ShellVelocities(struct point sv[]);
 void Write_Trajectory(struct point r[], struct point rho[]);
 

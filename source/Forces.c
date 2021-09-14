@@ -350,21 +350,21 @@ struct point ShellForce_Cicc(struct point rho[], struct point r[], int i){
     return F;
 }
 
-struct point CoreForce_WCA(struct point r[], int i) {
+struct point Force_WCA(struct point r[], int i) {
 
     struct point F;
 
     double rCUT;
-    double lround = 0.01;
+    double lround;
     double Rround, R2round;
     int j, indx_i = INDX[i], indx_j, indx_int;
     struct point CC_d;
     double CC_r, r2inv, r6inv, rc2inv, rc6inv, ljatrc, forcelj, fpair, ljrc;
     double LJ_sigma6, LJ_sigma12;
-    double fx, fy, fz;
+    int nn;
 
-//    CS_d = d_rirhoj(r[i], rho[i], r[i]);
-//    CS_d = Distance(r[i], rho[i]);
+    //CS_d = d_rirhoj(r[i], rho[i], r[i]);
+    //CS_d = Distance(r[i], rho[i]);
     F.x = 0.;
     F.y = 0.;
     F.z = 0.;
@@ -372,7 +372,8 @@ struct point CoreForce_WCA(struct point r[], int i) {
     int p;
     int neighlist[1000];
     List_Of_Neighs(i,neighlist,1);
-    if (i==0) printf("Cell :");
+    nn = 0;
+    //if (i==100) printf("Neighs (cells):");
     for (p=1;p<=neighlist[0];p++) {
         j = neighlist[p];
         if (i!=j) {
@@ -380,11 +381,12 @@ struct point CoreForce_WCA(struct point r[], int i) {
           indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
           rCUT = LJRCUT[indx_i][indx_j];
+          lround = LJLROUND[indx_i][indx_j];
           LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
           LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
 
           //Core-Core interactions
-//            CC_d = d_rirj(r[i], r[j]);
+          //CC_d = d_rirj(r[i], r[j]);
           CC_d = Distance(r[i], r[j]);
           CC_r = mod(CC_d);
           // printf("CC_r = %.4e \n", CC_r);
@@ -392,39 +394,44 @@ struct point CoreForce_WCA(struct point r[], int i) {
           // exit(0);
 
           if (CC_r <= rCUT){
-              if (i==0) printf("%d ",j);
+              nn++;
+              //if (i==100) printf(" %d",j);
 
               r2inv = 1.0/(CC_r*CC_r);
               r6inv = r2inv*r2inv*r2inv;
               rc2inv = 1.0/(rCUT*rCUT);
               rc6inv = rc2inv*rc2inv*rc2inv;
-              ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+              ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+              //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
               forcelj = 24.0 * LJEPS[indx_i][indx_j]/CC_r * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
 
               //rounding the force
 
               if (CC_r > (rCUT-lround)) {
                   Rround = (CC_r - rCUT + lround)/lround;
-                  forcelj = 24.0
-                            * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
-                            + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                  //forcelj = 24.0
+                  //          * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
+                  //          + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                  forcelj = 24.0 * LJEPS[indx_i][indx_j] 
+                            * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
+                               + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
               }
 
-
               fpair = forcelj/CC_r;
-
-
 
               F.x += CC_d.x*fpair;
               F.y += CC_d.y*fpair;
               F.z += CC_d.z*fpair;
 
-            }
-        }
+          }
 
+        }
     }
-    if (i==0) printf("\n");
-    if (i==0) printf("No Cell :");
+    //if (i==100) printf(" (%d)\n",nn);
+/*
+    nn=0;
+    double fx=F.x, fy=F.y, fz=F.z;
+    //if (i==100) printf("Neighs:");
     for(j=0; j<NPART; j++){
 
         if (i!=j){
@@ -437,7 +444,7 @@ struct point CoreForce_WCA(struct point r[], int i) {
             LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
 
             //Core-Core interactions
-//            CC_d = d_rirj(r[i], r[j]);
+            //CC_d = d_rirj(r[i], r[j]);
             CC_d = Distance(r[i], r[j]);
             CC_r = mod(CC_d);
             // printf("CC_r = %.4e \n", CC_r);
@@ -445,38 +452,44 @@ struct point CoreForce_WCA(struct point r[], int i) {
             // exit(0);
 
             if (CC_r <= rCUT){
-                if (i==0) printf("%d ",j);
+                nn++;
+                //if (i==100) printf(" %d",j);
 
                 r2inv = 1.0/(CC_r*CC_r);
                 r6inv = r2inv*r2inv*r2inv;
                 rc2inv = 1.0/(rCUT*rCUT);
                 rc6inv = rc2inv*rc2inv*rc2inv;
-                ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
                 forcelj = 24.0 * LJEPS[indx_i][indx_j]/CC_r * r6inv * (2.0*LJ_sigma12*r6inv - LJ_sigma6);
 
                 //rounding the force
 
                 if (CC_r > (rCUT-lround)) {
                     Rround = (CC_r - rCUT + lround)/lround;
-                    forcelj = 24.0
-                              * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
-                              + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                    forcelj = 24.0 * LJEPS[indx_i][indx_j] 
+                            * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
+                               + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
                 }
-
 
                 fpair = forcelj/CC_r;
 
-
-
-                fx += CC_d.x*fpair;
-                fy += CC_d.y*fpair;
-                fz += CC_d.z*fpair;
+                F.x += CC_d.x*fpair;
+                F.y += CC_d.y*fpair;
+                F.z += CC_d.z*fpair;
+                //fx -= CC_d.x*fpair;
+                //fy -= CC_d.y*fpair;
+                //fz -= CC_d.z*fpair;
 
             }
+
         }
     }
-    if (i==0) printf("\n");
-    //if (i==0) {printf("Fcell = %lf %lf %lf\nFnocell = %lf %lf %lf \n",F.x,F.y,F.z,fx,fy,fz);}
+*/
+    //if (fabs(fx>0.000001)) printf("Interaction %d (%lf,%lf,%lf) along x wrong!\n",i,r[i].x+0.5*LBOX,r[i].y+0.5*LBOX,r[i].z+0.5*LBOX);
+    //if (fabs(fy>0.000001)) printf("Interaction %d (%lf,%lf,%lf) along y wrong!\n",i,r[i].x+0.5*LBOX,r[i].y+0.5*LBOX,r[i].z+0.5*LBOX);
+    //if (fabs(fz>0.000001)) printf("Interaction %d (%lf,%lf,%lf) along z wrong!\n",i,r[i].x+0.5*LBOX,r[i].y+0.5*LBOX,r[i].z+0.5*LBOX);
+    //if (i==100) printf(" (%d)\n",nn);
+    //if (i==100) {printf("Force: %lf %lf %lf (%lf %lf %lf)\n",F.x,F.y,F.z,fx,fy,fz);}
 
     return F;
 }

@@ -31,9 +31,13 @@
 
 int Find_Cell ( const struct point p )
 {
-	int i = (int)((p.x+0.5*LBOX)/CELL_SIZE_X);
-	int j = (int)((p.y+0.5*LBOX)/CELL_SIZE_Y);
-	int k = (int)((p.z+0.5*LBOX)/CELL_SIZE_Z);
+	double x, y, z;
+	x = p.x - LBOX*nearbyint(p.x/LBOX);
+	y = p.y - LBOX*nearbyint(p.y/LBOX);
+	z = p.z - LBOX*nearbyint(p.z/LBOX);
+	int i = (int)((x+0.5*LBOX)/CELL_SIZE_X);
+	int j = (int)((y+0.5*LBOX)/CELL_SIZE_Y);
+	int k = (int)((z+0.5*LBOX)/CELL_SIZE_Z);
 	return ID3D(i,j,k);
 }
 
@@ -73,8 +77,11 @@ void List_Of_Neighs ( const int label, int *list, int nshells )
 // and the remaining elements are the labels of the neighboring particles.
 // The list also contains the particle itself!!!
 	int i,j,k,ii,jj,kk,pi,pj,pk;
-	int c,l;
+	int c,l,p;
 	int n=0;
+	int usedcells[27];
+	int nc=0;
+	int yescell;
 	Find_Ind(HOST[label],&i,&j,&k);
 	for (ii=-nshells;ii<=nshells;ii++) {
 		for (jj=-nshells;jj<=nshells;jj++) {
@@ -83,12 +90,20 @@ void List_Of_Neighs ( const int label, int *list, int nshells )
 				pj = (j + jj + N_CELLS_Y) % N_CELLS_Y;
 				pk = (k + kk + N_CELLS_Z) % N_CELLS_Z;
 				c = ID3D(pi,pj,pk);
-				l = HEADS[c];
-				while (l>=0) {
-					list[n+1] = l;
-					l = LINKS[l];
-					n++;
+				usedcells[nc] = c;
+				yescell = 0;
+				for (p=0;p<nc;p++) {
+					if (c==usedcells[p]) yescell++;
 				}
+				if (yescell==0) {
+					l = HEADS[c];
+					while (l>=0) {
+						list[n+1] = l;
+						l = LINKS[l];
+						n++;
+					}
+				}
+				nc++;
 			}
 		}
 	}

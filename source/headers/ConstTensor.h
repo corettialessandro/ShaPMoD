@@ -14,6 +14,7 @@
 
 #include "parameters.h"
 #include "structs.h"
+#include "cells.h"
 
 #include "aux_func.h"
 

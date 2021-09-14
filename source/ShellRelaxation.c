@@ -33,12 +33,16 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
             Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
 
-        }else if (POT == 'C') {
+        } else if (POT == 'C') {
 
             Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+
+        } else if (POT == 'W') {
+
+            //Phi_old = Force_WCA(rho_OLD, k);
         }
 
-        if (fabs(Phi_old.x) > discr){
+        if (fabs(Phi_old.x) > discr) {
 
             discr = fabs(Phi_old.x);
             kdiscr = k + 0.1;
@@ -62,9 +66,13 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
                 DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
 
-            }else if (POT == 'C') {
+            } else if (POT == 'C') {
 
                 DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+            
+            } else if (POT == 'W') {
+
+                //DPHIDRHO_T[k][i] = ConstTens_WCA(rho_t, k, i);
             }
 
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
@@ -146,9 +154,13 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
                 Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x;
 
-            } else if (POT == 'C'){
+            } else if (POT == 'C') {
 
                 Phi_old.x = ShellForce_Cicc(rho_OLD, r_tp1, k).x;
+
+            } else if (POT == 'W') {
+
+                Phi_old.x = Force_WCA(rho_OLD, k).x;
             }
 
             if(fabs(Phi_old.x)>discr) {
@@ -165,9 +177,13 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
 
                     DPhixDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
 
-                } else if (POT == 'C'){
+                } else if (POT == 'C') {
 
                     DPhixDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
+                
+                } else if (POT == 'W') {
+
+                    //DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
                 }
 
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhixDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhixDrho_old.x, DPhixDrho_old.y, DPhixDrho_old.z);
@@ -209,6 +225,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
             } else if (POT == 'C'){
 
                 Phi_old.y = ShellForce_Cicc(rho_OLD, r_tp1, k).y;
+
             }
 
             if(fabs(Phi_old.y)>discr) {
