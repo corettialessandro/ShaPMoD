@@ -360,8 +360,10 @@ void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct p
 //                for (y=1;y<=9;y++) {
 //                    tlog = y*(int)(pow(10.,z));
 //                    if (timestep==0 || timestep==tlog) {
-                        Write_PartPositions(r,timestep);
-                        Write_PartVelocities(v,timestep);
+                        if ((timestep%20) == 0){
+                          Write_PartPositions(r,timestep);
+                          Write_PartVelocities(v,timestep);
+                        }
 //                    }
 //                }
 //            }

@@ -412,7 +412,7 @@ struct point Force_WCA(struct point r[], int i) {
                   //forcelj = 24.0
                   //          * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
                   //          + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
-                  forcelj = 24.0 * LJEPS[indx_i][indx_j] 
+                  forcelj = 24.0 * LJEPS[indx_i][indx_j]
                             * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
                                + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
               }
@@ -466,7 +466,7 @@ struct point Force_WCA(struct point r[], int i) {
 
                 if (CC_r > (rCUT-lround)) {
                     Rround = (CC_r - rCUT + lround)/lround;
-                    forcelj = 24.0 * LJEPS[indx_i][indx_j] 
+                    forcelj = 24.0 * LJEPS[indx_i][indx_j]
                             * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
                                + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
                 }

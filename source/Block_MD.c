@@ -133,7 +133,7 @@ void Block_MD_St(void){
             // Updating the cells
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
-            
+
 	    /*
 	    if (PARTPOS_T[i].x<lo) PARTPOS_T[i].x+=LBOX;
 	    if (PARTPOS_T[i].x>=hi) PARTPOS_T[i].x-=LBOX;
@@ -143,7 +143,7 @@ void Block_MD_St(void){
 	    if (PARTPOS_T[i].z>=hi) PARTPOS_T[i].z-=LBOX;
         if (PARTPOS_T[i].x<lo || PARTPOS_T[i].x>=hi || PARTPOS_T[i].y<lo || PARTPOS_T[i].y>=hi || PARTPOS_T[i].z<lo || PARTPOS_T[i].z>=hi) printf("Particle %d left the box???\n",i);
 	    */
-        
+
           }
 
           //print forces
@@ -794,4 +794,3 @@ void Block_MD_MultiMaze(void){
         Write_Elapsed_timeperstep(t+1, (double)(t_end - t_start)/CLOCKS_PER_SEC);
     }
 }
-
