@@ -4,16 +4,16 @@ F       	Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
 W       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA)
 1       	Number of molecules
 2       	Number of atomic species
-0		Number of atoms of the first species
-216     	Number of atoms of the second species
+200		Number of atoms of the first species
+800     	Number of atoms of the second species
 1	    	Timestep (fs)
-500	   	Number of timesteps
+100000	   	Number of timesteps
 0.0127  	Density of particles (Å^-3)
 F       	Thermostat ('T' = ON, 'F' = OFF)
 179.7		Temperature (K)
 .5      	Short-range cut-off scaling factor
 Na      	First species
-39.948      	Core Mass
+3994.8      	Core Mass
 0.      	Shell starting mass
 +2.17       	Core Charge
 -3.17       	Shell Charge
