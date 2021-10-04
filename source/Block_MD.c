@@ -54,7 +54,10 @@ void Block_MD_St(void){
                 printf("|∆T| = %.4e\t|∆T|_M = %.4e\talpha = %.4e\n", fabs(TEMP - ITEMP), _TEMP_TOL*TEMP, alpha);
             }
         }
-
+        // for (i=0; i<NPART; i++) {
+        //     printf("indice : %s\n", NAME[INDX[i]]);
+        // }
+        // exit(0);
         for (i=0; i<NPART; i++) {
 
             Mi = M[INDX[i]];
@@ -77,6 +80,7 @@ void Block_MD_St(void){
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_T, i);
                 //if (i==18) printf("%lf %lf %lf\n\n",CF_t.x,CF_t.y,CF_t.z);
+                printf("F = %.4e %.4e %.4e\n", CF_t.x, CF_t.y, CF_t.z);
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
@@ -598,23 +602,41 @@ void Block_MD_Pol_Ew(void){
 void Block_MD_MultiMaze(void){
 
     int t, i, t0 = 0;
-    double DT2 = (DT*DT), DT2overM, DTover2, DTover4, overMi, Mi, alpha;
+    int y, z, tlog;
+    double DT2 = (DT*DT), DToverMi, DTover2, DTover4, overMi, Mi, alpha;
     double cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
-    struct point CF_t, SF_t;
+    double sumLorentzForces, sumIntermolecularForces;
+    struct point CF_t, SF_t, FLorentz;
 
     struct point Ftot = {0};
     struct point CFtot = {0}, SFtot = {0};
+
+    double lo = -0.5*LBOX, hi = 0.5*LBOX;
 
     char therm;
 
     clock_t t_start, t_end;
 
+    // printf("%.4e %.4e %.4e \n", PARTPOS_T[1].x, PARTPOS_T[1].y, PARTPOS_T[1].z);
+    // exit(0);
+    // for (i=0; i<NPART; i++) {
+    //     printf("name, indx : %s, %d \n", NAME[INDX[i]], INDX[i]);
+    //
     if (PRECONFIG_FLAG == 1) {
 
-        FirstStep_Pol(); // To be changed? Do we need it?
+        FirstStep_St();
         t0 = 1;
     }
 
+    // Filling the list of cells
+    for (i=0; i<NPART; i++) {
+        Add_Point_To_Cell(PARTPOS_T[i],i);
+        SHELLPOS_T[i].x = PARTPOS_T[i].x;
+        SHELLPOS_T[i].y = PARTPOS_T[i].y;
+        SHELLPOS_T[i].z = PARTPOS_T[i].z;
+    }
+    // printf("%d %d\n", NATOMSPERSPEC[1], NPART);
+    // exit(0);
     for (i=0; i<NPART; i++) {
 
         SHELLACC_TM1[i].x = 0;
@@ -629,11 +651,13 @@ void Block_MD_MultiMaze(void){
 
     }
 
+
     for (t=t0; t<NTIMESTEPS; t++) {
+
         t_start = clock();
 
-        therm = ' ';
         alpha = 1.;
+        therm = ' ';
 
         if (DEBUG_FLAG && _D_TOT_FORCES) CFtot.x = CFtot.y = CFtot.z = SFtot.x = SFtot.y = SFtot.z = Ftot.x = Ftot.y = Ftot.z = 0;
 
@@ -644,28 +668,34 @@ void Block_MD_MultiMaze(void){
 
             if (DEBUG_FLAG && _D_THERMOSTAT) {
 
-                printf("\nThermostatting: |∆T| = %.4e\t|∆T|_M = %.4e\talpha = %.4e\n\n", fabs(TEMP - ITEMP), _TEMP_TOL*TEMP, alpha);
+                printf("|∆T| = %.4e\t|∆T|_M = %.4e\talpha = %.4e\n", fabs(TEMP - ITEMP), _TEMP_TOL*TEMP, alpha);
             }
         }
 
-        for (i=0; i<NPART; i++) {
+        for (i=NATOMSPERSPEC[1]; i<NPART; i++) { //only for Big
 
-            DT2overM = DT2/M[INDX[i]];
             Mi = M[INDX[i]];
             overMi = 1./Mi;
+            cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
+            DToverMi = DT*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
 
-            if (POT == 'W') {
+            if (POT == 'J') {
 
+                CF_t = CoreForce_Jac(PARTPOS_T, SHELLPOS_T, i);
+                SF_t = ShellForce_Jac(SHELLPOS_T, PARTPOS_T, i);
+
+            } else if (POT == 'C') {
+
+                CF_t = CoreForce_Cicc(PARTPOS_T, SHELLPOS_T, i);
+                SF_t = ShellForce_Cicc(SHELLPOS_T, PARTPOS_T, i);
+
+            } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_T, i);
-                SF_t.x = SF_t.y = SF_t.z = 0;
-
-            } else {
-
-                printf("\nMultiMaze has been implemented for WCA potential only.\n");
-                exit(EXIT_FAILURE);
-
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
             }
 
             if (DEBUG_FLAG && _D_TOT_FORCES) {
@@ -683,22 +713,43 @@ void Block_MD_MultiMaze(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            // First step of Verlet
-            PARTPOS_TP1[i].x = PARTPOS_T[i].x + (PARTPOS_T[i].x - PARTPOS_TM1[i].x)*alpha;
-            PARTPOS_TP1[i].y = PARTPOS_T[i].y + (PARTPOS_T[i].y - PARTPOS_TM1[i].y)*alpha;
-            PARTPOS_TP1[i].z = PARTPOS_T[i].z + (PARTPOS_T[i].z - PARTPOS_TM1[i].z)*alpha;
+            // collect forces
+            sumIntermolecularForces += sqrt((CF_t.x + SF_t.x)*(CF_t.x + SF_t.x) + (CF_t.y + SF_t.y)*(CF_t.y + SF_t.y) + (CF_t.z + SF_t.z)*(CF_t.z + SF_t.z));
+            FLorentz.x = Q[INDX[i]]*B0*PARTVEL[i].y;
+            FLorentz.y = - Q[INDX[i]]*B0*PARTVEL[i].x;
+            sumLorentzForces += sqrt(FLorentz.x*FLorentz.x + FLorentz.y*FLorentz.y);
 
-            // We need these for the SHAKE routine
-            SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x;
-            SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
-            SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
+            // velocity -> momentum
+            PARTMOM_T[i].x = Mi*(PARTVEL[i].x*alpha - cyclotronFreq*PARTPOS_T[i].y);
+            PARTMOM_T[i].y = Mi*(PARTVEL[i].y*alpha + cyclotronFreq*PARTPOS_T[i].x);
+            PARTMOM_T[i].z = Mi*PARTVEL[i].z*alpha;
 
-            // Adding the interparticle force
-            PARTPOS_TP1[i].x += DT2overM*CF_t.x;
-            PARTPOS_TP1[i].y += DT2overM*CF_t.y;
-            PARTPOS_TP1[i].z += DT2overM*CF_t.z;
+            // half step on momentum
+            PARTMOM_Tilday = PARTMOM_T[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_T[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
+            PARTMOM_TP05[i].x = PARTMOM_T[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_T[i].x)); //forces from actual positions
+            PARTMOM_TP05[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
+            PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
+
+            // // full step on positions
+            PARTPOS_Tilday = PARTPOS_T[i].y + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_T[i].x);
+            SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
+            SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
+            SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+
+            // Updating the cells
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(PARTPOS_TP1[i],i);
+
         }
-
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            SHELLPOS_TP1[i].x = SHELLPOS_T[i].x = PARTPOS_T[i].x;
+            SHELLPOS_TP1[i].y = SHELLPOS_T[i].y = PARTPOS_T[i].y;
+            SHELLPOS_TP1[i].z = SHELLPOS_T[i].z = PARTPOS_T[i].z;
+        }
+        // for (i=0; i<NPART; i++) {
+        //     printf("indx = %d , partpos = %.4e %.4e %.4e , shellpos = %.4e %.4e %.4e \n",i, PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z ,SHELLPOS_TP1[i].x, SHELLPOS_TP1[i].y, SHELLPOS_TP1[i].z);
+        // }
+        // exit(0);
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
 
         if (SRMODE == 'S') {
@@ -713,30 +764,53 @@ void Block_MD_MultiMaze(void){
 
         } else if (SRMODE == 'C') {
 
-            printf("\nConjugateGradient not implemented for MultiMaze!\n");
-            exit(EXIT_FAILURE);
-            ConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
+            MultiConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
         }
 
-        for (i=0; i<NPART; i++) {
+        // for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+        //     SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x;
+        //     SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
+        //     SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
+        //     Rem_Point_From_Cell(i);
+        //     Add_Point_To_Cell(PARTPOS_TP1[i],i);
+        // }
 
-            DT2overM = DT2/M[INDX[i]];
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            PARTPOS_TP1[i].x = SHELLPOS_TP1[i].x;
+            PARTPOS_TP1[i].y = SHELLPOS_TP1[i].y;
+            PARTPOS_TP1[i].z = SHELLPOS_TP1[i].z;
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(PARTPOS_TP1[i],i);
+
+            CF_t = Force_WCA(PARTPOS_TP1, i);
+            printf("F_%d = %.4e %.4e %.4e\n", i, CF_t.x, CF_t.y, CF_t.z);
+
+
+        }
+
+        for (i=NATOMSPERSPEC[1]; i<NPART; i++) { //only for Big
             Mi = M[INDX[i]];
             overMi = 1./Mi;
             cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
+            DToverMi = DT*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
+            // Recalculate forces w.r. to new positions
+            if (POT == 'J') {
 
-            if (POT == 'W') {
+                CF_t = CoreForce_Jac(PARTPOS_TP1, SHELLPOS_TP1, i);
+                SF_t = ShellForce_Jac(SHELLPOS_TP1, PARTPOS_TP1, i);
 
+            } else if (POT == 'C') {
+
+                CF_t = CoreForce_Cicc(PARTPOS_TP1, SHELLPOS_TP1, i);
+                SF_t = ShellForce_Cicc(SHELLPOS_TP1, PARTPOS_TP1, i);
+
+            } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_TP1, i);
-                SF_t.x = SF_t.y = SF_t.z = 0;
-
-            } else {
-
-                printf("\nMultiMaze has been implemented for WCA potential only.\n");
-                exit(EXIT_FAILURE);
-
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
             }
 
             if (DEBUG_FLAG && _D_TOT_FORCES) {
@@ -754,43 +828,71 @@ void Block_MD_MultiMaze(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*(CF_t.x + SF_t.x);
-            PARTMOM_TP1[i].y = PARTMOM_TP05[i].y + DTover2*(CF_t.y + SF_t.y);
+            PARTMOM_Tilday = PARTMOM_TP05[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
+            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_TP1[i].x));
+            PARTMOM_TP1[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP1[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
             PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
 
-            PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
-            PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
-            PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
+            // momentum -> velocity
+            SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
+            SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi - cyclotronFreq*PARTPOS_TP1[i].x;
+            SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
 
-            SHELLVEL[i] = SHELLVEL_TP1[i];
-            SHELLACC_TM1[i] = SHELLACC_T[i];
-            SHELLACC_T[i] = SHELLACC_TP1[i];
+
+
+        }
+
+        if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
+
+        for (i=0; i<NPART; i++) {
+
+            //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
+            //SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+            if (i<NATOMSPERSPEC[1]){
+                SHELLVEL[i] = PARTVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+            }
+
             PARTPOS_TM1[i] = PARTPOS_T[i];
             PARTPOS_T[i] = PARTPOS_TP1[i];
             SHELLPOS_TM1[i] = SHELLPOS_T[i];
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
 
-            //Shells of big particles must collapse on the core!
-            //Cores of small particles must collapse on the shells!
-        }
-
-        if (DEBUG_FLAG && _D_PSCONFIG) {
-
-            printf("\nPHASE-SPACE CONFIGURATION AT TIME t = %d:\n", t+1);
-            for (i=0; i<NPART; i++) {
-
-                printf("%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\n", PARTPOS_T[i].x, PARTPOS_T[i].y, PARTPOS_T[i].z, PARTVEL[i].x, PARTVEL[i].y, PARTVEL[i].z);
-            }
+            // Updating the cells
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(PARTPOS_T[i],i);
         }
 
         if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
-        if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
+        //if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
+
+        //outputs at log times
+        for (z=0;z<=7;z++) {
+            for (y=1;y<=9;y++) {
+                tlog = y*(int)(pow(10.,z));
+                //printf("%d\n",tlog);
+                if ((t+1) == tlog) {
+                    //printf("%d %d\n",t+1,tlog);
+                    Write_LogPartPositions(PARTPOS_T,t+1);
+                    Write_LogPartVelocities(PARTVEL,t+1);
+                }
+            }
+        }
+
 
         t_end = clock();
 
         Write_Elapsed_timeperstep(t+1, (double)(t_end - t_start)/CLOCKS_PER_SEC);
+
+        if (DEBUG_FLAG && _D_PSCONFIG) {
+
+            printf("\nPHASE-SPACE CONFIGURATION AT TIME t = %d:\n", t);
+            for (i=0; i<NPART; i++) {
+
+                printf("%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\n", PARTPOS_TM1[i].x, PARTPOS_TM1[i].y, PARTPOS_TM1[i].z, PARTVEL[i].x, PARTVEL[i].y, PARTVEL[i].z);
+            }
+        }
     }
 }

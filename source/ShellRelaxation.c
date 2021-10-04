@@ -69,7 +69,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
             } else if (POT == 'C') {
 
                 DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
-            
+
             } else if (POT == 'W') {
 
                 //DPHIDRHO_T[k][i] = ConstTens_WCA(rho_t, k, i);
@@ -180,7 +180,7 @@ void SHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[], str
                 } else if (POT == 'C') {
 
                     DPhixDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
-                
+
                 } else if (POT == 'W') {
 
                     //DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
@@ -1347,6 +1347,267 @@ void ConjugateGradient(struct point rho[], struct point r[]) {
         if (DEBUG_FLAG && _D_CG) printf("max_Phi = %.15e\n", max_Phi);
 
         SR_DISCR = Variance(PHI, NPART);
+        SR_ITERS = line;
+
+        if (SR_DISCR > _UP_TOL) {
+
+            printf("\nShellRelaxation.c -> ConjugateGradient() ERROR: max_Phi = (%.4e). The algorithm has exploded!\n", SR_DISCR);
+            exit(EXIT_FAILURE);
+        }
+
+        if (line > .1*_MAX_ITER) printf("line = %d\tRMSForce = %.20e\tdir = %c\n", SR_ITERS, SR_DISCR, dir);
+    }
+}
+
+void MultiConjugateGradient(struct point rho[], struct point r[]) {
+
+    int i, line = 0, count = 0;
+    double max_Phi = 0.0, denom = 0.0, lambda_down = 0.0, lambda_up = 0.0, lambda1 = 0.0, lambda2 = 0.0, lambda3 = 0.0, beta = 0.0, AA, BB, E0, E1, E2, Emin, sigma = 1.;
+    char dir;
+    struct point *RHO_OLD, *PHI_OLD, *PHI, *SEARCHDIR;
+
+    RHO_OLD = (struct point *)malloc(NATOMSPERSPEC[1]*sizeof(struct point));
+    PHI_OLD = (struct point *)malloc(NATOMSPERSPEC[1]*sizeof(struct point));
+    PHI = (struct point *)malloc(NATOMSPERSPEC[1]*sizeof(struct point));
+    SEARCHDIR = (struct point *)malloc(NATOMSPERSPEC[1]*sizeof(struct point));
+
+//    Initialize and check if minimization is required
+    for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+        RHO_OLD[i].x = rho[i].x;
+        RHO_OLD[i].y = rho[i].y;
+        RHO_OLD[i].z = rho[i].z;
+
+        PHI_OLD[i] = Force_WCA(rho, i);
+
+        if (fabs(PHI_OLD[i].x) > max_Phi) max_Phi = fabs(PHI_OLD[i].x);
+        if (fabs(PHI_OLD[i].y) > max_Phi) max_Phi = fabs(PHI_OLD[i].y);
+        if (fabs(PHI_OLD[i].z) > max_Phi) max_Phi = fabs(PHI_OLD[i].z);
+    }
+
+    if (DEBUG_FLAG && _D_CG) printf("Starting value of max_Phi = %.15e\n", max_Phi);
+
+    SR_DISCR = Variance(PHI_OLD, NATOMSPERSPEC[1]);
+
+//    Starting minimization process. Looping until ?
+    while (SR_DISCR > _SR_CG_LOW_TOL) {
+        printf("%.4e \n", SR_DISCR);
+        line++;
+
+        if (line > _MAX_ITER) {
+
+            printf("\nShellRelaxation.c -> ConjugateGradient() ERROR: Iteration limit exceeded. Convergence not reached!\n");
+            exit(EXIT_FAILURE);
+        }
+
+        beta = 0.0;
+        denom = 0.0;
+        max_Phi = 0.0;
+
+//        Choosing search direction
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            PHI[i] = Force_WCA(rho, i);
+
+            if (fabs(PHI[i].x) > max_Phi) max_Phi = fabs(PHI[i].x);
+            if (fabs(PHI[i].y) > max_Phi) max_Phi = fabs(PHI[i].y);
+            if (fabs(PHI[i].z) > max_Phi) max_Phi = fabs(PHI[i].z);
+
+            denom += (PHI_OLD[i].x*PHI_OLD[i].x + PHI_OLD[i].y*PHI_OLD[i].y + PHI_OLD[i].z*PHI_OLD[i].z);
+
+//            Fletcher & Reeves algorithm
+//            beta += (PHI[i].x*PHI[i].x + PHI[i].y*PHI[i].y + PHI[i].z*PHI[i].z);
+
+//            Polak & Ribiere algorithm
+            beta += ((PHI[i].x - PHI_OLD[i].x)*PHI[i].x + (PHI[i].y - PHI_OLD[i].y)*PHI[i].y + (PHI[i].z - PHI_OLD[i].z)*PHI[i].z);
+        }
+
+//        If first iteration the searching direction is the direction of the force
+        (line != 1) ? (beta /= denom) : (beta = 0);
+
+//        Assigning search direction (searchdir)
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            SEARCHDIR[i].x = beta*SEARCHDIR[i].x + PHI[i].x;
+            SEARCHDIR[i].y = beta*SEARCHDIR[i].y + PHI[i].y;
+            SEARCHDIR[i].z = beta*SEARCHDIR[i].z + PHI[i].z;
+        }
+
+        if (DEBUG_FLAG && _D_CG) printf("\nNew Search Direction\n");
+
+//        Computing energy before line-minimization process (lambda = 0)
+        E0 = EnerPot_WCA(rho);
+        if (DEBUG_FLAG && _D_CG) printf("E0 = %.4e\n", E0);
+
+        denom = 0.0;
+        lambda1 = 0.0;
+
+//        Starting of line minimization process along selected direction
+//        Choosing minimization step in the selected direction (lambda)
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            denom += (SEARCHDIR[i].x*SEARCHDIR[i].x + SEARCHDIR[i].y*SEARCHDIR[i].y + SEARCHDIR[i].z*SEARCHDIR[i].z);//%*K[INDX[i]]?;
+
+            lambda1 += (PHI[i].x*SEARCHDIR[i].x + PHI[i].y*SEARCHDIR[i].y + PHI[i].z*SEARCHDIR[i].z);
+        }
+
+//        Saving parameter for following fit (dE/dlambda at lambda = 0)
+        BB = -lambda1;
+        lambda1 /= denom; //lambda1
+        lambda1 *= sigma;
+
+        if (DEBUG_FLAG && _D_CG) printf("denom = %.4e\n", denom);
+
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            rho[i].x = RHO_OLD[i].x + lambda1*SEARCHDIR[i].x;
+            rho[i].y = RHO_OLD[i].y + lambda1*SEARCHDIR[i].y;
+            rho[i].z = RHO_OLD[i].z + lambda1*SEARCHDIR[i].z;
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(rho[i],i);
+        }
+
+//        Computing energy after minimization process (lambda = lambda1)
+        E1 = EnerPot_WCA(rho);
+
+//        Fitting parabola to better estimate energy of the minimum
+        AA = ((E1-E0) - BB*lambda1)/(lambda1*lambda1);
+        if (AA == 0.) printf("\nShellRelaxation.c -> ConjugateGradient() WARNING: NULL AA coefficient: AA = %.10e\n", AA);
+//        (AA != 0.) ? (lambda2 = - BB/(2.*AA)) : (lambda2 = lambda1);
+        lambda2 = - BB/(2.*AA); //lambda2
+        lambda2 *= sigma;
+
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            rho[i].x = RHO_OLD[i].x + lambda2*SEARCHDIR[i].x;
+            rho[i].y = RHO_OLD[i].y + lambda2*SEARCHDIR[i].y;
+            rho[i].z = RHO_OLD[i].z + lambda2*SEARCHDIR[i].z;
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(rho[i],i);
+        }
+
+//        Computing energy after minimization process and parabola fit (lambda = lambda2)
+        E2 = EnerPot_WCA(rho);
+
+//        Compute minimum energy (ALERT: CORRECT IF lambda IS ZERO)
+        if (E1 < E2){
+
+            Emin = E1;
+            lambda_down = lambda1;
+            lambda_up = lambda2;
+
+        } else {
+
+            Emin = E2;
+            lambda_down = lambda2;
+            lambda_up = lambda1;
+        }
+
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            rho[i].x = RHO_OLD[i].x + lambda_down*SEARCHDIR[i].x;
+            rho[i].y = RHO_OLD[i].y + lambda_down*SEARCHDIR[i].y;
+            rho[i].z = RHO_OLD[i].z + lambda_down*SEARCHDIR[i].z;
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(rho[i],i);
+        }
+
+        dir = 'd';
+
+//        Checking minimization success along selected direction
+//        If min(E1, E2) < E0 search in selected direction completed. Success and skip to next direction
+        if (Emin >= E0) {
+
+//          If min(E1, E2) > E0 and the selected search direction is the first then scale lambda and loop again
+            if (line == 1) {
+
+                if (DEBUG_FLAG && _D_CG) printf("iexit == -1 - Reducing lambda and retrying\n");
+                if (DEBUG_FLAG && _D_CG) printf("line: %d\tEmin = (%.15e)\tE0 = (%.15e)\n", line, Emin, E0);
+
+                lambda3 = lambda_down*0.1; //lambda3
+                lambda3 *= sigma;
+
+                count = 0;
+
+                do {
+
+                    for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+                        rho[i].x = RHO_OLD[i].x + lambda3*SEARCHDIR[i].x;
+                        rho[i].y = RHO_OLD[i].y + lambda3*SEARCHDIR[i].y;
+                        rho[i].z = RHO_OLD[i].z + lambda3*SEARCHDIR[i].z;
+                        Rem_Point_From_Cell(i);
+                        Add_Point_To_Cell(rho[i],i);
+                    }
+
+                    Emin = EnerPot_WCA(rho);
+
+                    lambda3 /= 2.;
+
+                    count++;
+
+                } while (Emin > E0 || count > _MAX_ITER || lambda3 == 0);
+
+            } else {
+
+//              If min(E1, E2) > E0 the minimum is approaching. Do just another one attempt with lambda scaled.
+                lambda3 = lambda2*0.1; //lambda3
+                lambda3 *= sigma;
+
+                for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+                    rho[i].x = RHO_OLD[i].x + lambda3*SEARCHDIR[i].x;
+                    rho[i].y = RHO_OLD[i].y + lambda3*SEARCHDIR[i].y;
+                    rho[i].z = RHO_OLD[i].z + lambda3*SEARCHDIR[i].z;
+                    Rem_Point_From_Cell(i);
+                    Add_Point_To_Cell(rho[i],i);
+                }
+
+                Emin = EnerPot_WCA(rho);
+
+//                If Emin is again higher than E0 than set lambda to be the maximum between lambda1 and lambda2
+                if (Emin >= E0) {
+
+                    for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+                        rho[i].x = RHO_OLD[i].x + lambda_up*SEARCHDIR[i].x;
+                        rho[i].y = RHO_OLD[i].y + lambda_up*SEARCHDIR[i].y;
+                        rho[i].z = RHO_OLD[i].z + lambda_up*SEARCHDIR[i].z;
+                        Rem_Point_From_Cell(i);
+                        Add_Point_To_Cell(rho[i],i);
+                    }
+
+                    dir = 'u';
+                }
+            }
+        }
+//        Terminated search in selected direction
+
+//        Resetting variables after process completion
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            RHO_OLD[i].x = rho[i].x;
+            RHO_OLD[i].y = rho[i].y;
+            RHO_OLD[i].z = rho[i].z;
+
+            PHI_OLD[i].x = PHI[i].x;
+            PHI_OLD[i].y = PHI[i].y;
+            PHI_OLD[i].z = PHI[i].z;
+        }
+
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            PHI[i] = Force_WCA(rho, i);
+
+            if (fabs(PHI[i].x) > max_Phi) max_Phi = fabs(PHI[i].x);
+            if (fabs(PHI[i].y) > max_Phi) max_Phi = fabs(PHI[i].y);
+            if (fabs(PHI[i].z) > max_Phi) max_Phi = fabs(PHI[i].z);
+            //printf("F_%d = %.4e %.4e %.4e\n", 0, PHI[0].x, PHI[0].y, PHI[0].z);
+        }
+
+        if (DEBUG_FLAG && _D_CG) printf("max_Phi = %.15e\n", max_Phi);
+
+        SR_DISCR = Variance(PHI, NATOMSPERSPEC[1]);
         SR_ITERS = line;
 
         if (SR_DISCR > _UP_TOL) {
