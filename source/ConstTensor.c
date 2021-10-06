@@ -266,12 +266,13 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
 
     struct point SS_d;
     double SS_r;
-    double rCUT, lround, Rround;
-    double r2inv, r6inv, rc2inv, rc6inv;
-    double LJ_eps, LJ_sigma6, LJ_sigma12;
-    double ljatrc;
-
+    double rCUT, lround, Rround, R2round;
     int j, indx_i = INDX[i], indx_j, indx_int;
+    struct point CC_d;
+    double CC_r, rinv, r2inv, r6inv, rc2inv, rc6inv, ljatrc, forcelj, fpair, ljrc;
+    double LJ_sigma6, LJ_sigma12;
+    double sigma_r6, sigma_r12, dU, dU2;
+
 
     if (i==k) {
 
@@ -301,22 +302,50 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
 
                 if (SS_r <= rCUT) {
 
-                    r2inv = 1.0/(SS_r*SS_r);
+
+
+                    rinv = 1.0/SS_r;
+                    r2inv = rinv*rinv;
                     r6inv = r2inv*r2inv*r2inv;
                     rc2inv = 1.0/(rCUT*rCUT);
                     rc6inv = rc2inv*rc2inv*rc2inv;
-                    ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+                    sigma_r6 = LJ_sigma6*r6inv;
+                    sigma_r12 = LJ_sigma12*r6inv*r6inv;
+                    ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                    //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                    dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
+                    dU2 = 24.0 * LJEPS[indx_i][indx_j]*rinv * (26.0*sigma_r12 + 7.0*sigma_r6);
+
+                    //rounding the force
+
+                    if (SS_r > (rCUT-lround)) {
+                        Rround = (SS_r - rCUT + lround)/lround;
+                        //forcelj = 24.0
+                        //          * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
+                        //          + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                        dU = 24.0 * LJEPS[indx_i][indx_j] * (Rround * (Rround-1.0)/lround * (sigma_r12 - sigma_r6 - ljatrc)
+                             + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*rinv * (-2.0*sigma_r12 + sigma_r6));
+
+                        dU2 = 24.0 * LJEPS[indx_i][indx_j] * ((2.0*Rround - 1.0)/(lround*lround) * (sigma_r12 - sigma_r6 - ljatrc)
+                              + 6.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
+                                + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6));
+
+                        //forcelj = 24.0 * LJEPS[indx_i][indx_j]
+                                  // * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
+                                  //    + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                    }
 
 
-                    W.fx.x += 0.;
-                    W.fx.y += 0.;
-                    W.fx.z += 0.;
-                    W.fy.x += 0.;
-                    W.fy.y += 0.;
-                    W.fy.z += 0.;
-                    W.fz.x += 0.;
-                    W.fz.y += 0.;
-                    W.fz.z += 0.;
+
+                    W.fx.x += (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
+                    W.fx.y += (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
+                    W.fx.z += (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
+                    W.fy.x += (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
+                    W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU);
+                    W.fy.z += (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
+                    W.fz.x += (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
+                    W.fz.y += (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
+                    W.fz.z += (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
                 }
             }
         }
@@ -325,40 +354,69 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
 
         W.fx.x = W.fx.y = W.fx.z = W.fy.x = W.fy.y = W.fy.z = W.fz.x = W.fz.y = W.fz.z = 0.;
 
-        j=i;
+        j=k;
 
-        if (j!=k) {
 
-            indx_j = INDX[j];
-            indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+        indx_j = INDX[j];
+        indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
-            rCUT = LJRCUT[indx_i][indx_j];
-            lround = LJLROUND[indx_i][indx_j];
-            LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
-            LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
-            SS_d = Distance(rho[i], rho[j]);
-            SS_r = mod(SS_d);
+        rCUT = LJRCUT[indx_i][indx_j];
+        lround = LJLROUND[indx_i][indx_j];
+        LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+        LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+        SS_d = Distance(rho[i], rho[j]);
+        SS_r = mod(SS_d);
 
-            if (SS_r <= rCUT) {
+        if (SS_r <= rCUT) {
 
-                r2inv = 1.0/(SS_r*SS_r);
-                r6inv = r2inv*r2inv*r2inv;
-                rc2inv = 1.0/(rCUT*rCUT);
-                rc6inv = rc2inv*rc2inv*rc2inv;
-                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
 
-                W.fx.x += 0.;
-                W.fx.y += 0.;
-                W.fx.z += 0.;
-                W.fy.x += 0.;
-                W.fy.y += 0.;
-                W.fy.z += 0.;
-                W.fz.x += 0.;
-                W.fz.y += 0.;
-                W.fz.z += 0.;
+
+            rinv = 1.0/SS_r;
+            r2inv = rinv*rinv;
+            r6inv = r2inv*r2inv*r2inv;
+            rc2inv = 1.0/(rCUT*rCUT);
+            rc6inv = rc2inv*rc2inv*rc2inv;
+            sigma_r6 = LJ_sigma6*r6inv;
+            sigma_r12 = LJ_sigma12*r6inv*r6inv;
+            ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+            //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+            dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
+            dU2 = 24.0 * LJEPS[indx_i][indx_j]*rinv * (26.0*sigma_r12 + 7.0*sigma_r6);
+
+            //rounding the force
+
+            if (SS_r > (rCUT-lround)) {
+                Rround = (SS_r - rCUT + lround)/lround;
+                //forcelj = 24.0
+                //          * (Rround * (Rround-1.0)/lround * (LJEPS[indx_i][indx_j] * r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + 0.25*ljatrc) //0.25 missing?
+                //          + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * LJEPS[indx_i][indx_j] * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
+                dU = 24.0 * LJEPS[indx_i][indx_j] * (Rround * (Rround-1.0)/lround * (sigma_r12 - sigma_r6 - ljatrc)
+                     + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*rinv * (-2.0*sigma_r12 + sigma_r6));
+
+                dU2 = 24.0 * LJEPS[indx_i][indx_j] * ((2.0*Rround - 1.0)/(lround*lround) * (sigma_r12 - sigma_r6 - ljatrc)
+                      + 6.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
+                        + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6));
+
+                //forcelj = 24.0 * LJEPS[indx_i][indx_j]
+                          // * (Rround * (Rround-1.0)/lround * (r6inv * (LJ_sigma6 - LJ_sigma12*r6inv) + ljatrc)
+                          //    + (1.0 + Rround * Rround * (2.0*Rround - 3.0)) * r6inv/CC_r * (2.0*LJ_sigma12*r6inv - LJ_sigma6));
             }
+
+            W.fx.x = SS_d.x*SS_d.x*r2inv*dU2 + (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU;
+            W.fx.y = SS_d.x*SS_d.y*r2inv*dU2 - (SS_d.x*SS_d.y*rinv)*r2inv*dU;
+            W.fx.z = SS_d.x*SS_d.z*r2inv*dU2 - (SS_d.x*SS_d.z*rinv)*r2inv*dU;
+            W.fy.x = SS_d.y*SS_d.x*r2inv*dU2 - (SS_d.y*SS_d.x*rinv)*r2inv*dU;
+            W.fy.y = SS_d.y*SS_d.y*r2inv*dU2 + (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU;
+            W.fy.z = SS_d.y*SS_d.z*r2inv*dU2 - (SS_d.y*SS_d.z*rinv)*r2inv*dU;
+            W.fz.x = SS_d.z*SS_d.x*r2inv*dU2 - (SS_d.z*SS_d.x*rinv)*r2inv*dU;
+            W.fz.y = SS_d.z*SS_d.y*r2inv*dU2 - (SS_d.z*SS_d.y*rinv)*r2inv*dU;
+            W.fz.z = SS_d.z*SS_d.z*r2inv*dU2 + (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU;
+
+
+
         }
     }
+
 
     return W;
 }

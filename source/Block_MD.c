@@ -754,7 +754,7 @@ void Block_MD_MultiMaze(void){
 
         if (SRMODE == 'S') {
 
-            SHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
+            MultiSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
 
         } else if (SRMODE == 'D') {
 
