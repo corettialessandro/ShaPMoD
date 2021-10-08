@@ -80,7 +80,10 @@ void Block_MD_St(void){
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_T, i);
                 //if (i==18) printf("%lf %lf %lf\n\n",CF_t.x,CF_t.y,CF_t.z);
-                printf("F = %.4e %.4e %.4e\n", CF_t.x, CF_t.y, CF_t.z);
+                if (i == 0){
+                    printf("F = %.4e %.4e %.4e\n", CF_t.x, CF_t.y, CF_t.z);
+                    printf("pos = %.4e %.4e %.4e\n", PARTPOS_T[i].x, PARTPOS_T[i].y, PARTPOS_T[i].z);
+                }
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
@@ -693,6 +696,7 @@ void Block_MD_MultiMaze(void){
 
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_T, i);
+                //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
@@ -741,11 +745,7 @@ void Block_MD_MultiMaze(void){
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
 
         }
-        for (i=0; i<NATOMSPERSPEC[1]; i++) {
-            SHELLPOS_TP1[i].x = SHELLPOS_T[i].x = PARTPOS_T[i].x;
-            SHELLPOS_TP1[i].y = SHELLPOS_T[i].y = PARTPOS_T[i].y;
-            SHELLPOS_TP1[i].z = SHELLPOS_T[i].z = PARTPOS_T[i].z;
-        }
+
         // for (i=0; i<NPART; i++) {
         //     printf("indx = %d , partpos = %.4e %.4e %.4e , shellpos = %.4e %.4e %.4e \n",i, PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z ,SHELLPOS_TP1[i].x, SHELLPOS_TP1[i].y, SHELLPOS_TP1[i].z);
         // }
@@ -754,6 +754,12 @@ void Block_MD_MultiMaze(void){
 
         if (SRMODE == 'S') {
 
+            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+            }
+            //for (i=0; i<NATOMSPERSPEC[1]; i++) printf("%.4e %.4e %.4e \n", PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z);
             MultiSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
 
         } else if (SRMODE == 'D') {
@@ -763,6 +769,12 @@ void Block_MD_MultiMaze(void){
             SteepestDescent(SHELLPOS_TP1, PARTPOS_TP1);
 
         } else if (SRMODE == 'C') {
+
+            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x = PARTPOS_T[i].x;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y = PARTPOS_T[i].y;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z = PARTPOS_T[i].z;
+            }
 
             MultiConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
         }

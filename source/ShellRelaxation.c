@@ -1030,6 +1030,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
         } else if (POT == 'W') {
 
             Phi_old = Force_WCA(rho_OLD, k);
+            printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
         }
 
         if (fabs(Phi_old.x) > discr) {
@@ -1071,7 +1072,6 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             }
         }
     }
-
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
         if (VERBOSE_FLAG && _V_SHAKE){
@@ -1172,8 +1172,9 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                     DPhixDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
 
                 } else if (POT == 'W') {
-
+                    //printf("Dsigma_%d_x/Dx_%d = ",k,i);
                     DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
+                    //printf("(%f %f %f)\n",DPhixDrho_old.x,DPhixDrho_old.y,DPhixDrho_old.z);
                 }
 
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhixDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhixDrho_old.x, DPhixDrho_old.y, DPhixDrho_old.z);
@@ -1183,20 +1184,24 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
-            GAMMA[k].x = Phi_old.x/denom;
-            GAMMATOT[k].x += GAMMA[k].x;
+            if (denom != 0.){
+                GAMMA[k].x = Phi_old.x/denom;
+                GAMMATOT[k].x += GAMMA[k].x;
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
+                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                indx_i = INDX[i];
+                    indx_i = INDX[i];
 
-                rho_OLD[i].x -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
-                rho_OLD[i].y -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
-                rho_OLD[i].z -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
+                    rho_OLD[i].x -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
+                    rho_OLD[i].y -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
+                    rho_OLD[i].z -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
+                    Rem_Point_From_Cell(i);
+                    Add_Point_To_Cell(rho_OLD[i],i);
+                }
+            }else{
+                GAMMA[k].x = 0.;
             }
 
             if (DEBUG_FLAG && _D_SHAKE)  {
@@ -1244,7 +1249,9 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
                 } else if (POT == 'W') {
 
-                    DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fy;
+                  //printf("Dsigma_%d_x/Dx_%d = ",k,i);
+                  DPhiyDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fy;
+                  //printf("(%f %f %f)\n",DPhiyDrho_old.x,DPhiyDrho_old.y,DPhiyDrho_old.z);
 
                 }
 
@@ -1255,26 +1262,30 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
-            GAMMA[k].y = Phi_old.y/denom;
-            GAMMATOT[k].y += GAMMA[k].y;
+            if (denom != 0.){
+                GAMMA[k].y = Phi_old.y/denom;
+                GAMMATOT[k].y += GAMMA[k].y;
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
+                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                indx_i = INDX[i];
+                    indx_i = INDX[i];
+                    //printf("%.4e \n", GAMMA[k].y);
+                    rho_OLD[i].x -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.x; //segmentation fault
+                    rho_OLD[i].y -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
+                    rho_OLD[i].z -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
 
-                rho_OLD[i].x -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.x;
-                rho_OLD[i].y -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
-                rho_OLD[i].z -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
-
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
+                    Rem_Point_From_Cell(i);
+                    Add_Point_To_Cell(rho_OLD[i],i);
+                }
+            }else{
+              GAMMA[k].y = 0.;
             }
 
             if (DEBUG_FLAG && _D_SHAKE)  {
 
-                for (i=0; i<NPART; i++) {
+                for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
                     printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
                 }
@@ -1316,7 +1327,9 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
                 } else if (POT == 'W'){
 
-                    DPhizDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+                    //printf("Dsigma_%d_x/Dx_%d = ",k,i);
+                    DPhizDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fz;
+                    //printf("(%f %f %f)\n",DPhizDrho_old.x,DPhizDrho_old.y,DPhizDrho_old.z);
                 }
 
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
@@ -1326,21 +1339,26 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
 
-            GAMMA[k].z = Phi_old.z/denom;
-            GAMMATOT[k].z += GAMMA[k].z;
+            if (denom != 0.){
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
+                GAMMA[k].z = Phi_old.z/denom;
+                GAMMATOT[k].z += GAMMA[k].z;
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
-                indx_i = INDX[i];
+                for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                rho_OLD[i].x -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
-                rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
-                rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
+                    indx_i = INDX[i];
 
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
+                    rho_OLD[i].x -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
+                    rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
+                    rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
+
+                    Rem_Point_From_Cell(i);
+                    Add_Point_To_Cell(rho_OLD[i],i);
+                }
+            }else{
+              GAMMA[k].z = 0.;
             }
 
             if (DEBUG_FLAG && _D_SHAKE)  {
@@ -1352,11 +1370,11 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             }
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
+            //printf("Hello\n");
         } //End loop on constraints
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
 
-
-
+        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
     } //End while(constraint condition)
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);

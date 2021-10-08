@@ -314,7 +314,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
                     ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
                     //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
                     dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
-                    dU2 = 24.0 * LJEPS[indx_i][indx_j]*rinv * (26.0*sigma_r12 + 7.0*sigma_r6);
+                    dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
 
                     //rounding the force
 
@@ -327,7 +327,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
                              + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*rinv * (-2.0*sigma_r12 + sigma_r6));
 
                         dU2 = 24.0 * LJEPS[indx_i][indx_j] * ((2.0*Rround - 1.0)/(lround*lround) * (sigma_r12 - sigma_r6 - ljatrc)
-                              + 6.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
+                              + 12.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
                                 + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6));
 
                         //forcelj = 24.0 * LJEPS[indx_i][indx_j]
@@ -381,7 +381,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
             ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
             //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
             dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
-            dU2 = 24.0 * LJEPS[indx_i][indx_j]*rinv * (26.0*sigma_r12 + 7.0*sigma_r6);
+            dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
 
             //rounding the force
 
@@ -394,7 +394,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
                      + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*rinv * (-2.0*sigma_r12 + sigma_r6));
 
                 dU2 = 24.0 * LJEPS[indx_i][indx_j] * ((2.0*Rround - 1.0)/(lround*lround) * (sigma_r12 - sigma_r6 - ljatrc)
-                      + 6.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
+                      + 12.0*(Rround * (Rround-1.0))/lround*rinv * (-2.0*sigma_r12 + sigma_r6)
                         + (1.0 + Rround * Rround * (2.0*Rround - 3.0))*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6));
 
                 //forcelj = 24.0 * LJEPS[indx_i][indx_j]
