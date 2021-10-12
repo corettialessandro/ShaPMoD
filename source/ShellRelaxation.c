@@ -1003,7 +1003,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
     int k, i, indx_i, count = 0;
     double discr = 0, kdiscr = -1.;
     double denom;
-    struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old;
+    struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce;
 
     FILE *fp_constraints_out;
     char outputpath[_MAX_STR_LENGTH];
@@ -1030,7 +1030,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
         } else if (POT == 'W') {
 
             Phi_old = Force_WCA(rho_OLD, k);
-            printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+            //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
         }
 
         if (fabs(Phi_old.x) > discr) {
@@ -1360,6 +1360,8 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             }else{
               GAMMA[k].z = 0.;
             }
+            testForce = Force_WCA(rho_OLD, 220);
+            if (k == 220) printf("dF = %.4e %.4e %.4e and F = %.4e %.4e %.4e \n", DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z,testForce.x, testForce.y, testForce.z);
 
             if (DEBUG_FLAG && _D_SHAKE)  {
 
@@ -1373,8 +1375,9 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             //printf("Hello\n");
         } //End loop on constraints
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
-
+        //testForce = Force_WCA(rho_OLD, 672);
         printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        //printf("indx = %d, shellpos = %.4e %.4e %.4e \n, force = %.4e %.4e %.4e \n",672, rho_OLD[672].x, rho_OLD[672].y, rho_OLD[672].z, testForce.x, testForce.y, testForce.z);
     } //End while(constraint condition)
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);

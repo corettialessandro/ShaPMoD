@@ -795,7 +795,7 @@ void Block_MD_MultiMaze(void){
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
 
             CF_t = Force_WCA(PARTPOS_TP1, i);
-            printf("F_%d = %.4e %.4e %.4e\n", i, CF_t.x, CF_t.y, CF_t.z);
+            //printf("F_%d = %.4e %.4e %.4e\n", i, CF_t.x, CF_t.y, CF_t.z);
 
 
         }

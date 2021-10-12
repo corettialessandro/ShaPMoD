@@ -283,12 +283,12 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
         //for (j=0; j<NPART; j++){
         int p;
         int neighlist[1000];
-        List_Of_Neighs(k,neighlist,1);
+        List_Of_Neighs(i,neighlist,1);
         for (p=1;p<=neighlist[0];p++) {
 
             j = neighlist[p];
 
-            if (j!=k) {
+            if (j!=i) {
 
                 indx_j = INDX[j];
                 indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
