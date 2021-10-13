@@ -137,9 +137,7 @@ void Block_MD_St(void){
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
 
-            // Updating the cells
-            Rem_Point_From_Cell(i);
-            Add_Point_To_Cell(PARTPOS_TP1[i],i);
+
 
 	    /*
 	    if (PARTPOS_T[i].x<lo) PARTPOS_T[i].x+=LBOX;
@@ -150,7 +148,11 @@ void Block_MD_St(void){
 	    if (PARTPOS_T[i].z>=hi) PARTPOS_T[i].z-=LBOX;
         if (PARTPOS_T[i].x<lo || PARTPOS_T[i].x>=hi || PARTPOS_T[i].y<lo || PARTPOS_T[i].y>=hi || PARTPOS_T[i].z<lo || PARTPOS_T[i].z>=hi) printf("Particle %d left the box???\n",i);
 	    */
-
+          // Updating the cells
+          }
+          for (i=0; i<NPART; i++) {
+              Rem_Point_From_Cell(i);
+              Add_Point_To_Cell(PARTPOS_TP1[i],i);
           }
 
           //print forces
@@ -739,11 +741,15 @@ void Block_MD_MultiMaze(void){
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+            
 
-            // Updating the cells
+        }
+
+        // Updating the cells
+
+        for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
-
         }
 
         // for (i=0; i<NPART; i++) {
@@ -758,6 +764,8 @@ void Block_MD_MultiMaze(void){
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                Rem_Point_From_Cell(i);
+                Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }
             //for (i=0; i<NATOMSPERSPEC[1]; i++) printf("%.4e %.4e %.4e \n", PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z);
             MultiSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
@@ -794,7 +802,7 @@ void Block_MD_MultiMaze(void){
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
 
-            CF_t = Force_WCA(PARTPOS_TP1, i);
+            //CF_t = Force_WCA(PARTPOS_TP1, i);
             //printf("F_%d = %.4e %.4e %.4e\n", i, CF_t.x, CF_t.y, CF_t.z);
 
 

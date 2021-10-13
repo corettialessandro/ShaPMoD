@@ -1003,7 +1003,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
     int k, i, indx_i, count = 0;
     double discr = 0, kdiscr = -1.;
     double denom;
-    struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce;
+    struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce, testdForcex, testdForcey, testdForcez;
 
     FILE *fp_constraints_out;
     char outputpath[_MAX_STR_LENGTH];
@@ -1017,6 +1017,49 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
     //    struct point s;
 
+    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(r_t[i],i);
+    }
+
+    for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_t[i],i);
+    }
+
+    for (k=0; k<NATOMSPERSPEC[1]; k++) {
+
+        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+
+            if (POT == 'J') {
+
+                DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+
+            } else if (POT == 'C') {
+
+                DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+
+            } else if (POT == 'W') {
+
+                DPHIDRHO_T[k][i] = ConstTens_WCA(rho_t, r_t, k, i);
+            }
+
+            if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
+                printf("DPHIDRHO_T[%d][%d] =\n", k, i);
+                printf("%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
+            }
+        }
+    }
+
+    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(r_tp1[i],i);
+    }
+
+    for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_OLD[i],i);
+    }
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
 
         if (POT == 'J') {
@@ -1050,28 +1093,8 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             discr = fabs(Phi_old.z);
             kdiscr = k + 0.3;
         }
-
-        for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-            if (POT == 'J') {
-
-                DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
-
-            } else if (POT == 'C') {
-
-                DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
-
-            } else if (POT == 'W') {
-
-                DPHIDRHO_T[k][i] = ConstTens_WCA(rho_t, r_t, k, i);
-            }
-
-            if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
-                printf("DPHIDRHO_T[%d][%d] =\n", k, i);
-                printf("%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
-            }
-        }
     }
+
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
         if (VERBOSE_FLAG && _V_SHAKE){
@@ -1185,7 +1208,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
 
             if (denom != 0.){
-                GAMMA[k].x = Phi_old.x/denom;
+                GAMMA[k].x = (SOR)*Phi_old.x/denom;
                 GAMMATOT[k].x += GAMMA[k].x;
 
                 if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
@@ -1263,7 +1286,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
             if (denom != 0.){
-                GAMMA[k].y = Phi_old.y/denom;
+                GAMMA[k].y = (SOR)*Phi_old.y/denom;
                 GAMMATOT[k].y += GAMMA[k].y;
 
                 if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
@@ -1341,7 +1364,7 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
             if (denom != 0.){
 
-                GAMMA[k].z = Phi_old.z/denom;
+                GAMMA[k].z = (SOR)*Phi_old.z/denom;
                 GAMMATOT[k].z += GAMMA[k].z;
 
                 if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
@@ -1360,9 +1383,6 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             }else{
               GAMMA[k].z = 0.;
             }
-            testForce = Force_WCA(rho_OLD, 220);
-            if (k == 220) printf("dF = %.4e %.4e %.4e and F = %.4e %.4e %.4e \n", DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z,testForce.x, testForce.y, testForce.z);
-
             if (DEBUG_FLAG && _D_SHAKE)  {
 
                 for (i=0; i<NATOMSPERSPEC[1]; i++) {
@@ -1375,9 +1395,15 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             //printf("Hello\n");
         } //End loop on constraints
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
-        //testForce = Force_WCA(rho_OLD, 672);
+        testForce = Force_WCA(rho_OLD, 292);
+        testdForcex = ConstTens_WCA(rho_OLD, r_tp1, 292, 292).fx;
+        testdForcey = ConstTens_WCA(rho_OLD, r_tp1, 292, 292).fy;
+        testdForcez = ConstTens_WCA(rho_OLD, r_tp1, 292, 292).fz;
+
         printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
-        //printf("indx = %d, shellpos = %.4e %.4e %.4e \n, force = %.4e %.4e %.4e \n",672, rho_OLD[672].x, rho_OLD[672].y, rho_OLD[672].z, testForce.x, testForce.y, testForce.z);
+        // printf("indx = %d, shellpos = %.4e %.4e %.4e \n, force = %.4e %.4e %.4e \n",292, rho_OLD[292].x, rho_OLD[292].y, rho_OLD[292].z, testForce.x, testForce.y, testForce.z);
+        // printf("dFx = %.4e %.4e %.4e \n dFy = %.4e %.4e %.4e \n dFz = %.4e %.4e %.4e \n", testdForcex.x, testdForcex.y, testdForcex.z, testdForcey.x, testdForcey.y, testdForcey.z, testdForcez.x, testdForcez.y, testdForcez.z);
+        // printf("dFxold = %.4e %.4e %.4e \n dFyold = %.4e %.4e %.4e \n dFzold = %.4e %.4e %.4e\n\n", DPHIDRHO_T[292][292].fx.x, DPHIDRHO_T[292][292].fx.y, DPHIDRHO_T[292][292].fx.z, DPHIDRHO_T[292][292].fy.x, DPHIDRHO_T[292][292].fy.y, DPHIDRHO_T[292][292].fy.z, DPHIDRHO_T[292][292].fz.x, DPHIDRHO_T[292][292].fz.y, DPHIDRHO_T[292][292].fz.z);
     } //End while(constraint condition)
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);

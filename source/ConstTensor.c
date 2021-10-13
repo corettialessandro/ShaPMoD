@@ -284,7 +284,9 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
         int p;
         int neighlist[1000];
         List_Of_Neighs(i,neighlist,1);
+        // if (k == 752) printf("Const %d\n", neighlist[0]);
         for (p=1;p<=neighlist[0];p++) {
+        //for (j=0; j<NPART; j++){
 
             j = neighlist[p];
 
@@ -299,9 +301,9 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
                 LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
                 SS_d = Distance(rho[i], rho[j]);
                 SS_r = mod(SS_d);
+                //if (k == 752) printf("dForce : r = %.4e and rcut = %.4e\n", SS_r, rCUT);
 
                 if (SS_r <= rCUT) {
-
 
 
                     rinv = 1.0/SS_r;
@@ -416,7 +418,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
 
         }
     }
-
+    //if (k == 752) printf("Wzz = %.4e \n",W.fz.z);
 
     return W;
 }
