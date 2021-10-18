@@ -1,14 +1,14 @@
-M       	Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode, 'M' = MultiMaze)
+S       	Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode, 'M' = MultiMaze)
 S       	Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
 F       	Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
-W       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA)
+L       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA, 'L' = Lennard-Jones)
 1       	Number of molecules
 2       	Number of atomic species
 200		Number of atoms of the first species
 800     	Number of atoms of the second species
 10	    	Timestep (fs)
-10	   	Number of timesteps
-0.0127 		Density of particles (Å^-3)
+200	   	Number of timesteps
+0.0127 		Density of particles (Å^-3) 0.0127
 F       	Thermostat ('T' = ON, 'F' = OFF)
 179.7		Temperature (K)
 .5      	Short-range cut-off scaling factor
@@ -37,7 +37,7 @@ Small           Second species
 1.25        	b++
 4898.2056   	C++
 23211.285   	D++
-1.e-7      	Tolerance for shell relaxation
+2.e-8      	Tolerance for shell relaxation
 10.74           LJsigma B-B
 0.049           LJeps B-B
 34.7         	LJcut B-B

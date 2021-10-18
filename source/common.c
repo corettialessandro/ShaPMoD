@@ -415,6 +415,8 @@ void ReadInput(){
 
         } else if (POT == 'W'){
             printf("What should I do there?\n");
+        } else if (POT == 'L'){
+              printf("What should I do there?\n");
         } else {
 
             printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Potential Model: POT = %c\n", POT);
@@ -630,6 +632,10 @@ void ReadInput(){
     } else if (POT == 'W'){
 
         printf("* Using Weeks-Chandler-Anderson Potential\n\n");
+
+    } else if (POT == 'L'){
+
+          printf("* Using Lennard-Jones Potential\n\n");
 
     }
     else{

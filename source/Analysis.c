@@ -539,6 +539,95 @@ double EnerPot_WCA(struct point r[]){
     return 0.5*EPot;
 }
 
+double EnerPot_LJ(struct point r[]){
+
+    double EPot = 0.;
+
+    int i, j, indx_i, indx_j, indx_int;
+    //    int n1, n2;
+    double rCUT;
+    double lround;
+    double Rround, R2round;
+    double r2inv, r6inv, rc2inv, rc6inv;
+    double ljatrc;
+    double ep;
+    double epi, epi1;
+    double SC_r, CS_r, SC_r2, CC_r, CC_r2, SS_r, CC_r3, CC_r6, CC_r8, CC_r12;
+    struct point SC_d, CS_d, CC_d, SS_d;
+    double LJ_sigma6, LJ_sigma12;
+
+    double cut_corr = 0;
+
+    int p;
+    int neighlist[1000];
+    int n1, n2;
+    int neigh1[1000], neigh2[1000];
+
+    for (i=0; i<NPART; i++) {
+
+        epi = 0.;
+        n1 = 0;
+
+        indx_i = INDX[i];
+
+//        SC_d = d_rhoirj(rho[i], r[i], r[i]);
+//        SC_d = Distance(rho[i], r[i]);
+
+        //List_Of_Neighs(i,neighlist,1);
+        //for (p=1;p<=neighlist[0];p++) {
+            //j = neighlist[p];
+        for (j=0; j<NPART; j++) {
+            if (i!=j) {
+
+              indx_j = INDX[j];
+
+              indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+              rCUT = LJRCUT[indx_i][indx_j];
+              lround = LJLROUND[indx_i][indx_j];
+              LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+              LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+
+              //Core-Core interactions
+//              CC_d = d_rirj(r[i], r[j]);
+              CC_d = Distance(r[i], r[j]);
+              CC_r = mod(CC_d);
+
+              r2inv = 1.0/(CC_r*CC_r);
+              r6inv = r2inv*r2inv*r2inv;
+              rc2inv = 1.0/(rCUT*rCUT);
+              rc6inv = rc2inv*rc2inv*rc2inv;
+              ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+
+              ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
+
+
+              EPot += ep;
+              epi += ep;
+
+            }
+
+
+        }
+
+
+
+
+
+
+    }
+
+    // for (i=0; i<NINTER; i++) {
+    //
+    //     //        n1 = (int) floor(i/2.);
+    //     //        n2 = (int) floor((i+1)/2.);
+    //
+    //     cut_corr += C_VTAIL[i];
+    // }
+
+    return 0.5*EPot;
+}
+
 double EnerTot(struct point r[], struct point rho[], struct point v[]){
 
     double ETot = 0;
@@ -558,6 +647,10 @@ double EnerTot(struct point r[], struct point rho[], struct point v[]){
     }else if (POT == 'W') {
 
         EPot = EnerPot_WCA(r);
+
+    }else if (POT == 'L') {
+
+        EPot = EnerPot_LJ(r);
 
     }
 
@@ -701,6 +794,10 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
     } else if (POT == 'W'){
 
         EPot = EnerPot_WCA(r)*_E_CONV;
+        Press += 0;
+    } else if (POT == 'L'){
+
+        EPot = EnerPot_LJ(r)*_E_CONV;
         Press += 0;
     }
 

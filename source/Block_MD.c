@@ -80,10 +80,16 @@ void Block_MD_St(void){
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_T, i);
                 //if (i==18) printf("%lf %lf %lf\n\n",CF_t.x,CF_t.y,CF_t.z);
-                if (i == 0){
-                    printf("F = %.4e %.4e %.4e\n", CF_t.x, CF_t.y, CF_t.z);
-                    printf("pos = %.4e %.4e %.4e\n", PARTPOS_T[i].x, PARTPOS_T[i].y, PARTPOS_T[i].z);
-                }
+                // if (i == 0){
+                //     printf("F = %.4e %.4e %.4e\n", CF_t.x, CF_t.y, CF_t.z);
+                //     printf("pos = %.4e %.4e %.4e\n", PARTPOS_T[i].x, PARTPOS_T[i].y, PARTPOS_T[i].z);
+                // }
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
+
+            } else if (POT == 'L') {
+                CF_t = Force_LJ(PARTPOS_T, i);
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
@@ -181,6 +187,12 @@ void Block_MD_St(void){
 
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_TP1, i);
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
+
+            } else if (POT == 'L') {
+                CF_t = Force_LJ(PARTPOS_TP1, i);
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
@@ -741,7 +753,7 @@ void Block_MD_MultiMaze(void){
             SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
             SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
             SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
-            
+
 
         }
 
