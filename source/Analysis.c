@@ -599,7 +599,7 @@ double EnerPot_LJ(struct point r[]){
               rc6inv = rc2inv*rc2inv*rc2inv;
               ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
 
-              ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
+              ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) ) ;
 
 
               EPot += ep;

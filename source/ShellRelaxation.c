@@ -1052,6 +1052,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                 // DPHIDRHO_T[k][i].fz.y += 1e-8;
                 // DPHIDRHO_T[k][i].fz.z += 1e-8;
 
+            } else if (POT == 'L') {
+
+                DPHIDRHO_T[k][i] = ConstTens_LJ(rho_t, r_t, k, i);
+
             }
             //if (k==i)printf(" %d / %d dFxold = %.4e %.4e %.4e \n dFyold = %.4e %.4e %.4e \n dFzold = %.4e %.4e %.4e\n\n", k, i,  DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
 
@@ -1084,6 +1088,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
         } else if (POT == 'W') {
 
             Phi_old = Force_WCA(rho_OLD, k);
+            //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+        } else if (POT == 'L') {
+
+            Phi_old = Force_LJ(rho_OLD, k);
             //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
         }
 
@@ -1185,6 +1193,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             } else if (POT == 'W') {
 
                 Phi_old.x = Force_WCA(rho_OLD, k).x;
+
+            } else if (POT == 'L') {
+
+                Phi_old.x = Force_LJ(rho_OLD, k).x;
             }
 
             if(fabs(Phi_old.x)>discr) {
@@ -1209,6 +1221,11 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                     //printf("Dsigma_%d_x/Dx_%d = ",k,i);
                     DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
                     //if (k ==662) printf("(%f %f %f)\n",DPhixDrho_old.x,DPhixDrho_old.y,DPhixDrho_old.z);
+
+                } else if (POT == 'L') {
+
+                    DPhixDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fx;
+
                 }
 
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhixDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhixDrho_old.x, DPhixDrho_old.y, DPhixDrho_old.z);
@@ -1266,6 +1283,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
                 Phi_old.y = Force_WCA(rho_OLD, k).y;
 
+            } else if (POT == 'L') {
+
+                Phi_old.y = Force_LJ(rho_OLD, k).y;
+
             }
 
             if(fabs(Phi_old.y)>discr) {
@@ -1291,6 +1312,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                   //printf("Dsigma_%d_x/Dx_%d = ",k,i);
                   DPhiyDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fy;
                   //printf("(%f %f %f)\n",DPhiyDrho_old.x,DPhiyDrho_old.y,DPhiyDrho_old.z);
+
+                } else if (POT == 'L') {
+
+                  DPhiyDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fy;
 
                 }
 
@@ -1348,6 +1373,11 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
             } else if (POT == 'W'){
 
                 Phi_old.z = Force_WCA(rho_OLD, k).z;
+
+            } else if (POT == 'L'){
+
+                Phi_old.z = Force_LJ(rho_OLD, k).z;
+
             }
 
             if(fabs(Phi_old.z)>discr) {
@@ -1373,6 +1403,10 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                     //printf("Dsigma_%d_x/Dx_%d = ",k,i);
                     DPhizDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fz;
                     //printf("(%f %f %f)\n",DPhizDrho_old.x,DPhizDrho_old.y,DPhizDrho_old.z);
+                }  else if (POT == 'L'){
+
+                    DPhizDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fz;
+
                 }
 
                 if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
@@ -1831,7 +1865,16 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         RHO_OLD[i].y = rho[i].y;
         RHO_OLD[i].z = rho[i].z;
 
-        PHI_OLD[i] = Force_WCA(rho, i);
+      if (POT == 'W'){
+
+          PHI_OLD[i] = Force_WCA(rho, i);
+
+      }else if (POT == 'L'){
+
+          PHI_OLD[i] = Force_LJ(rho, i);
+
+      }
+
 
         if (fabs(PHI_OLD[i].x) > max_Phi) max_Phi = fabs(PHI_OLD[i].x);
         if (fabs(PHI_OLD[i].y) > max_Phi) max_Phi = fabs(PHI_OLD[i].y);
@@ -1860,7 +1903,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
 //        Choosing search direction
         for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-            PHI[i] = Force_WCA(rho, i);
+            if (POT == 'W'){
+
+                PHI[i] = Force_WCA(rho, i);
+
+            }else if (POT == 'L'){
+
+                PHI[i] = Force_LJ(rho, i);
+
+            }
 
             if (fabs(PHI[i].x) > max_Phi) max_Phi = fabs(PHI[i].x);
             if (fabs(PHI[i].y) > max_Phi) max_Phi = fabs(PHI[i].y);
@@ -1889,7 +1940,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         if (DEBUG_FLAG && _D_CG) printf("\nNew Search Direction\n");
 
 //        Computing energy before line-minimization process (lambda = 0)
-        E0 = EnerPot_WCA(rho);
+        if (POT == 'W'){
+
+            E0 = EnerPot_WCA(rho);
+
+        }else if (POT == 'L'){
+
+            E0 = EnerPot_LJ(rho);
+
+        }
         if (DEBUG_FLAG && _D_CG) printf("E0 = %.4e\n", E0);
 
         denom = 0.0;
@@ -1921,7 +1980,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         }
 
 //        Computing energy after minimization process (lambda = lambda1)
-        E1 = EnerPot_WCA(rho);
+        if (POT == 'W'){
+
+            E1 = EnerPot_WCA(rho);
+
+        }else if (POT == 'L'){
+
+            E1 = EnerPot_LJ(rho);
+
+        }
 
 //        Fitting parabola to better estimate energy of the minimum
         AA = ((E1-E0) - BB*lambda1)/(lambda1*lambda1);
@@ -1940,7 +2007,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         }
 
 //        Computing energy after minimization process and parabola fit (lambda = lambda2)
-        E2 = EnerPot_WCA(rho);
+        if (POT == 'W'){
+
+            E2 = EnerPot_WCA(rho);
+
+        }else if (POT == 'L'){
+
+            E2 = EnerPot_LJ(rho);
+
+        }
 
 //        Compute minimum energy (ALERT: CORRECT IF lambda IS ZERO)
         if (E1 < E2){
@@ -1993,7 +2068,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
                         Add_Point_To_Cell(rho[i],i);
                     }
 
-                    Emin = EnerPot_WCA(rho);
+                    if (POT == 'W'){
+
+                        Emin = EnerPot_WCA(rho);
+
+                    }else if (POT == 'L'){
+
+                        Emin = EnerPot_LJ(rho);
+
+                    }
 
                     lambda3 /= 2.;
 
@@ -2016,7 +2099,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
                     Add_Point_To_Cell(rho[i],i);
                 }
 
-                Emin = EnerPot_WCA(rho);
+                if (POT == 'W'){
+
+                    Emin = EnerPot_WCA(rho);
+
+                }else if (POT == 'L'){
+
+                    Emin = EnerPot_LJ(rho);
+
+                }
 
 //                If Emin is again higher than E0 than set lambda to be the maximum between lambda1 and lambda2
                 if (Emin >= E0) {
@@ -2050,7 +2141,15 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
 
         for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-            PHI[i] = Force_WCA(rho, i);
+            if (POT == 'W'){
+
+                PHI[i] = Force_WCA(rho, i);
+
+            }else if (POT == 'L'){
+
+                PHI[i] = Force_LJ(rho, i);
+
+            }
 
             if (fabs(PHI[i].x) > max_Phi) max_Phi = fabs(PHI[i].x);
             if (fabs(PHI[i].y) > max_Phi) max_Phi = fabs(PHI[i].y);

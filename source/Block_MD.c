@@ -714,6 +714,12 @@ void Block_MD_MultiMaze(void){
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
+            } else if (POT == 'L') {
+                CF_t = Force_LJ(PARTPOS_T, i);
+                //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
             }
 
             if (DEBUG_FLAG && _D_TOT_FORCES) {
@@ -840,6 +846,13 @@ void Block_MD_MultiMaze(void){
 
             } else if (POT == 'W') {
                 CF_t = Force_WCA(PARTPOS_TP1, i);
+                SF_t.x = 0;
+                SF_t.y = 0;
+                SF_t.z = 0;
+
+            } else if (POT == 'L') {
+                CF_t = Force_LJ(PARTPOS_T, i);
+                //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;

@@ -422,3 +422,136 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
 
     return W;
 }
+
+struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
+
+//Here k is the index of the constraint (one component of the force) and i is the index in the derivative
+    struct tensor W;
+
+    struct point SS_d;
+    double SS_r;
+    double rCUT, lround, Rround, R2round;
+    int j, indx_i = INDX[i], indx_j, indx_int;
+    struct point CC_d;
+    double CC_r, rinv, r2inv, r6inv, rc2inv, rc6inv, ljatrc, forcelj, fpair, ljrc;
+    double LJ_sigma6, LJ_sigma12;
+    double sigma_r6, sigma_r12, dU, dU2;
+
+
+    if (i==k) {
+
+        W.fx.x = W.fx.y = W.fx.z = 0.;
+        W.fy.x = W.fy.y = W.fy.z = 0.;
+        W.fz.x = W.fz.y = W.fz.z = 0.;
+
+        //for (j=0; j<NPART; j++){
+        // int p;
+        // int neighlist[1000];
+        // List_Of_Neighs(i,neighlist,1);
+        // // if (k == 752) printf("Const %d\n", neighlist[0]);
+        // for (p=1;p<=neighlist[0];p++) {
+        for (j=0; j<NPART; j++){
+
+            //j = neighlist[p];
+
+            if (j!=i) {
+
+                indx_j = INDX[j];
+                indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+                rCUT = LJRCUT[indx_i][indx_j];
+                lround = LJLROUND[indx_i][indx_j];
+                LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+                LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+                SS_d = Distance(rho[i], rho[j]);
+                SS_r = mod(SS_d);
+                //if (k == 752) printf("dForce : r = %.4e and rcut = %.4e\n", SS_r, rCUT);
+
+
+
+
+                rinv = 1.0/SS_r;
+                r2inv = rinv*rinv;
+                r6inv = r2inv*r2inv*r2inv;
+                rc2inv = 1.0/(rCUT*rCUT);
+                rc6inv = rc2inv*rc2inv*rc2inv;
+                sigma_r6 = LJ_sigma6*r6inv;
+                sigma_r12 = LJ_sigma12*r6inv*r6inv;
+                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
+                dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
+
+                //rounding the force
+
+
+
+
+                W.fx.x += (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
+                W.fx.y += (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
+                W.fx.z += (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
+                W.fy.x += (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
+                W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU);
+                W.fy.z += (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
+                W.fz.x += (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
+                W.fz.y += (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
+                W.fz.z += (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
+
+            }
+        }
+
+    } else {
+
+        W.fx.x = W.fx.y = W.fx.z = W.fy.x = W.fy.y = W.fy.z = W.fz.x = W.fz.y = W.fz.z = 0.;
+
+        j=k;
+
+
+        indx_j = INDX[j];
+        indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+
+        rCUT = LJRCUT[indx_i][indx_j];
+        lround = LJLROUND[indx_i][indx_j];
+        LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+        LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+        SS_d = Distance(rho[i], rho[j]);
+        SS_r = mod(SS_d);
+
+
+
+
+
+        rinv = 1.0/SS_r;
+        r2inv = rinv*rinv;
+        r6inv = r2inv*r2inv*r2inv;
+        rc2inv = 1.0/(rCUT*rCUT);
+        rc6inv = rc2inv*rc2inv*rc2inv;
+        sigma_r6 = LJ_sigma6*r6inv;
+        sigma_r12 = LJ_sigma12*r6inv*r6inv;
+        ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+        //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+        dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
+        dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
+
+        //rounding the force
+
+
+
+        W.fx.x = SS_d.x*SS_d.x*r2inv*dU2 + (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU;
+        W.fx.y = SS_d.x*SS_d.y*r2inv*dU2 - (SS_d.x*SS_d.y*rinv)*r2inv*dU;
+        W.fx.z = SS_d.x*SS_d.z*r2inv*dU2 - (SS_d.x*SS_d.z*rinv)*r2inv*dU;
+        W.fy.x = SS_d.y*SS_d.x*r2inv*dU2 - (SS_d.y*SS_d.x*rinv)*r2inv*dU;
+        W.fy.y = SS_d.y*SS_d.y*r2inv*dU2 + (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU;
+        W.fy.z = SS_d.y*SS_d.z*r2inv*dU2 - (SS_d.y*SS_d.z*rinv)*r2inv*dU;
+        W.fz.x = SS_d.z*SS_d.x*r2inv*dU2 - (SS_d.z*SS_d.x*rinv)*r2inv*dU;
+        W.fz.y = SS_d.z*SS_d.y*r2inv*dU2 - (SS_d.z*SS_d.y*rinv)*r2inv*dU;
+        W.fz.z = SS_d.z*SS_d.z*r2inv*dU2 + (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU;
+
+
+
+
+    }
+    //if (k == 752) printf("Wzz = %.4e \n",W.fz.z);
+
+    return W;
+}

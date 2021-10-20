@@ -21,5 +21,6 @@
 struct tensor ConstTens_Jac(struct point rho[], struct point r[],  int i, int k);
 struct tensor ConstTens_Cicc(struct point rho[], struct point r[],  int i, int k);
 struct tensor ConstTens_WCA(struct point rho[], struct point r[],  int i, int k);
+struct tensor ConstTens_LJ(struct point rho[], struct point r[],  int i, int k);
 
 #endif /* ConstTensor_h */
