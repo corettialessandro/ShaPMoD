@@ -168,12 +168,17 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
 
     int i, j, k;
     int counterLCG = 0;
-    double alpha, alpha_num, alpha_denom, beta, beta_num, beta_denom, errorNorm;
+    double alpha=0., alpha_num, alpha_denom, beta=0., beta_num, beta_denom, errorNorm = 0.;
     //double testb[2];
 
-    printf("%d \n", vector_x[0].x);
 
-
+    for (i=0; i<ndimension; i++) {
+        RESIDUE_OLD[i] = 0.;
+        DIRECTION_OLD[i] = 0.;
+        RESIDUE[i] = 0.;
+        DIRECTION[i] = 0.;
+        ERRORVECTOR[i] = 0.;
+    }
 
     for (i=0; i<ndimension; i++) {
 
@@ -210,6 +215,7 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
         alpha_denom = 0.;
         beta_num = 0.;
         beta_denom = 0.;
+        errorNorm = 0.;
 
         counterLCG++;
 
@@ -285,8 +291,9 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
 
 
     }
-
-    printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
+    // printf("%.4e", errorNorm);
+    //
+    printf(" \n vector x = %.4e %.4e \n", vector_x[0].x, vector_x[1].x);
 
 
 }

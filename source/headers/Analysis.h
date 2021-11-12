@@ -23,6 +23,7 @@ struct point Velocity(struct point r_tm1, struct point r_tp1);
 struct point CMVelocity(struct point v[]);
 
 double EnerKin(struct point v[]);
+double MultiEnerKin(struct point v[]);
 double EnerPot_HM(struct point r[]);
 double EnerPot_Jac(struct point r[], struct point rho[]);
 double EnerPot_Cicc(struct point r[], struct point rho[]);
@@ -30,6 +31,7 @@ double EnerPot_WCA(struct point r[]);
 double EnerPot_LJ(struct point r[]);
 double EnerTot(struct point r[], struct point rho[], struct point v[]);
 double Temperature(struct point v[]);
+double MultiTemperature(struct point v[]);
 double Pressure_Jac(struct point r[], struct point rho[]);
 double Pressure_Cicc(struct point r[], struct point rho[]);
 struct point Angular_Momentum(struct point r[], struct point v[]);
