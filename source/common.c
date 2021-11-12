@@ -26,6 +26,17 @@ struct point *SHELLACC_TP1;
 
 struct tensor **DPHIDRHO_T;
 struct tensor **DPHIDVRHO_T;
+
+double **SHAKEMATRIX_X;
+double **SHAKEMATRIX_Y;
+double **SHAKEMATRIX_Z;
+
+double *RESIDUE;
+double *RESIDUE_OLD;
+double *DIRECTION;
+double *DIRECTION_OLD;
+double *ERRORVECTOR;
+
 struct point *GAMMA;
 struct point *GAMMATOT;
 
@@ -247,6 +258,33 @@ void ReadInput(){
         if ((PHI_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((SEARCHDIR = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((RHO_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+    }
+
+    if (SRMODE == 'W') {
+
+        if ((PHI = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
+        if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
+        if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
+
+        if ((SHAKEMATRIX_X = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
+        if ((SHAKEMATRIX_Y = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
+        if ((SHAKEMATRIX_Z = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
+
+        if ((DIRECTION = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((RESIDUE = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((DIRECTION_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((RESIDUE_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((ERRORVECTOR = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+
+        for (i=0; i<NPART; i++) {
+
+            if ((DPHIDRHO_T[i] = (struct tensor *)calloc(NPART, sizeof(struct tensor))) == NULL) pointer_flag = 100+1+i;
+            if ((SHAKEMATRIX_X[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
+            if ((SHAKEMATRIX_Y[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
+            if ((SHAKEMATRIX_Z[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
+        }
+
     }
 
     fscanf(fp_input, "%lf %*[^\n]", &DT);
@@ -596,6 +634,10 @@ void ReadInput(){
 
             printf("Multi using Conjugate Gradient algorithm\n\n");
 
+        }else if (SRMODE == 'W') {
+
+            printf("Multi using Weinbach-Elber algorithm\n\n");
+
         } else {
 
             printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Shell Relaxation Mode: SRMODE = '%c'", SRMODE);
@@ -775,6 +817,25 @@ void FreePointers(void){
         free(PHI_OLD);
         free(SEARCHDIR);
         free(RHO_OLD);
+    }
+
+    if (SRMODE == 'W') {
+
+        free(PHI);
+        free(DPHIDRHO_T);
+        free(GAMMA);
+        free(GAMMATOT);
+
+        free(SHAKEMATRIX_X);
+        free(SHAKEMATRIX_Y);
+        free(SHAKEMATRIX_Z);
+
+        free(DIRECTION);
+        free(RESIDUE);
+        free(DIRECTION_OLD);
+        free(RESIDUE_OLD);
+        free(ERRORVECTOR);
+
     }
 
     free(NAME);

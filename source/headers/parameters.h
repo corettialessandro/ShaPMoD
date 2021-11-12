@@ -40,7 +40,7 @@
 #define _UP_TOL 1.e11           //Upper tolerance for shell relaxation
 #define _MAX_ITER 1e4           //Maximum number of allowed iterations for reaching convergence
 #define _MAX_ATT 2              //Maximum number of attempts to get out from a local minimum
-#define _SR_CG_LOW_TOL 5e-8    //Lower Tolerance for shell relaxation - Conjugate Gradient
+#define _SR_CG_LOW_TOL 1e-7    //Lower Tolerance for shell relaxation - Conjugate Gradient
 #define _SR_SHAKE_LOW_TOL 5e-11 //Lower Tolerance for shell relaxation - Shake
 
 //Ewald Parameters
@@ -77,6 +77,9 @@
 //#define INITIALIZED 1e10
 
 // Over-relaxation parameter
-#define SOR 0.33333 //0.333333
+#define SOR 0.8 //0.333333
+
+// LCG parameter
+#define LCG_TOL 1e-8
 
 #endif /* parameters_h */

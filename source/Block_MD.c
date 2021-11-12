@@ -714,6 +714,7 @@ void Block_MD_MultiMaze(void){
                 SF_t.x = 0;
                 SF_t.y = 0;
                 SF_t.z = 0;
+
             } else if (POT == 'L') {
                 CF_t = Force_LJ(PARTPOS_T, i);
                 //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
@@ -797,12 +798,26 @@ void Block_MD_MultiMaze(void){
         } else if (SRMODE == 'C') {
 
             for (i=0; i<NATOMSPERSPEC[1]; i++) {
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x = PARTPOS_T[i].x;
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y = PARTPOS_T[i].y;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z = PARTPOS_T[i].z;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x; //= PARTPOS_T[i].x;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y; //= PARTPOS_T[i].y;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z; //= PARTPOS_T[i].z;
             }
 
             MultiConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
+
+        } else if (SRMODE == 'W') {
+
+            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                Rem_Point_From_Cell(i);
+                Add_Point_To_Cell(SHELLPOS_TP1[i],i);
+            }
+
+            MultiWeinbachElber(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
+
+
         }
 
         // for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
@@ -851,7 +866,7 @@ void Block_MD_MultiMaze(void){
                 SF_t.z = 0;
 
             } else if (POT == 'L') {
-                CF_t = Force_LJ(PARTPOS_T, i);
+                CF_t = Force_LJ(PARTPOS_TP1, i);
                 //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
                 SF_t.x = 0;
                 SF_t.y = 0;

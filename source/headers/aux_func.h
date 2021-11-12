@@ -35,4 +35,6 @@ double OTRAvg(int N, double Estimator, double Avg);
 
 double Thermostat(struct point r_tm1[], struct point r_t[], double temp);
 
+void LinearConjugateGradient(double **matrix, struct point *vector_b, struct point *vector_x, int ndimension, char component);
+
 #endif /* aux_func_h */

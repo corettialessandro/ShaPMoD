@@ -59,6 +59,20 @@ double EnerKin(struct point v[]){
     return EKin*.5;
 }
 
+double MultiEnerKin(struct point v[]){
+
+    double EKin = 0;
+
+    int i=0;
+
+    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+
+        EKin += M[INDX[i]]*modsq(v[i]);
+    }
+
+    return EKin*.5;
+}
+
 double EnerPot_HM(struct point r[]){
 
     double EPot = 0;
@@ -674,6 +688,21 @@ double Temperature(struct point v[]){
     return T/g;
 }
 
+double MultiTemperature(struct point v[]){
+
+    double T = 0;
+
+    int i;
+    double g = 3*(NPART - 1.);
+
+    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+
+        T += M[INDX[i]]*modsq(v[i]);
+    }
+
+    return T/g;
+}
+
 double Pressure_Jac(struct point r[], struct point rho[]){
 
     double P = 0;
@@ -770,6 +799,15 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
     int i;
     double ETot, EKin, EPot = 0, EPol, Temp, Press = 0;
     struct point CMV, AnMom;
+
+    // if (MODE == 'M'){
+    //   EKin = MultiEnerKin(v)*_E_CONV;
+    //   ITEMP = Temp = MultiTemperature(v);
+    //
+    // }else{
+        // EKin = EnerKin(v)*_E_CONV;
+        // ITEMP = Temp = Temperature(v);
+    // }
 
     EKin = EnerKin(v)*_E_CONV;
     ITEMP = Temp = Temperature(v);

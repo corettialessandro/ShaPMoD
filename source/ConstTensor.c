@@ -272,6 +272,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
     double CC_r, rinv, r2inv, r6inv, rc2inv, rc6inv, ljatrc, forcelj, fpair, ljrc;
     double LJ_sigma6, LJ_sigma12;
     double sigma_r6, sigma_r12, dU, dU2;
+    //int particleCount = 0;
 
 
     if (i==k) {
@@ -304,6 +305,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
                 //if (k == 752) printf("dForce : r = %.4e and rcut = %.4e\n", SS_r, rCUT);
 
                 if (SS_r <= rCUT) {
+                    //particleCount++;
 
 
                     rinv = 1.0/SS_r;
@@ -370,6 +372,7 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
         SS_r = mod(SS_d);
 
         if (SS_r <= rCUT) {
+            //particleCount++;
 
 
 
@@ -414,11 +417,22 @@ struct tensor ConstTens_WCA(struct point rho[], struct point r[], int k, int i) 
             W.fz.y = SS_d.z*SS_d.y*r2inv*dU2 - (SS_d.z*SS_d.y*rinv)*r2inv*dU;
             W.fz.z = SS_d.z*SS_d.z*r2inv*dU2 + (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU;
 
+            // W.fx.x = (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
+            // W.fx.y = (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
+            // W.fx.z = (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
+            // W.fy.x = (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
+            // W.fy.y = (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU);
+            // W.fy.z = (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
+            // W.fz.x = (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
+            // W.fz.y = (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
+            // W.fz.z = (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
+
 
 
         }
     }
     //if (k == 752) printf("Wzz = %.4e \n",W.fz.z);
+    //if (k==42 && i==43) printf("part : %d, number of part in rc : %d \n",k,particleCount);
 
     return W;
 }
@@ -546,6 +560,16 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
         W.fz.x = SS_d.z*SS_d.x*r2inv*dU2 - (SS_d.z*SS_d.x*rinv)*r2inv*dU;
         W.fz.y = SS_d.z*SS_d.y*r2inv*dU2 - (SS_d.z*SS_d.y*rinv)*r2inv*dU;
         W.fz.z = SS_d.z*SS_d.z*r2inv*dU2 + (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU;
+
+        // W.fx.x = (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
+        // W.fx.y = (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
+        // W.fx.z = (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
+        // W.fy.x = (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
+        // W.fy.y = (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU);
+        // W.fy.z = (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
+        // W.fz.x = (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
+        // W.fz.y = (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
+        // W.fz.z = (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
 
 
 
