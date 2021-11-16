@@ -1626,9 +1626,9 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
             }
-        printf("%.4e ", SHAKEMATRIX_X[k][i]);
+        //printf("%.4e ", SHAKEMATRIX_X[k][i]);
         }
-    printf("\n");
+    //printf("\n");
     }
 
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
@@ -1654,6 +1654,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         PHI[k].x = Phi_old.x;
         PHI[k].y = Phi_old.y;
         PHI[k].z = Phi_old.z;
+        //printf("itOLD = -> Phi[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
 
         //printf("%.4e\n", PHI[k].x);
 
@@ -1754,12 +1755,10 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
         LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, NATOMSPERSPEC[1], 'x');
 
-        exit(0);
-
-        for (k=0; k<NATOMSPERSPEC[1]; k++) { //Looping on all constraints
+        for (k=0; k<NATOMSPERSPEC[1]; k++) {
+            //printf("rho_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
 
             //            X COMPONENT OF THE FORCE
-            denom = 0;
 
             if (POT == 'J') {
 
@@ -1784,69 +1783,41 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 kdiscr = k + 0.1;
             }
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("Phix_old[%d].x = %.4e\n", k, Phi_old.x);
+            //GAMMATOT[k].x += GAMMA[k].x;
+
+            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
 
             for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                if (POT == 'J') {
+                indx_i = INDX[i];
 
-                    DPhixDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
-
-                } else if (POT == 'C') {
-
-                    DPhixDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fx; // TO BE COMPUTED FOR r_OLD
-
-                } else if (POT == 'W') {
-                    //printf("Dsigma_%d_x/Dx_%d = ",k,i);
-                    DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
-                    //if (k ==662) printf("(%f %f %f)\n",DPhixDrho_old.x,DPhixDrho_old.y,DPhixDrho_old.z);
-
-                } else if (POT == 'L') {
-
-                    DPhixDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fx;
-
-                }
-
-                if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhixDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhixDrho_old.x, DPhixDrho_old.y, DPhixDrho_old.z);
-
-                // if (DPhixDrho_old.x != 0. && DPHIDRHO_T[k][i].fx.x == 0.) DPHIDRHO_T[k][i].fx.x =1.;
-                // if (DPhixDrho_old.y != 0. && DPHIDRHO_T[k][i].fx.y == 0.) DPHIDRHO_T[k][i].fx.y =1.;
-                // if (DPhixDrho_old.z != 0. && DPHIDRHO_T[k][i].fx.z == 0.) DPHIDRHO_T[k][i].fx.z =1.;
-                // if (k == 42) printf("denom = %.8e\n", denom);
-                // if (k == 42) printf("(%d)+= %.8e\n", i,(DPhixDrho_old.x*DPHIDRHO_T[k][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[k][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[k][i].fx.z));
-                // if (DPhixDrho_old.x != 0. && DPHIDRHO_T[k][i].fx.x == 0. && DPhixDrho_old.y != 0. && DPHIDRHO_T[k][i].fx.y == 0. && DPhixDrho_old.z != 0. && DPHIDRHO_T[k][i].fx.z == 0.) {
-                //     denom += fabs(DPhixDrho_old.x*DPHIDRHO_T[k][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[k][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[k][i].fx.z);
-                // } else {
-                //     denom += (DPhixDrho_old.x*DPHIDRHO_T[k][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[k][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[k][i].fx.z);
-                // }
-
-
-                denom += (DPhixDrho_old.x*DPHIDRHO_T[k][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[k][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[k][i].fx.z);
-                //denom += (DPhixDrho_old.x*DPhixDrho_old.x + DPhixDrho_old.y*DPhixDrho_old.y + DPhixDrho_old.z*DPhixDrho_old.z);
+                rho_OLD[i].x += GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
+                rho_OLD[i].y += GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
+                rho_OLD[i].z += GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
+                Rem_Point_From_Cell(i);
+                Add_Point_To_Cell(rho_OLD[i],i);
             }
-            //if (k==662) printf("%.4e\n", denom);
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fx = %.4e\n", k, k, denom);
+            if (POT == 'J') {
 
-            if (denom != 0.){
-                GAMMA[k].x = (SOR)*Phi_old.x/denom;
-                GAMMATOT[k].x += GAMMA[k].x;
+                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
 
-                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
+            } else if (POT == 'C') {
 
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
 
-                    indx_i = INDX[i];
+            } else if (POT == 'W') {
 
-                    rho_OLD[i].x -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
-                    rho_OLD[i].y -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
-                    rho_OLD[i].z -= GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
-                    Rem_Point_From_Cell(i);
-                    Add_Point_To_Cell(rho_OLD[i],i);
-                }
-            }else{
-                GAMMA[k].x = 0.;
+                Phi_old = Force_WCA(rho_OLD, k);
+
+            } else if (POT == 'L') {
+
+                Phi_old = Force_LJ(rho_OLD, k);
             }
+
+            PHI[k].x = Phi_old.x;
+            PHI[k].y = Phi_old.y;
+            PHI[k].z = Phi_old.z;
 
             if (DEBUG_FLAG && _D_SHAKE)  {
 
@@ -1855,9 +1826,15 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                     printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
                 }
             }
+            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        }
 
             //            Y COMPONENT OF THE FORCE
-            denom = 0;
+
+        LinearConjugateGradient(SHAKEMATRIX_Y, PHI, GAMMA, NATOMSPERSPEC[1], 'y');
+
+        for (k=0; k<NATOMSPERSPEC[1]; k++) {
+            //printf("rho_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
 
             if (POT == 'J') {
 
@@ -1883,69 +1860,45 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 kdiscr = k + 0.2;
             }
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("sigma_old[%d].y = %.4e\n", k, Phi_old.y);
-
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                if (POT == 'J') {
-
-                    DPhiyDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fy; // TO BE COMPUTED FOR r_OLD
-
-                } else if (POT == 'C'){
-
-                    DPhiyDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fy; // TO BE COMPUTED FOR r_OLD
-
-                } else if (POT == 'W') {
-
-                  //printf("Dsigma_%d_x/Dx_%d = ",k,i);
-                    DPhiyDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fy;
-                  //printf("(%f %f %f)\n",DPhiyDrho_old.x,DPhiyDrho_old.y,DPhiyDrho_old.z);
-
-                } else if (POT == 'L') {
-
-                    DPhiyDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fy;
-
-                }
-
-                if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhiyDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhiyDrho_old.x, DPhiyDrho_old.y, DPhiyDrho_old.z);
-
-                // if (DPhiyDrho_old.x != 0 && DPHIDRHO_T[k][i].fy.x == 0) DPHIDRHO_T[k][i].fy.x =1.;
-                // if (DPhiyDrho_old.y != 0 && DPHIDRHO_T[k][i].fy.y == 0) DPHIDRHO_T[k][i].fy.y =1.;
-                // if (DPhiyDrho_old.z != 0 && DPHIDRHO_T[k][i].fy.z == 0) DPHIDRHO_T[k][i].fy.z =1.;
-
-                // if (DPhiyDrho_old.x != 0. && DPHIDRHO_T[k][i].fy.x == 0. && DPhiyDrho_old.y != 0. && DPHIDRHO_T[k][i].fy.y == 0. && DPhiyDrho_old.z != 0. && DPHIDRHO_T[k][i].fy.z == 0.) {
-                //     denom += fabs(DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-                // } else {
-                //
-                //     denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-                // }
-
-                denom += (DPhiyDrho_old.x*DPHIDRHO_T[k][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[k][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[k][i].fy.z);
-                //denom += (DPhiyDrho_old.x*DPhiyDrho_old.x + DPhiyDrho_old.y*DPhiyDrho_old.y + DPhiyDrho_old.z*DPhiyDrho_old.z);
-            }
 
             if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
 
-            if (denom != 0.){
-                GAMMA[k].y = (SOR)*Phi_old.y/denom;
-                GAMMATOT[k].y += GAMMA[k].y;
+            //GAMMATOT[k].y += GAMMA[k].y;
 
-                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
+            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
 
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                    indx_i = INDX[i];
-                    //printf("%.4e \n", GAMMA[k].y);
-                    rho_OLD[i].x -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.x; //segmentation fault
-                    rho_OLD[i].y -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
-                    rho_OLD[i].z -= GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
+                indx_i = INDX[i];
+                //printf("%.4e \n", GAMMA[k].y);
+                rho_OLD[i].x += GAMMA[k].y*DPHIDRHO_T[k][i].fy.x; //segmentation fault
+                rho_OLD[i].y += GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
+                rho_OLD[i].z += GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
 
-                    Rem_Point_From_Cell(i);
-                    Add_Point_To_Cell(rho_OLD[i],i);
-                }
-            }else{
-                GAMMA[k].y = 0.;
+                Rem_Point_From_Cell(i);
+                Add_Point_To_Cell(rho_OLD[i],i);
             }
+
+            if (POT == 'J') {
+
+                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+
+            } else if (POT == 'C') {
+
+                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+
+            } else if (POT == 'W') {
+
+                Phi_old = Force_WCA(rho_OLD, k);
+
+            } else if (POT == 'L') {
+
+                Phi_old = Force_LJ(rho_OLD, k);
+            }
+
+            PHI[k].x = Phi_old.x;
+            PHI[k].y = Phi_old.y;
+            PHI[k].z = Phi_old.z;
 
             if (DEBUG_FLAG && _D_SHAKE)  {
 
@@ -1954,9 +1907,15 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                     printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
                 }
             }
+            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        }
 
             //            Z COMPONENT OF THE FORCE
-            denom = 0;
+        LinearConjugateGradient(SHAKEMATRIX_Z, PHI, GAMMA, NATOMSPERSPEC[1], 'z');
+
+        for (k=0; k<NATOMSPERSPEC[1]; k++) {
+
+            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
 
             if (POT == 'J') {
 
@@ -1982,88 +1941,63 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 kdiscr = k + 0.3;
             }
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("sigma_old[%d].z = %.4e\n", k, Phi_old.z);
+            if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
+            //if (count == 2 && k == 448) printf("%.4e\n",denom);
+            //GAMMATOT[k].z += GAMMA[k].z;
+
+            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
 
             for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                if (POT == 'J') {
+                indx_i = INDX[i];
 
-                    DPhizDrho_old = ConstTens_Jac(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
+                rho_OLD[i].x += GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
+                rho_OLD[i].y += GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
+                rho_OLD[i].z += GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
 
-                } else if (POT == 'C'){
-
-                    DPhizDrho_old = ConstTens_Cicc(rho_OLD, r_tp1, k, i).fz; // TO BE COMPUTED FOR r_OLD
-
-                } else if (POT == 'W'){
-
-                    //printf("Dsigma_%d_x/Dx_%d = ",k,i);
-                    DPhizDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fz;
-                    //printf("(%f %f %f)\n",DPhizDrho_old.x,DPhizDrho_old.y,DPhizDrho_old.z);
-                }  else if (POT == 'L'){
-
-                    DPhizDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fz;
-
-                }
-
-                if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) printf("DPhizDrho_old[%d][%d] = (%.4e, %.4e, %.4e)\n", k, i, DPhizDrho_old.x, DPhizDrho_old.y, DPhizDrho_old.z);
-
-                // if (DPhizDrho_old.x != 0 && DPHIDRHO_T[k][i].fz.x == 0) DPHIDRHO_T[k][i].fz.x =1.;
-                // if (DPhizDrho_old.y != 0 && DPHIDRHO_T[k][i].fz.y == 0) DPHIDRHO_T[k][i].fz.y =1.;
-                // if (DPhizDrho_old.z != 0 && DPHIDRHO_T[k][i].fz.z == 0) DPHIDRHO_T[k][i].fz.z =1.;
-                //if (k==672)printf("%.8e\n",denom);
-                // if (DPhizDrho_old.x != 0. && DPHIDRHO_T[k][i].fz.x == 0. && DPhizDrho_old.y != 0. && DPHIDRHO_T[k][i].fz.y == 0. && DPhizDrho_old.z != 0. && DPHIDRHO_T[k][i].fz.z == 0.) {
-                //     denom += fabs(DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                // } else {
-                //     denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                // }
-
-
-                denom += (DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z);
-                //denom += (DPhizDrho_old.x*DPhizDrho_old.x + DPhizDrho_old.y*DPhizDrho_old.y + DPhizDrho_old.z*DPhizDrho_old.z);
-                // if (k == 672) printf("denom = %.8e\n", denom);
-                // if (k == 672) printf("(%d)+= %.8e\n", i,(DPhizDrho_old.x*DPHIDRHO_T[k][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[k][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[k][i].fz.z));
+                Rem_Point_From_Cell(i);
+                Add_Point_To_Cell(rho_OLD[i],i);
             }
 
-            if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
-            //if (count == 2 && k == 448) printf("%.4e\n",denom);
-            if (denom != 0.){
+            if (POT == 'J') {
 
-                GAMMA[k].z = (SOR)*Phi_old.z/denom;
-                GAMMATOT[k].z += GAMMA[k].z;
+                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
 
-                if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
+            } else if (POT == 'C') {
 
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
+                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
 
-                    indx_i = INDX[i];
+            } else if (POT == 'W') {
 
-                    rho_OLD[i].x -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
-                    rho_OLD[i].y -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
-                    rho_OLD[i].z -= GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
+                Phi_old = Force_WCA(rho_OLD, k);
 
-                    Rem_Point_From_Cell(i);
-                    Add_Point_To_Cell(rho_OLD[i],i);
-                }
-            }else{
-                GAMMA[k].z = 0.;
+            } else if (POT == 'L') {
+
+                Phi_old = Force_LJ(rho_OLD, k);
             }
+
+            PHI[k].x = Phi_old.x;
+            PHI[k].y = Phi_old.y;
+            PHI[k].z = Phi_old.z;
+
+            //printf("itNew = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
+
+
+
             if (DEBUG_FLAG && _D_SHAKE)  {
 
                 for (i=0; i<NATOMSPERSPEC[1]; i++) {
 
-                    printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+                    //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
                 }
             }
+            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
 
             if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
-            //printf("part : %d \n", k);
+
         } //End loop on constraints
-        //if (count == 2) exit(0);
-        fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
-        testForce = Force_WCA(rho_OLD, 171);
-        testdForcex = ConstTens_WCA(rho_OLD, r_tp1, 171, 171).fx;
-        testdForcey = ConstTens_WCA(rho_OLD, r_tp1, 171, 171).fy;
-        testdForcez = ConstTens_WCA(rho_OLD, r_tp1, 171, 171).fz;
+        //exit(0);
+
 
         printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
         // printf("indx = %d, shellpos = %.4e %.4e %.4e \n, force = %.4e %.4e %.4e \n",171, rho_OLD[171].x, rho_OLD[171].y, rho_OLD[171].z, testForce.x, testForce.y, testForce.z);

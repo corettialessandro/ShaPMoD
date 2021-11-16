@@ -295,10 +295,10 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
         // printf("%.4e", errorNorm);
         //
         //printf(" \n vector x = %.4e %.4e \n", vector_x[0].x, vector_x[1].x);
-        for (i=0; i<ndimension; i++) {
-            printf(" \n lambda = %.4e\n", vector_x[i].x);
-
-        }
+        // for (i=0; i<ndimension; i++) {
+        //     printf(" \n lambda = %.4e\n", vector_x[i].x);
+        //
+        // }
         return;
     }
 // ------------------- y ----------------------
