@@ -171,108 +171,30 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
     double alpha=0., alpha_num, alpha_denom, beta=0., beta_num, beta_denom, errorNorm = 0.;
     //double testb[2];
 
+    if (component == 'x'){
 
-    for (i=0; i<ndimension; i++) {
-        RESIDUE_OLD[i] = 0.;
-        DIRECTION_OLD[i] = 0.;
-        RESIDUE[i] = 0.;
-        DIRECTION[i] = 0.;
-        ERRORVECTOR[i] = 0.;
-    }
-
-    for (i=0; i<ndimension; i++) {
-
-        RESIDUE_OLD[i] = vector_b[i].x;
-
-        for (j=0; j<ndimension; j++) {
-
-            RESIDUE_OLD[i] -= (matrix[i][j]*vector_x[j].x);
-
-        }
-
-        DIRECTION_OLD[i] = RESIDUE_OLD[i];
-
-    }
-
-
-    for (i=0; i<ndimension; i++) {
-
-        ERRORVECTOR[i] = vector_b[i].x;
-
-        for (j=0; j<ndimension; j++) {
-
-            ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].x);
-
-        }
-        errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
-    }
-
-    errorNorm = sqrt(errorNorm);
-
-    while (errorNorm > LCG_TOL) {
-
-        alpha_num = 0.;
-        alpha_denom = 0.;
-        beta_num = 0.;
-        beta_denom = 0.;
-        errorNorm = 0.;
-
-        counterLCG++;
-
-        if (counterLCG > _MAX_ITER) {
-
-            printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
-            exit(EXIT_FAILURE);
-
+        for (i=0; i<ndimension; i++) {
+            RESIDUE_OLD[i] = 0.;
+            DIRECTION_OLD[i] = 0.;
+            RESIDUE[i] = 0.;
+            DIRECTION[i] = 0.;
+            ERRORVECTOR[i] = 0.;
         }
 
         for (i=0; i<ndimension; i++) {
 
-            alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+            RESIDUE_OLD[i] = vector_b[i].x;
 
             for (j=0; j<ndimension; j++) {
 
-                alpha_denom += DIRECTION_OLD[i]*matrix[i][j]*DIRECTION_OLD[j];
+                RESIDUE_OLD[i] -= (matrix[i][j]*vector_x[j].x);
 
             }
-        }
 
-        alpha = alpha_num/alpha_denom;
-
-
-        for (i=0; i<ndimension; i++) {
-
-            vector_x[i].x += alpha*DIRECTION_OLD[i];
-            RESIDUE[i] = RESIDUE_OLD[i];
-
-            for (j=0; j<ndimension; j++) {
-
-                RESIDUE[i] -= (alpha*matrix[i][j]*DIRECTION_OLD[j]);
-
-            }
-        }
-
-        for (i=0; i<ndimension; i++) {
-
-            beta_num += RESIDUE[i]*RESIDUE[i];
-            beta_denom += RESIDUE_OLD[i]*RESIDUE_OLD[i];
-
-
-        }
-        beta = beta_num/beta_denom;
-
-        for (i=0; i<ndimension; i++) {
-
-            DIRECTION[i] = RESIDUE[i] + beta*DIRECTION_OLD[i];
+            DIRECTION_OLD[i] = RESIDUE_OLD[i];
 
         }
 
-        for (i=0; i<ndimension; i++) {
-
-            DIRECTION_OLD[i] = DIRECTION[i];
-            RESIDUE_OLD[i] = RESIDUE[i];
-
-        }
 
         for (i=0; i<ndimension; i++) {
 
@@ -288,12 +210,348 @@ void LinearConjugateGradient(double **matrix, struct point *vector_b, struct poi
 
         errorNorm = sqrt(errorNorm);
 
+        while (errorNorm > LCG_TOL) {
+
+            alpha_num = 0.;
+            alpha_denom = 0.;
+            beta_num = 0.;
+            beta_denom = 0.;
+            errorNorm = 0.;
+
+            counterLCG++;
+
+            if (counterLCG > _MAX_ITER) {
+
+                printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
+                exit(EXIT_FAILURE);
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    alpha_denom += DIRECTION_OLD[i]*matrix[i][j]*DIRECTION_OLD[j];
+
+                }
+            }
+
+            alpha = alpha_num/alpha_denom;
 
 
+            for (i=0; i<ndimension; i++) {
+
+                vector_x[i].x += alpha*DIRECTION_OLD[i];
+                RESIDUE[i] = RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    RESIDUE[i] -= (alpha*matrix[i][j]*DIRECTION_OLD[j]);
+
+                }
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                beta_num += RESIDUE[i]*RESIDUE[i];
+                beta_denom += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+
+            }
+            beta = beta_num/beta_denom;
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION[i] = RESIDUE[i] + beta*DIRECTION_OLD[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION_OLD[i] = DIRECTION[i];
+                RESIDUE_OLD[i] = RESIDUE[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                ERRORVECTOR[i] = vector_b[i].x;
+
+                for (j=0; j<ndimension; j++) {
+
+                    ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].x);
+
+                }
+                errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
+            }
+
+            errorNorm = sqrt(errorNorm);
+
+
+
+        }
+        // printf("%.4e", errorNorm);
+        //
+        //printf(" \n vector x = %.4e %.4e \n", vector_x[0].x, vector_x[1].x);
+        for (i=0; i<ndimension; i++) {
+            printf(" \n lambda = %.4e\n", vector_x[i].x);
+
+        }
+        return;
     }
-    // printf("%.4e", errorNorm);
-    //
-    printf(" \n vector x = %.4e %.4e \n", vector_x[0].x, vector_x[1].x);
+// ------------------- y ----------------------
+    if (component == 'y'){
+
+        for (i=0; i<ndimension; i++) {
+            RESIDUE_OLD[i] = 0.;
+            DIRECTION_OLD[i] = 0.;
+            RESIDUE[i] = 0.;
+            DIRECTION[i] = 0.;
+            ERRORVECTOR[i] = 0.;
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            RESIDUE_OLD[i] = vector_b[i].y;
+
+            for (j=0; j<ndimension; j++) {
+
+                RESIDUE_OLD[i] -= (matrix[i][j]*vector_x[j].y);
+
+            }
+
+            DIRECTION_OLD[i] = RESIDUE_OLD[i];
+
+        }
+
+
+        for (i=0; i<ndimension; i++) {
+
+            ERRORVECTOR[i] = vector_b[i].y;
+
+            for (j=0; j<ndimension; j++) {
+
+                ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].y);
+
+            }
+            errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
+        }
+
+        errorNorm = sqrt(errorNorm);
+
+        while (errorNorm > LCG_TOL) {
+
+            alpha_num = 0.;
+            alpha_denom = 0.;
+            beta_num = 0.;
+            beta_denom = 0.;
+            errorNorm = 0.;
+
+            counterLCG++;
+
+            if (counterLCG > _MAX_ITER) {
+
+                printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
+                exit(EXIT_FAILURE);
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    alpha_denom += DIRECTION_OLD[i]*matrix[i][j]*DIRECTION_OLD[j];
+
+                }
+            }
+
+            alpha = alpha_num/alpha_denom;
+
+
+            for (i=0; i<ndimension; i++) {
+
+                vector_x[i].y += alpha*DIRECTION_OLD[i];
+                RESIDUE[i] = RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    RESIDUE[i] -= (alpha*matrix[i][j]*DIRECTION_OLD[j]);
+
+                }
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                beta_num += RESIDUE[i]*RESIDUE[i];
+                beta_denom += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+
+            }
+            beta = beta_num/beta_denom;
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION[i] = RESIDUE[i] + beta*DIRECTION_OLD[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION_OLD[i] = DIRECTION[i];
+                RESIDUE_OLD[i] = RESIDUE[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                ERRORVECTOR[i] = vector_b[i].y;
+
+                for (j=0; j<ndimension; j++) {
+
+                    ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].y);
+
+                }
+                errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
+            }
+
+            errorNorm = sqrt(errorNorm);
+
+
+
+        }
+        //printf(" \n vector x = %.4e %.4e \n", vector_x[0].y, vector_x[1].y);
+        return;
+    }
+// ------------------- z ----------------------
+    if (component == 'z'){
+
+        for (i=0; i<ndimension; i++) {
+            RESIDUE_OLD[i] = 0.;
+            DIRECTION_OLD[i] = 0.;
+            RESIDUE[i] = 0.;
+            DIRECTION[i] = 0.;
+            ERRORVECTOR[i] = 0.;
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            RESIDUE_OLD[i] = vector_b[i].z;
+
+            for (j=0; j<ndimension; j++) {
+
+                RESIDUE_OLD[i] -= (matrix[i][j]*vector_x[j].z);
+
+            }
+
+            DIRECTION_OLD[i] = RESIDUE_OLD[i];
+
+        }
+
+
+        for (i=0; i<ndimension; i++) {
+
+            ERRORVECTOR[i] = vector_b[i].z;
+
+            for (j=0; j<ndimension; j++) {
+
+                ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].z);
+
+            }
+            errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
+        }
+
+        errorNorm = sqrt(errorNorm);
+
+        while (errorNorm > LCG_TOL) {
+
+            alpha_num = 0.;
+            alpha_denom = 0.;
+            beta_num = 0.;
+            beta_denom = 0.;
+            errorNorm = 0.;
+
+            counterLCG++;
+
+            if (counterLCG > _MAX_ITER) {
+
+                printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
+                exit(EXIT_FAILURE);
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    alpha_denom += DIRECTION_OLD[i]*matrix[i][j]*DIRECTION_OLD[j];
+
+                }
+            }
+
+            alpha = alpha_num/alpha_denom;
+
+
+            for (i=0; i<ndimension; i++) {
+
+                vector_x[i].z += alpha*DIRECTION_OLD[i];
+                RESIDUE[i] = RESIDUE_OLD[i];
+
+                for (j=0; j<ndimension; j++) {
+
+                    RESIDUE[i] -= (alpha*matrix[i][j]*DIRECTION_OLD[j]);
+
+                }
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                beta_num += RESIDUE[i]*RESIDUE[i];
+                beta_denom += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+
+            }
+            beta = beta_num/beta_denom;
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION[i] = RESIDUE[i] + beta*DIRECTION_OLD[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                DIRECTION_OLD[i] = DIRECTION[i];
+                RESIDUE_OLD[i] = RESIDUE[i];
+
+            }
+
+            for (i=0; i<ndimension; i++) {
+
+                ERRORVECTOR[i] = vector_b[i].z;
+
+                for (j=0; j<ndimension; j++) {
+
+                    ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j].z);
+
+                }
+                errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
+            }
+
+            errorNorm = sqrt(errorNorm);
+
+
+
+        }
+        //printf(" \n vector x = %.4e %.4e \n", vector_x[0].z, vector_x[1].z);
+        return;
+    }
+
 
 
 }

@@ -1623,8 +1623,12 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 SHAKEMATRIX_X[k][i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
                 SHAKEMATRIX_Y[k][i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
                 SHAKEMATRIX_Z[k][i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
+
+
             }
+        printf("%.4e ", SHAKEMATRIX_X[k][i]);
         }
+    printf("\n");
     }
 
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
@@ -1651,6 +1655,8 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         PHI[k].y = Phi_old.y;
         PHI[k].z = Phi_old.z;
 
+        //printf("%.4e\n", PHI[k].x);
+
 
         if (fabs(Phi_old.x) > discr) {
 
@@ -1671,51 +1677,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         }
 
     }
-
-    //print full SHAKE matrix w.r. to x coordinate
-
-    // for (k=0; k<NATOMSPERSPEC[1]; k++) {
-    //
-    //
-    //     for (j=0; j<NATOMSPERSPEC[1]; j++) {
-    //         denomx = 0.;
-    //         denomy = 0.;
-    //         denomz = 0.;
-    //
-    //         for (i=0; i<NATOMSPERSPEC[1]; i++) {
-    //
-    //             if (POT == 'W') {
-    //
-    //                 DPhixDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fx;
-    //                 DPhiyDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fy;
-    //                 DPhizDrho_old = ConstTens_WCA(rho_OLD, r_tp1, k, i).fz;
-    //             }else if (POT == 'L') {
-    //
-    //                 DPhixDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fx;
-    //                 DPhiyDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fy;
-    //                 DPhizDrho_old = ConstTens_LJ(rho_OLD, r_tp1, k, i).fz;
-    //             }
-    //
-    //             denomx += (DPHIDRHO_T[k][i].fx.x*DPHIDRHO_T[j][i].fx.x + DPHIDRHO_T[k][i].fx.y*DPHIDRHO_T[j][i].fx.y + DPHIDRHO_T[k][i].fx.z*DPHIDRHO_T[j][i].fx.z);
-    //             // denomx += (DPhixDrho_old.x*DPHIDRHO_T[j][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[j][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[j][i].fx.z);
-    //             // denomy += (DPhiyDrho_old.x*DPHIDRHO_T[j][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[j][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[j][i].fy.z);
-    //             // denomz += (DPhizDrho_old.x*DPHIDRHO_T[j][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[j][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[j][i].fz.z);
-    //
-    //         }
-    //
-    //         printf(" %.4e \t", k, j, denomx);
-    //         //printf("Sx(%d, %d) = %.4e \t", k, j, denomx);
-    //         // printf("Sy(%d, %d) = %.4e \t", k, j, denomy);
-    //         // printf("Sz(%d, %d) = %.4e \t", k, j, denomz);
-    //         // CC_d = Distance(rho_OLD[k], rho_OLD[j]);
-    //         // CC_r = mod(CC_d);
-    //         // printf("dist = %.4e\n",CC_r);
-    //
-    //
-    //     }
-    //     printf("\n");
-    // }
-    // exit(0);
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
 
@@ -1780,18 +1741,18 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
         discr = 0;
 
-        SHAKEMATRIX_X[0][0] = 4.;
-        SHAKEMATRIX_X[0][1] = 1.;
-        SHAKEMATRIX_X[1][0] = 1.;
-        SHAKEMATRIX_X[1][1] = 3.;
+        // SHAKEMATRIX_X[0][0] = 4.;
+        // SHAKEMATRIX_X[0][1] = 1.;
+        // SHAKEMATRIX_X[1][0] = 1.;
+        // SHAKEMATRIX_X[1][1] = 3.;
+        //
+        // PHI[0].x = 1.;
+        // PHI[1].x = 2.;
+        //
+        // GAMMA[0].x = 2.;
+        // GAMMA[1].x = 1.;
 
-        PHI[0].x = 1.;
-        PHI[1].x = 2.;
-
-        GAMMA[0].x = 2;
-        GAMMA[0].x = 1;
-
-        LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, 2, 'x');
+        LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, NATOMSPERSPEC[1], 'x');
 
         exit(0);
 
