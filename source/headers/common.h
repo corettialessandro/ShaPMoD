@@ -42,9 +42,7 @@ extern struct point *SF;
 extern struct tensor **DPHIDRHO_T;
 extern struct tensor **DPHIDVRHO_T;
 
-extern double **SHAKEMATRIX_X;
-extern double **SHAKEMATRIX_Y;
-extern double **SHAKEMATRIX_Z;
+extern double **SHAKEMATRIX;
 
 extern double *RESIDUE;
 extern double *RESIDUE_OLD;

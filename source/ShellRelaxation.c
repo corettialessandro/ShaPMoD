@@ -1140,13 +1140,15 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
                 }
 
                 denomx += (DPHIDRHO_T[k][i].fx.x*DPHIDRHO_T[j][i].fx.x + DPHIDRHO_T[k][i].fx.y*DPHIDRHO_T[j][i].fx.y + DPHIDRHO_T[k][i].fx.z*DPHIDRHO_T[j][i].fx.z);
+                denomy += (DPHIDRHO_T[k][i].fy.x*DPHIDRHO_T[j][i].fy.x + DPHIDRHO_T[k][i].fy.y*DPHIDRHO_T[j][i].fy.y + DPHIDRHO_T[k][i].fy.z*DPHIDRHO_T[j][i].fy.z);
+                denomz += (DPHIDRHO_T[k][i].fz.x*DPHIDRHO_T[j][i].fz.x + DPHIDRHO_T[k][i].fz.y*DPHIDRHO_T[j][i].fz.y + DPHIDRHO_T[k][i].fz.z*DPHIDRHO_T[j][i].fz.z);
                 // denomx += (DPhixDrho_old.x*DPHIDRHO_T[j][i].fx.x + DPhixDrho_old.y*DPHIDRHO_T[j][i].fx.y + DPhixDrho_old.z*DPHIDRHO_T[j][i].fx.z);
                 // denomy += (DPhiyDrho_old.x*DPHIDRHO_T[j][i].fy.x + DPhiyDrho_old.y*DPHIDRHO_T[j][i].fy.y + DPhiyDrho_old.z*DPHIDRHO_T[j][i].fy.z);
                 // denomz += (DPhizDrho_old.x*DPHIDRHO_T[j][i].fz.x + DPhizDrho_old.y*DPHIDRHO_T[j][i].fz.y + DPhizDrho_old.z*DPHIDRHO_T[j][i].fz.z);
 
             }
 
-            printf(" %.4e \t", k, j, denomx);
+            printf(" %.4e", k, j, denomz);
             //printf("Sx(%d, %d) = %.4e \t", k, j, denomx);
             // printf("Sy(%d, %d) = %.4e \t", k, j, denomy);
             // printf("Sz(%d, %d) = %.4e \t", k, j, denomz);
@@ -1616,20 +1618,43 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     }
 
     // Compute symmetry Shake matrix for each component
+    for (k=0; k<(3*NATOMSPERSPEC[1]); k++) {
+        for (i=0; i<(3*NATOMSPERSPEC[1]); i++) {
+            SHAKEMATRIX[k][i] = 0.;
+        }
+
+    }
+    int increasei, increasek;
+
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
         for (i=0; i<NATOMSPERSPEC[1]; i++) {
             for (j=0; j<NATOMSPERSPEC[1]; j++) {
 
-                SHAKEMATRIX_X[k][i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
-                SHAKEMATRIX_Y[k][i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
-                SHAKEMATRIX_Z[k][i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
+                SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
+
+                SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
+
+                SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
 
 
             }
-        //printf("%.4e ", SHAKEMATRIX_X[k][i]);
+        //printf("%.4e ", SHAKEMATRIX[k][i]);
         }
     //printf("\n");
     }
+    for (k=0; k<3*NATOMSPERSPEC[1]; k++) {
+        for (i=0; i<3*NATOMSPERSPEC[1]; i++) {
+          printf("%.4e ", SHAKEMATRIX[k][i]);
+        }
+        printf("\n");
+    }
+    exit(0);
 
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
 
@@ -1654,7 +1679,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         PHI[k].x = Phi_old.x;
         PHI[k].y = Phi_old.y;
         PHI[k].z = Phi_old.z;
-        //printf("itOLD = -> Phi[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
+        printf("Phi_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
 
         //printf("%.4e\n", PHI[k].x);
 
@@ -1753,253 +1778,317 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         // GAMMA[0].x = 2.;
         // GAMMA[1].x = 1.;
 
-        LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, NATOMSPERSPEC[1], 'x');
+        //LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, NATOMSPERSPEC[1], 'x');
+        //LinearConjugateGradient(SHAKEMATRIX_Y, PHI, GAMMA, NATOMSPERSPEC[1], 'y');
+        //LinearConjugateGradient(SHAKEMATRIX_Z, PHI, GAMMA, NATOMSPERSPEC[1], 'z');
 
-        for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        // for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        //     for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //         indx_i = INDX[i];
+        //
+        //         rho_OLD[i].x -= (SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.x + SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.x + GAMMA[k].z*DPHIDRHO_T[k][i].fz.x);
+        //         rho_OLD[i].y -= (SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.y + SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.y + GAMMA[k].z*DPHIDRHO_T[k][i].fz.y);
+        //         rho_OLD[i].z -= (SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.z + SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.z + GAMMA[k].z*DPHIDRHO_T[k][i].fz.z);
+        //         Rem_Point_From_Cell(i);
+        //         Add_Point_To_Cell(rho_OLD[i],i);
+        //     }
+        // }
+        //
+        // for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        //     //printf("phiOld %.4e %.4e %.4e\n", PHI[k].x,PHI[k].y,PHI[k].z);
+        //     if (POT == 'J') {
+        //
+        //         Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'C') {
+        //
+        //         Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old = Force_WCA(rho_OLD, k);
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old = Force_LJ(rho_OLD, k);
+        //     }
+        //
+        //     PHI[k].x = Phi_old.x;
+        //     PHI[k].y = Phi_old.y;
+        //     PHI[k].z = Phi_old.z;
+        //
+        //     //printf("phiNew %.4e %.4e %.4e\n", Phi_old.x,Phi_old.y,Phi_old.z);
+        //
+        //     if (fabs(Phi_old.x) > discr) {
+        //
+        //         discr = fabs(Phi_old.x);
+        //         kdiscr = k + 0.1;
+        //     }
+        //
+        //     if (fabs(Phi_old.y) > discr) {
+        //
+        //         discr = fabs(Phi_old.y);
+        //         kdiscr = k + 0.2;
+        //     }
+        //
+        //     if (fabs(Phi_old.z) > discr) {
+        //
+        //         discr = fabs(Phi_old.z);
+        //         kdiscr = k + 0.3;
+        //     }
+        // }
+
+
+
             //printf("rho_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
 
             //            X COMPONENT OF THE FORCE
-
-            if (POT == 'J') {
-
-                Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x;
-
-            } else if (POT == 'C') {
-
-                Phi_old.x = ShellForce_Cicc(rho_OLD, r_tp1, k).x;
-
-            } else if (POT == 'W') {
-
-                Phi_old.x = Force_WCA(rho_OLD, k).x;
-
-            } else if (POT == 'L') {
-
-                Phi_old.x = Force_LJ(rho_OLD, k).x;
-            }
-
-            if(fabs(Phi_old.x)>discr) {
-
-                discr = fabs(Phi_old.x); // TO BE COMPUTED FOR r_OLD
-                kdiscr = k + 0.1;
-            }
-
-            //GAMMATOT[k].x += GAMMA[k].x;
-
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
-
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                indx_i = INDX[i];
-
-                rho_OLD[i].x += GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
-                rho_OLD[i].y += GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
-                rho_OLD[i].z += GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
-            }
-
-            if (POT == 'J') {
-
-                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'C') {
-
-                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'W') {
-
-                Phi_old = Force_WCA(rho_OLD, k);
-
-            } else if (POT == 'L') {
-
-                Phi_old = Force_LJ(rho_OLD, k);
-            }
-
-            PHI[k].x = Phi_old.x;
-            PHI[k].y = Phi_old.y;
-            PHI[k].z = Phi_old.z;
-
-            if (DEBUG_FLAG && _D_SHAKE)  {
-
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                    printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
-                }
-            }
-            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
-        }
-
-            //            Y COMPONENT OF THE FORCE
-
-        LinearConjugateGradient(SHAKEMATRIX_Y, PHI, GAMMA, NATOMSPERSPEC[1], 'y');
-
-        for (k=0; k<NATOMSPERSPEC[1]; k++) {
-            //printf("rho_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
-
-            if (POT == 'J') {
-
-                Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y;
-
-            } else if (POT == 'C'){
-
-                Phi_old.y = ShellForce_Cicc(rho_OLD, r_tp1, k).y;
-
-            } else if (POT == 'W') {
-
-                Phi_old.y = Force_WCA(rho_OLD, k).y;
-
-            } else if (POT == 'L') {
-
-                Phi_old.y = Force_LJ(rho_OLD, k).y;
-
-            }
-
-            if(fabs(Phi_old.y)>discr) {
-
-                discr = fabs(Phi_old.y); // TO BE COMPUTED FOR r_OLD
-                kdiscr = k + 0.2;
-            }
-
-
-            if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
-
-            //GAMMATOT[k].y += GAMMA[k].y;
-
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
-
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                indx_i = INDX[i];
-                //printf("%.4e \n", GAMMA[k].y);
-                rho_OLD[i].x += GAMMA[k].y*DPHIDRHO_T[k][i].fy.x; //segmentation fault
-                rho_OLD[i].y += GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
-                rho_OLD[i].z += GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
-
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
-            }
-
-            if (POT == 'J') {
-
-                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'C') {
-
-                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'W') {
-
-                Phi_old = Force_WCA(rho_OLD, k);
-
-            } else if (POT == 'L') {
-
-                Phi_old = Force_LJ(rho_OLD, k);
-            }
-
-            PHI[k].x = Phi_old.x;
-            PHI[k].y = Phi_old.y;
-            PHI[k].z = Phi_old.z;
-
-            if (DEBUG_FLAG && _D_SHAKE)  {
-
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                    printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
-                }
-            }
-            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
-        }
-
-            //            Z COMPONENT OF THE FORCE
-        LinearConjugateGradient(SHAKEMATRIX_Z, PHI, GAMMA, NATOMSPERSPEC[1], 'z');
-
-        for (k=0; k<NATOMSPERSPEC[1]; k++) {
-
-            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
-
-            if (POT == 'J') {
-
-                Phi_old.z = ShellForce_Jac(rho_OLD, r_tp1, k).z;
-
-            } else if (POT == 'C'){
-
-                Phi_old.z = ShellForce_Cicc(rho_OLD, r_tp1, k).z;
-
-            } else if (POT == 'W'){
-
-                Phi_old.z = Force_WCA(rho_OLD, k).z;
-
-            } else if (POT == 'L'){
-
-                Phi_old.z = Force_LJ(rho_OLD, k).z;
-
-            }
-
-            if(fabs(Phi_old.z)>discr) {
-
-                discr = fabs(Phi_old.z); // TO BE COMPUTED FOR r_OLD
-                kdiscr = k + 0.3;
-            }
-
-            if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
-            //if (count == 2 && k == 448) printf("%.4e\n",denom);
-            //GAMMATOT[k].z += GAMMA[k].z;
-
-            if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
-
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                indx_i = INDX[i];
-
-                rho_OLD[i].x += GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
-                rho_OLD[i].y += GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
-                rho_OLD[i].z += GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
-
-                Rem_Point_From_Cell(i);
-                Add_Point_To_Cell(rho_OLD[i],i);
-            }
-
-            if (POT == 'J') {
-
-                Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'C') {
-
-                Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
-
-            } else if (POT == 'W') {
-
-                Phi_old = Force_WCA(rho_OLD, k);
-
-            } else if (POT == 'L') {
-
-                Phi_old = Force_LJ(rho_OLD, k);
-            }
-
-            PHI[k].x = Phi_old.x;
-            PHI[k].y = Phi_old.y;
-            PHI[k].z = Phi_old.z;
-
-            //printf("itNew = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
-
-
-
-            if (DEBUG_FLAG && _D_SHAKE)  {
-
-                for (i=0; i<NATOMSPERSPEC[1]; i++) {
-
-                    //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
-                }
-            }
-            //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
-
-            if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
-
-        } //End loop on constraints
-        //exit(0);
-
-
-        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        // LinearConjugateGradient(SHAKEMATRIX_X, PHI, GAMMA, NATOMSPERSPEC[1], 'x');
+        //
+        // for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old.x = ShellForce_Jac(rho_OLD, r_tp1, k).x;
+        //
+        //     } else if (POT == 'C') {
+        //
+        //         Phi_old.x = ShellForce_Cicc(rho_OLD, r_tp1, k).x;
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old.x = Force_WCA(rho_OLD, k).x;
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old.x = Force_LJ(rho_OLD, k).x;
+        //     }
+        //
+        //     if(fabs(Phi_old.x)>discr) {
+        //
+        //         discr = fabs(Phi_old.x); // TO BE COMPUTED FOR r_OLD
+        //         kdiscr = k + 0.1;
+        //     }
+        //
+        //     //GAMMATOT[k].x += GAMMA[k].x;
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].x = %.4e\n\n", k, GAMMA[k].x);
+        //
+        //     for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //         indx_i = INDX[i];
+        //
+        //         rho_OLD[i].x -= SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.x;
+        //         rho_OLD[i].y -= SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.y;
+        //         rho_OLD[i].z -= SOR*GAMMA[k].x*DPHIDRHO_T[k][i].fx.z;
+        //         Rem_Point_From_Cell(i);
+        //         Add_Point_To_Cell(rho_OLD[i],i);
+        //     }
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'C') {
+        //
+        //         Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old = Force_WCA(rho_OLD, k);
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old = Force_LJ(rho_OLD, k);
+        //     }
+        //
+        //     PHI[k].x = Phi_old.x;
+        //     PHI[k].y = Phi_old.y;
+        //     PHI[k].z = Phi_old.z;
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE)  {
+        //
+        //         for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //             printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+        //         }
+        //     }
+        //     //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        //     printf("PHI_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
+        // }
+        //
+        //     //            Y COMPONENT OF THE FORCE
+        //
+        // LinearConjugateGradient(SHAKEMATRIX_Y, PHI, GAMMA, NATOMSPERSPEC[1], 'y');
+        //
+        // for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        //     //printf("rho_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old.y = ShellForce_Jac(rho_OLD, r_tp1, k).y;
+        //
+        //     } else if (POT == 'C'){
+        //
+        //         Phi_old.y = ShellForce_Cicc(rho_OLD, r_tp1, k).y;
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old.y = Force_WCA(rho_OLD, k).y;
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old.y = Force_LJ(rho_OLD, k).y;
+        //
+        //     }
+        //
+        //     if(fabs(Phi_old.y)>discr) {
+        //
+        //         discr = fabs(Phi_old.y); // TO BE COMPUTED FOR r_OLD
+        //         kdiscr = k + 0.2;
+        //     }
+        //
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE) printf("DPhiyDrho_old[%d] dot DPHIDRHO_T[%d].fy = %.4e\n", k, k, denom);
+        //
+        //     //GAMMATOT[k].y += GAMMA[k].y;
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].y = %.4e\n\n", k, GAMMA[k].y);
+        //
+        //     for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //         indx_i = INDX[i];
+        //         //printf("%.4e \n", GAMMA[k].y);
+        //         rho_OLD[i].x -= SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.x; //segmentation fault
+        //         rho_OLD[i].y -= SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.y;
+        //         rho_OLD[i].z -= SOR*GAMMA[k].y*DPHIDRHO_T[k][i].fy.z;
+        //
+        //         Rem_Point_From_Cell(i);
+        //         Add_Point_To_Cell(rho_OLD[i],i);
+        //     }
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'C') {
+        //
+        //         Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old = Force_WCA(rho_OLD, k);
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old = Force_LJ(rho_OLD, k);
+        //     }
+        //
+        //     PHI[k].x = Phi_old.x;
+        //     PHI[k].y = Phi_old.y;
+        //     PHI[k].z = Phi_old.z;
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE)  {
+        //
+        //         for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //             printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+        //         }
+        //     }
+        //     //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        // }
+        //
+        //     //            Z COMPONENT OF THE FORCE
+        // LinearConjugateGradient(SHAKEMATRIX_Z, PHI, GAMMA, NATOMSPERSPEC[1], 'z');
+        //
+        // for (k=0; k<NATOMSPERSPEC[1]; k++) {
+        //
+        //     //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old.z = ShellForce_Jac(rho_OLD, r_tp1, k).z;
+        //
+        //     } else if (POT == 'C'){
+        //
+        //         Phi_old.z = ShellForce_Cicc(rho_OLD, r_tp1, k).z;
+        //
+        //     } else if (POT == 'W'){
+        //
+        //         Phi_old.z = Force_WCA(rho_OLD, k).z;
+        //
+        //     } else if (POT == 'L'){
+        //
+        //         Phi_old.z = Force_LJ(rho_OLD, k).z;
+        //
+        //     }
+        //
+        //     if(fabs(Phi_old.z)>discr) {
+        //
+        //         discr = fabs(Phi_old.z); // TO BE COMPUTED FOR r_OLD
+        //         kdiscr = k + 0.3;
+        //     }
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE) printf("DPhizDrho_old[%d] dot DPHIDRHO_T[%d].fz = %.4e\n", k, k, denom);
+        //     //if (count == 2 && k == 448) printf("%.4e\n",denom);
+        //     //GAMMATOT[k].z += GAMMA[k].z;
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE) printf("GAMMA[%d].z = %.4e\n\n", k, GAMMA[k].z);
+        //
+        //     for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //         indx_i = INDX[i];
+        //
+        //         rho_OLD[i].x -= SOR*GAMMA[k].z*DPHIDRHO_T[k][i].fz.x;
+        //         rho_OLD[i].y -= SOR*GAMMA[k].z*DPHIDRHO_T[k][i].fz.y;
+        //         rho_OLD[i].z -= SOR*GAMMA[k].z*DPHIDRHO_T[k][i].fz.z;
+        //
+        //         Rem_Point_From_Cell(i);
+        //         Add_Point_To_Cell(rho_OLD[i],i);
+        //     }
+        //
+        //     if (POT == 'J') {
+        //
+        //         Phi_old = ShellForce_Jac(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'C') {
+        //
+        //         Phi_old = ShellForce_Cicc(rho_OLD, r_tp1, k);
+        //
+        //     } else if (POT == 'W') {
+        //
+        //         Phi_old = Force_WCA(rho_OLD, k);
+        //
+        //     } else if (POT == 'L') {
+        //
+        //         Phi_old = Force_LJ(rho_OLD, k);
+        //     }
+        //
+        //     PHI[k].x = Phi_old.x;
+        //     PHI[k].y = Phi_old.y;
+        //     PHI[k].z = Phi_old.z;
+        //
+        //     //printf("itNew = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
+        //
+        //
+        //
+        //     if (DEBUG_FLAG && _D_SHAKE)  {
+        //
+        //         for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        //
+        //             //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", i, rho_OLD[i].x, rho_OLD[i].y, rho_OLD[i].z);
+        //         }
+        //     }
+        //     //printf("rho_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        //
+        //     if (DEBUG_FLAG && _D_CONSTR) printf("it = %d -> Phi[%d] = (%.4e, %.4e, %.4e)\n", count, k, Phi_old.x, Phi_old.y, Phi_old.z);
+        //
+        // } //End loop on constraints
+        // //exit(0);
+        //
+        //
+        // printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
         // printf("indx = %d, shellpos = %.4e %.4e %.4e \n, force = %.4e %.4e %.4e \n",171, rho_OLD[171].x, rho_OLD[171].y, rho_OLD[171].z, testForce.x, testForce.y, testForce.z);
         // printf("dFx = %.4e %.4e %.4e \n dFy = %.4e %.4e %.4e \n dFz = %.4e %.4e %.4e \n", testdForcex.x, testdForcex.y, testdForcex.z, testdForcey.x, testdForcey.y, testdForcey.z, testdForcez.x, testdForcez.y, testdForcez.z);
         // printf("dFxold = %.4e %.4e %.4e \n dFyold = %.4e %.4e %.4e \n dFzold = %.4e %.4e %.4e\n\n", DPHIDRHO_T[171][171].fx.x, DPHIDRHO_T[171][171].fx.y, DPHIDRHO_T[171][171].fx.z, DPHIDRHO_T[171][171].fy.x, DPHIDRHO_T[171][171].fy.y, DPHIDRHO_T[171][171].fy.z, DPHIDRHO_T[171][171].fz.x, DPHIDRHO_T[171][171].fz.y, DPHIDRHO_T[171][171].fz.z);

@@ -27,9 +27,7 @@ struct point *SHELLACC_TP1;
 struct tensor **DPHIDRHO_T;
 struct tensor **DPHIDVRHO_T;
 
-double **SHAKEMATRIX_X;
-double **SHAKEMATRIX_Y;
-double **SHAKEMATRIX_Z;
+double **SHAKEMATRIX;
 
 double *RESIDUE;
 double *RESIDUE_OLD;
@@ -267,9 +265,7 @@ void ReadInput(){
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
         if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
-        if ((SHAKEMATRIX_X = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
-        if ((SHAKEMATRIX_Y = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
-        if ((SHAKEMATRIX_Z = (double **)calloc(NPART, sizeof(double *))) == NULL) pointer_flag = 100;
+        if ((SHAKEMATRIX = (double **)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 100;
 
         if ((DIRECTION = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((RESIDUE = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
@@ -280,9 +276,10 @@ void ReadInput(){
         for (i=0; i<NPART; i++) {
 
             if ((DPHIDRHO_T[i] = (struct tensor *)calloc(NPART, sizeof(struct tensor))) == NULL) pointer_flag = 100+1+i;
-            if ((SHAKEMATRIX_X[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
-            if ((SHAKEMATRIX_Y[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
-            if ((SHAKEMATRIX_Z[i] = (double *)calloc(NPART, sizeof(double))) == NULL) pointer_flag = 100;
+        }
+        for (i=0; i<(3*NATOMSPERSPEC[1]); i++) {
+
+            if ((SHAKEMATRIX[i] = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double))) == NULL) pointer_flag = 100;
         }
 
     }
@@ -826,9 +823,7 @@ void FreePointers(void){
         free(GAMMA);
         free(GAMMATOT);
 
-        free(SHAKEMATRIX_X);
-        free(SHAKEMATRIX_Y);
-        free(SHAKEMATRIX_Z);
+        free(SHAKEMATRIX);
 
         free(DIRECTION);
         free(RESIDUE);
