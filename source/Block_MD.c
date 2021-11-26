@@ -808,9 +808,12 @@ void Block_MD_MultiMaze(void){
         } else if (SRMODE == 'W') {
 
             for (i=0; i<NATOMSPERSPEC[1]; i++) {
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }

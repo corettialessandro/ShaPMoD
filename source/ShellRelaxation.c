@@ -1625,6 +1625,38 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
     }
 
+
+    // NATOMSPERSPEC[1] = 2;
+    //
+    // DPHIDRHO_T[0][0].fx.x = 3;
+    // DPHIDRHO_T[0][0].fx.y = 1;
+    // DPHIDRHO_T[0][0].fx.z = 1;
+    // DPHIDRHO_T[0][1].fx.x = -2;
+    // DPHIDRHO_T[0][1].fx.y = 6;
+    // DPHIDRHO_T[0][1].fx.z = 2;
+    //
+    // DPHIDRHO_T[0][0].fy.x = 2;
+    // DPHIDRHO_T[0][0].fy.y = 3;
+    // DPHIDRHO_T[0][0].fy.z = 0;
+    // DPHIDRHO_T[0][1].fy.x = 1;
+    // DPHIDRHO_T[0][1].fy.y = 6;
+    // DPHIDRHO_T[0][1].fy.z = -1;
+    //
+    // DPHIDRHO_T[1][0].fy.x = 3;
+    // DPHIDRHO_T[1][0].fy.y = 1;
+    // DPHIDRHO_T[1][0].fy.z = -5;
+    // DPHIDRHO_T[1][1].fy.x = 1;
+    // DPHIDRHO_T[1][1].fy.y = 2;
+    // DPHIDRHO_T[1][1].fy.z = -1;
+    //
+    // DPHIDRHO_T[1][0].fz.x = 2;
+    // DPHIDRHO_T[1][0].fz.y = -2;
+    // DPHIDRHO_T[1][0].fz.z = -10;
+    // DPHIDRHO_T[1][1].fz.x = 1;
+    // DPHIDRHO_T[1][1].fz.y = 3;
+    // DPHIDRHO_T[1][1].fz.z = -2;
+
+
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
         for (i=0; i<NATOMSPERSPEC[1]; i++) {
             for (j=0; j<NATOMSPERSPEC[1]; j++) {
@@ -1653,7 +1685,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     }
     //     printf("\n");
     // }
-
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
 
         if (POT == 'J') {
@@ -1709,7 +1740,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     printf("%.4e \n",FULLPHI[k]);
     //
     // }
-    // exit(0);
 
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
@@ -1791,12 +1821,16 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 indx_i = INDX[i];
 
                 rho_OLD[k].x -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.x + GAMMA[i].y*DPHIDRHO_T[i][k].fy.x + GAMMA[i].z*DPHIDRHO_T[i][k].fz.x);
-                rho_OLD[k].y -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.y + GAMMA[i].y*DPHIDRHO_T[i][k].fy.y + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
+                rho_OLD[k].y -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.y + GAMMA[i].y*DPHIDRHO_T[i][k].fy.y + GAMMA[i].z*DPHIDRHO_T[i][k].fz.y);
                 rho_OLD[k].z -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.z + GAMMA[i].y*DPHIDRHO_T[i][k].fy.z + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
+
+                // rho_OLD[i].x -= SOR*(GAMMA[k].x*DPHIDRHO_T[k][i].fx.x + GAMMA[k].y*DPHIDRHO_T[k][i].fy.x + GAMMA[k].z*DPHIDRHO_T[k][i].fz.x);
+                // rho_OLD[i].y -= SOR*(GAMMA[k].x*DPHIDRHO_T[k][i].fx.y + GAMMA[k].y*DPHIDRHO_T[k][i].fy.y + GAMMA[k].z*DPHIDRHO_T[k][i].fz.y);
+                // rho_OLD[i].z -= SOR*(GAMMA[k].x*DPHIDRHO_T[k][i].fx.z + GAMMA[k].y*DPHIDRHO_T[k][i].fy.z + GAMMA[k].z*DPHIDRHO_T[k][i].fz.z);
 
             }
             Rem_Point_From_Cell(k);
-            Add_Point_To_Cell(rho_t[k],k);
+            Add_Point_To_Cell(rho_OLD[k],k);
             //printf("RHO_NEW[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
         }
 
