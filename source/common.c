@@ -28,6 +28,8 @@ struct tensor **DPHIDRHO_T;
 struct tensor **DPHIDVRHO_T;
 
 double **SHAKEMATRIX;
+double *FULLPHI;
+double *FULLGAMMA;
 
 double *RESIDUE;
 double *RESIDUE_OLD;
@@ -266,6 +268,8 @@ void ReadInput(){
         if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
         if ((SHAKEMATRIX = (double **)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 100;
+        if ((FULLPHI = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 9;
+        if ((FULLGAMMA = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 9;
 
         if ((DIRECTION = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((RESIDUE = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
@@ -824,6 +828,8 @@ void FreePointers(void){
         free(GAMMATOT);
 
         free(SHAKEMATRIX);
+        free(FULLPHI);
+        free(FULLGAMMA);
 
         free(DIRECTION);
         free(RESIDUE);
