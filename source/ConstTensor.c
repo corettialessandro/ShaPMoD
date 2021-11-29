@@ -505,7 +505,7 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
                 W.fx.y += (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
                 W.fx.z += (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
                 W.fy.x += (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
-                W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU);
+                W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv)*r2inv*dU);
                 W.fy.z += (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
                 W.fz.x += (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
                 W.fz.y += (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
@@ -555,7 +555,7 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
         W.fx.y = SS_d.x*SS_d.y*r2inv*dU2 - (SS_d.x*SS_d.y*rinv)*r2inv*dU;
         W.fx.z = SS_d.x*SS_d.z*r2inv*dU2 - (SS_d.x*SS_d.z*rinv)*r2inv*dU;
         W.fy.x = SS_d.y*SS_d.x*r2inv*dU2 - (SS_d.y*SS_d.x*rinv)*r2inv*dU;
-        W.fy.y = SS_d.y*SS_d.y*r2inv*dU2 + (SS_r - SS_d.y*SS_d.y*rinv*r2inv)*dU;
+        W.fy.y = SS_d.y*SS_d.y*r2inv*dU2 + (SS_r - SS_d.y*SS_d.y*rinv)*r2inv*dU;
         W.fy.z = SS_d.y*SS_d.z*r2inv*dU2 - (SS_d.y*SS_d.z*rinv)*r2inv*dU;
         W.fz.x = SS_d.z*SS_d.x*r2inv*dU2 - (SS_d.z*SS_d.x*rinv)*r2inv*dU;
         W.fz.y = SS_d.z*SS_d.y*r2inv*dU2 - (SS_d.z*SS_d.y*rinv)*r2inv*dU;

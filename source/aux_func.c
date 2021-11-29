@@ -295,10 +295,10 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
     //
     //printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
     // for (i=0; i<ndimension; i++) {
-    //     printf("lambda %d = %.4e\n",i, vector_x[i]);
+    //     printf("lambda %d = %.8e\n",i, vector_x[i]);
     //
     // }
-    // return;
+    return;
 // ------------------- y ----------------------
 //     if (component == 'y'){
 //

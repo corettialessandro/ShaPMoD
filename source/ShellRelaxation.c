@@ -1569,6 +1569,15 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     char outputpath[_MAX_STR_LENGTH];
     sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
 
+    FILE *gammaTest;
+    gammaTest = fopen("gammaFromNumpy.txt","r+");
+    for (i=0; i<3*NATOMSPERSPEC[1]; i++) {
+        fscanf(gammaTest, "%lf", &FULLGAMMA[i]);
+        //printf("%.4e \n", FULLGAMMA[i]);
+    }
+    fclose(gammaTest);
+    //exit(0);
+
     if ((fp_constraints_out = fopen(outputpath, "a")) == NULL){
 
         printf("\noutput.c -> Analysis_output() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath);
@@ -1685,6 +1694,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     }
     //     printf("\n");
     // }
+    // exit(0);
     for (k=0; k<NATOMSPERSPEC[1]; k++) {
 
         if (POT == 'J') {
@@ -1708,7 +1718,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         PHI[k].x = Phi_old.x;
         PHI[k].y = Phi_old.y;
         PHI[k].z = Phi_old.z;
-        //printf("Phi_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
+        printf("Phi_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
         FULLPHI[3*k] = Phi_old.x;
         FULLPHI[3*k + 1] = Phi_old.y;
         FULLPHI[3*k + 2] = Phi_old.z;
@@ -1740,6 +1750,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     printf("%.4e \n",FULLPHI[k]);
     //
     // }
+    // exit(0);
 
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
@@ -1863,7 +1874,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             FULLPHI[3*k + 2] = Phi_old.z;
 
 
-            //printf("%.4e\n", PHI[k].x);
+            printf("PHI_new = %.4e %.4e %.4e \n", PHI[k].x, PHI[k].y, PHI[k].z);
 
 
             if (fabs(Phi_old.x) > discr) {
@@ -1886,7 +1897,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
         }
 
-        //exit(0);
+        if (count == 10) exit(0);
 
         // SHAKEMATRIX_X[0][0] = 4.;
         // SHAKEMATRIX_X[0][1] = 1.;
