@@ -65,7 +65,7 @@ double MultiEnerKin(struct point v[]){
 
     int i=0;
 
-    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
 
         EKin += M[INDX[i]]*modsq(v[i]);
     }
@@ -798,6 +798,7 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
 
     int i;
     double ETot, EKin, EPot = 0, EPol, Temp, Press = 0;
+    double EkinBig;
     struct point CMV, AnMom;
 
     // if (MODE == 'M'){
@@ -808,8 +809,12 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
         // EKin = EnerKin(v)*_E_CONV;
         // ITEMP = Temp = Temperature(v);
     // }
-
-    EKin = EnerKin(v)*_E_CONV;
+    //printf("EKin Big = %.4e \n", MultiEnerKin(v)*_E_CONV);
+    if (MODE == 'M') {
+        EKin = MultiEnerKin(v)*_E_CONV;
+    } else {
+        EKin = EnerKin(v)*_E_CONV;
+    }
     ITEMP = Temp = Temperature(v);
 
     for (i=0; i<NINTER; i++) {

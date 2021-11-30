@@ -267,9 +267,9 @@ void ReadInput(){
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
         if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
-        if ((SHAKEMATRIX = (double **)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 100;
-        if ((FULLPHI = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 9;
-        if ((FULLGAMMA = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double *))) == NULL) pointer_flag = 9;
+        if ((SHAKEMATRIX = (double **)calloc((3*NATOMSPERSPEC[0]), sizeof(double *))) == NULL) pointer_flag = 100;
+        if ((FULLPHI = (double *)calloc((3*NATOMSPERSPEC[0]), sizeof(double *))) == NULL) pointer_flag = 9;
+        if ((FULLGAMMA = (double *)calloc((3*NATOMSPERSPEC[0]), sizeof(double *))) == NULL) pointer_flag = 9;
 
         if ((DIRECTION = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((RESIDUE = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
@@ -281,9 +281,9 @@ void ReadInput(){
 
             if ((DPHIDRHO_T[i] = (struct tensor *)calloc(NPART, sizeof(struct tensor))) == NULL) pointer_flag = 100+1+i;
         }
-        for (i=0; i<(3*NATOMSPERSPEC[1]); i++) {
+        for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
 
-            if ((SHAKEMATRIX[i] = (double *)calloc((3*NATOMSPERSPEC[1]), sizeof(double))) == NULL) pointer_flag = 100;
+            if ((SHAKEMATRIX[i] = (double *)calloc((3*NATOMSPERSPEC[0]), sizeof(double))) == NULL) pointer_flag = 100;
         }
 
     }
@@ -346,14 +346,18 @@ void ReadInput(){
 
     if ((INDX = (int *)calloc(NPART, sizeof(int))) == NULL) pointer_flag = 16;
 
+    int indexParticle;
+
     for (i=0; i<NPART-(NATOMSPERMOLECULE-1); i+=NATOMSPERMOLECULE) {
 
         for (j=0; j<NATOMSPEC; j++) {
 
             for (k=0; k<NATOMSPERSPEC[j]; k++) {
 
-                INDX[i+j+k] = j;
-                MTOT += M[INDX[i+j+k]];
+                indexParticle = i*NATOMSPERMOLECULE + j*NATOMSPERSPEC[0] + k;
+
+                INDX[indexParticle] = j;
+                MTOT += M[INDX[indexParticle]];
             }
         }
     }

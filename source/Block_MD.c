@@ -59,6 +59,7 @@ void Block_MD_St(void){
         // }
         // exit(0);
         for (i=0; i<NPART; i++) {
+            printf("indx = %d \n", INDX[i]);
 
             Mi = M[INDX[i]];
             overMi = 1./Mi;
@@ -651,8 +652,9 @@ void Block_MD_MultiMaze(void){
         SHELLPOS_T[i].x = PARTPOS_T[i].x;
         SHELLPOS_T[i].y = PARTPOS_T[i].y;
         SHELLPOS_T[i].z = PARTPOS_T[i].z;
+        //printf("indx %d \n", INDX[i]);
     }
-    // printf("%d %d\n", NATOMSPERSPEC[1], NPART);
+    // printf("%d %d\n", NATOMSPERSPEC[0], NPART);
     // exit(0);
     for (i=0; i<NPART; i++) {
 
@@ -689,7 +691,7 @@ void Block_MD_MultiMaze(void){
             }
         }
 
-        for (i=NATOMSPERSPEC[1]; i<NPART; i++) { //only for Big
+        for (i=NATOMSPERSPEC[0]; i<NPART; i++) { //only for Big
 
             Mi = M[INDX[i]];
             overMi = 1./Mi;
@@ -766,7 +768,7 @@ void Block_MD_MultiMaze(void){
 
         // Updating the cells
 
-        for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+        for (i=0; i<NPART; i++) {
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
         }
@@ -779,14 +781,14 @@ void Block_MD_MultiMaze(void){
 
         if (SRMODE == 'S') {
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }
-            //for (i=0; i<NATOMSPERSPEC[1]; i++) printf("%.4e %.4e %.4e \n", PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z);
+            //for (i=0; i<NATOMSPERSPEC[0]; i++) printf("%.4e %.4e %.4e \n", PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z);
             MultiSHAKE(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
 
         } else if (SRMODE == 'D') {
@@ -797,7 +799,7 @@ void Block_MD_MultiMaze(void){
 
         } else if (SRMODE == 'C') {
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x; //= PARTPOS_T[i].x;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y; //= PARTPOS_T[i].y;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z; //= PARTPOS_T[i].z;
@@ -807,7 +809,7 @@ void Block_MD_MultiMaze(void){
 
         } else if (SRMODE == 'W') {
 
-            for (i=0; i<NATOMSPERSPEC[1]; i++) {
+            for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
                 // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
                 // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
@@ -823,7 +825,7 @@ void Block_MD_MultiMaze(void){
 
         }
 
-        // for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+        // for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
         //     SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x;
         //     SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
         //     SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
@@ -831,7 +833,7 @@ void Block_MD_MultiMaze(void){
         //     Add_Point_To_Cell(PARTPOS_TP1[i],i);
         // }
 
-        for (i=0; i<NATOMSPERSPEC[1]; i++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
             PARTPOS_TP1[i].x = SHELLPOS_TP1[i].x;
             PARTPOS_TP1[i].y = SHELLPOS_TP1[i].y;
             PARTPOS_TP1[i].z = SHELLPOS_TP1[i].z;
@@ -839,12 +841,12 @@ void Block_MD_MultiMaze(void){
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
 
             //CF_t = Force_WCA(PARTPOS_TP1, i);
-            //printf("F_%d = %.4e %.4e %.4e\n", i, CF_t.x, CF_t.y, CF_t.z);
+            //printf("Pos%d = %.4e %.4e %.4e\n", i, PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z);
 
 
         }
 
-        for (i=NATOMSPERSPEC[1]; i<NPART; i++) { //only for Big
+        for (i=NATOMSPERSPEC[0]; i<NPART; i++) { //only for Big
             Mi = M[INDX[i]];
             overMi = 1./Mi;
             cyclotronFreq = Q[INDX[i]]*B0*overMi*0.5;
@@ -911,7 +913,7 @@ void Block_MD_MultiMaze(void){
 
             //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
             //SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
-            if (i<NATOMSPERSPEC[1]){
+            if (i<NATOMSPERSPEC[0]){
                 SHELLVEL[i] = PARTVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
             }
 
@@ -927,7 +929,7 @@ void Block_MD_MultiMaze(void){
 
         if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
-        //if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
+        if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 

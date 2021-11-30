@@ -243,6 +243,7 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
         for (i=0; i<ndimension; i++) {
 
             vector_x[i] += alpha*DIRECTION_OLD[i];
+            //printf("x = %.4e \n", vector_x[i]);
             RESIDUE[i] = RESIDUE_OLD[i];
 
             for (j=0; j<ndimension; j++) {
