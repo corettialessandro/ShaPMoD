@@ -256,17 +256,17 @@ void Block_MD_St(void){
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
         //outputs at log times
-        for (z=0;z<=7;z++) {
-            for (y=1;y<=9;y++) {
-                tlog = y*(int)(pow(10.,z));
-                //printf("%d\n",tlog);
-                if ((t+1) == tlog) {
-                    //printf("%d %d\n",t+1,tlog);
-                    Write_LogPartPositions(PARTPOS_T,t+1);
-                    Write_LogPartVelocities(PARTVEL,t+1);
-                }
-            }
-        }
+        // for (z=0;z<=7;z++) {
+        //     for (y=1;y<=9;y++) {
+        //         tlog = y*(int)(pow(10.,z));
+        //         //printf("%d\n",tlog);
+        //         if ((t+1) == tlog) {
+        //             //printf("%d %d\n",t+1,tlog);
+        //             Write_LogPartPositions(PARTPOS_T,t+1);
+        //             Write_LogPartVelocities(PARTVEL,t+1);
+        //         }
+        //     }
+        // }
 
 
         t_end = clock();

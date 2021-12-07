@@ -1,26 +1,26 @@
-S       	Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode, 'M' = MultiMaze)
-S       	Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient')
+M       	Mode of simulation ('S' = Standard Mode, 'P' = Polarization Mode, 'M' = MultiMaze)
+W	      	Mode of Shell Relaxation (P-MODE ONLY: 'S' = Shake, 'D' = Steepest Descent, 'C' = 'Conjugate Gradient', 'W' = 'Weinbach-Elber')
 F       	Ewald summation method for long-range forces ('T' = ON, 'F' = OFF)
 L       	Potential to use ('J' = Jacucci, 'C' = Ciccotti, 'W' = WCA, 'L' = Lennard-Jones)
 1       	Number of molecules
 2       	Number of atomic species
-200		Number of atoms of the first species
-800     	Number of atoms of the second species
-10	    	Timestep (fs)
-200	   	Number of timesteps
-0.0127 		Density of particles (Å^-3) 0.0127
+100		Number of atoms of the first species
+25	     	Number of atoms of the second species
+25	    	Timestep (fs)
+1000	   	Number of timesteps
+0.0427 		Density of particles (Å^-3) 0.0127
 F       	Thermostat ('T' = ON, 'F' = OFF)
 179.7		Temperature (K)
 .5      	Short-range cut-off scaling factor
-Big      	First species
-39948.0      	Core Mass
+Small      	First species
+39.9480      	Core Mass
 0.      	Shell starting mass
 +2.17       	Core Charge
 -3.17       	Shell Charge
 3.0     	Atom 'radius'
 20.5140266244   Core-Shell coupling constant
-Small           Second species
-39.948          Core Mass
+Big           Second species
+3994.80          Core Mass
 0.      	Shell starting mass
 +3.17       	Core Charge +1.
 -2.17       	Shell Charge 0.
@@ -37,7 +37,7 @@ Small           Second species
 1.25        	b++
 4898.2056   	C++
 23211.285   	D++
-2.e-8      	Tolerance for shell relaxation
+2.e-8      	Tolerance for shell relaxation 2.e-8
 10.74           LJsigma B-B
 0.049           LJeps B-B
 34.7         	LJcut B-B
