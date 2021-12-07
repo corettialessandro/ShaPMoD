@@ -576,12 +576,36 @@ void ReadInput(){
         }
 
         fclose(fp_input);
-        // CMV = CMVelocity(PARTVEL);
-        // for (i=0; i<NPART; i++) {
+
+        CMV = CMVelocity(PARTVEL);
+
+        for (i=0; i<NPART; i++) {
+
+            PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+            PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+            PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+        }
+
+        // if (MODE == 'S'){
+        //     CMV = CMVelocity(PARTVEL);
         //
-        //     PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
-        //     PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
-        //     PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+        //     for (i=0; i<NPART; i++) {
+        //
+        //         PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+        //         PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+        //         PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+        //     }
+        // }else if (MODE == 'M'){
+        //     CMV = CMVelocity(PARTVEL);
+        //
+        //     for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+        //
+        //         PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+        //         PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+        //         PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+        //     }
+        //
+        //
         // }
 
     }else{

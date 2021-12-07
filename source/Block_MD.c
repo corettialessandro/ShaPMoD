@@ -59,7 +59,7 @@ void Block_MD_St(void){
         // }
         // exit(0);
         for (i=0; i<NPART; i++) {
-            printf("indx = %d \n", INDX[i]);
+            //printf("indx = %d \n", INDX[i]);
 
             Mi = M[INDX[i]];
             overMi = 1./Mi;
@@ -251,7 +251,7 @@ void Block_MD_St(void){
 
         if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
-        //if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
+        if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
         if ((t+1) % IGOFR == 0) Write_GofR(t+1, PARTPOS_T);
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
@@ -810,6 +810,7 @@ void Block_MD_MultiMaze(void){
         } else if (SRMODE == 'W') {
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
+                //printf("%indx = %d\n", INDX[i]);
                 // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
                 // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
                 // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
@@ -934,17 +935,17 @@ void Block_MD_MultiMaze(void){
         if ((t+1) % ICHECK == 0) Checkpoint(t+1, PARTPOS_T, SHELLPOS_T, SHELLPOS_TM1, PARTVEL, SHELLVEL);
 
         //outputs at log times
-        for (z=0;z<=7;z++) {
-            for (y=1;y<=9;y++) {
-                tlog = y*(int)(pow(10.,z));
-                //printf("%d\n",tlog);
-                if ((t+1) == tlog) {
-                    //printf("%d %d\n",t+1,tlog);
-                    Write_LogPartPositions(PARTPOS_T,t+1);
-                    Write_LogPartVelocities(PARTVEL,t+1);
-                }
-            }
-        }
+        // for (z=0;z<=7;z++) {
+        //     for (y=1;y<=9;y++) {
+        //         tlog = y*(int)(pow(10.,z));
+        //         //printf("%d\n",tlog);
+        //         if ((t+1) == tlog) {
+        //             //printf("%d %d\n",t+1,tlog);
+        //             Write_LogPartPositions(PARTPOS_T,t+1);
+        //             Write_LogPartVelocities(PARTVEL,t+1);
+        //         }
+        //     }
+        // }
 
 
         t_end = clock();

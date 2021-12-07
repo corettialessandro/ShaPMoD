@@ -45,6 +45,31 @@ struct point CMVelocity(struct point v[]){
     return CMV;
 }
 
+struct point MultiCMVelocity(struct point v[]){
+
+    struct point CMV = {0};
+
+    int i = 0;
+    double mi;
+    double totalMassBigParticles;
+
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++){
+
+        mi = M[INDX[i]];
+        totalMassBigParticles += mi;
+
+        CMV.x += mi*v[i].x;
+        CMV.y += mi*v[i].y;
+        CMV.z += mi*v[i].z;
+    }
+
+    CMV.x /= totalMassBigParticles;
+    CMV.y /= totalMassBigParticles;
+    CMV.z /= totalMassBigParticles;
+
+    return CMV;
+}
+
 double EnerKin(struct point v[]){
 
     double EKin = 0;

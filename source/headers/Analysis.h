@@ -21,6 +21,7 @@
 
 struct point Velocity(struct point r_tm1, struct point r_tp1);
 struct point CMVelocity(struct point v[]);
+struct point MultiCMVelocity(struct point v[]);
 
 double EnerKin(struct point v[]);
 double MultiEnerKin(struct point v[]);
