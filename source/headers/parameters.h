@@ -77,7 +77,7 @@
 //#define INITIALIZED 1e10
 
 // Over-relaxation parameter
-#define SOR 0.8 //0.333333
+#define SOR 1. //0.333333
 
 // LCG parameter
 #define LCG_TOL 1e-8

@@ -1618,12 +1618,12 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     }
 
     // Compute symmetry Shake matrix for each component
-    for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
-        for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
-            SHAKEMATRIX[k][i] = 0.;
-        }
+    // for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
+    //     for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
+    //         SHAKEMATRIX[k][i] = 0.;
+    //     }
 
-    }
+    // }
 
 
     // NATOMSPERSPEC[0] = 2;
@@ -1657,29 +1657,29 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     // DPHIDRHO_T[1][1].fz.z = -2;
 
 
-    for (k=0; k<NATOMSPERSPEC[0]; k++) {
-        for (i=0; i<NATOMSPERSPEC[0]; i++) {
-            for (j=0; j<NATOMSPERSPEC[0]; j++) {
-                //printf("%d\n",k*i +j);
+    // for (k=0; k<NATOMSPERSPEC[0]; k++) {
+    //     for (i=0; i<NATOMSPERSPEC[0]; i++) {
+    //         for (j=0; j<NATOMSPERSPEC[0]; j++) {
+    //             //printf("%d\n",k*i +j);
 
-                SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
-                SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
-                SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
+    //             SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
+    //             SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
+    //             SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
 
-                SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
-                SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
-                SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
+    //             SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
+    //             SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
+    //             SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
 
-                SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
-                SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
-                SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
+    //             SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
+    //             SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
+    //             SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
 
 
-            }
-        //printf("%.4e ", SHAKEMATRIX[k][i]);
-        }
-    //printf("\n");
-    }
+    //         }
+    //     //printf("%.4e ", SHAKEMATRIX[k][i]);
+    //     }
+    // //printf("\n");
+    // }
     // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
     //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
     //       printf("%.4e ", SHAKEMATRIX[k][i]);
@@ -1687,6 +1687,26 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     printf("\n");
     // }
     // exit(0);
+
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            
+
+            BMATRIX[3*k][3*i] = DPHIDRHO_T[k][i].fx.x;
+            BMATRIX[3*k][3*i + 1] = DPHIDRHO_T[k][i].fx.y;
+            BMATRIX[3*k][3*i + 2] = DPHIDRHO_T[k][i].fx.z;
+
+            BMATRIX[3*k + 1][3*i] = DPHIDRHO_T[k][i].fy.x;
+            BMATRIX[3*k + 1][3*i + 1] = DPHIDRHO_T[k][i].fy.y;
+            BMATRIX[3*k + 1][3*i + 2] = DPHIDRHO_T[k][i].fy.z;
+
+            BMATRIX[3*k + 2][3*i] = DPHIDRHO_T[k][i].fz.x;
+            BMATRIX[3*k + 2][3*i + 1] = DPHIDRHO_T[k][i].fz.y;
+            BMATRIX[3*k + 2][3*i + 2] = DPHIDRHO_T[k][i].fz.z;
+            
+        }
+    }
+
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
 
         if (POT == 'J') {
@@ -1773,7 +1793,8 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
         discr = 0;
 
-        LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        TrickyLinearConjugateGradient(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        //LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
 
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
             GAMMA[k].x = FULLGAMMA[3*k];
