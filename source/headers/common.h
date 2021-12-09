@@ -43,6 +43,7 @@ extern struct tensor **DPHIDRHO_T;
 extern struct tensor **DPHIDVRHO_T;
 
 extern double **SHAKEMATRIX;
+extern double **BMATRIX;
 extern double *FULLPHI;
 extern double *FULLGAMMA;
 

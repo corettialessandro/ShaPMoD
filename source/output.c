@@ -356,7 +356,7 @@ void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct p
 
         if (MODE == 'S') {
 
-            if (timestep%20 == 0){
+            if (timestep%1 == 0){
                 Write_PartPositions(r,timestep);
                 Write_PartVelocities(v,timestep);
             }
@@ -370,7 +370,7 @@ void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct p
             Write_ShellVelocities(sv);
         } else if (MODE == 'M'){
 
-            if (timestep%20 == 0){
+            if (timestep%1 == 0){
                 Write_PartPositions(r,timestep);
                 Write_PartVelocities(v,timestep);
             }
