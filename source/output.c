@@ -356,10 +356,10 @@ void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct p
 
         if (MODE == 'S') {
 
-            if (timestep%1 == 0){
-                Write_PartPositions(r,timestep);
-                Write_PartVelocities(v,timestep);
-            }
+            
+            Write_PartPositions(r,timestep);
+            Write_PartVelocities(v,timestep);
+            
 
 
         } else if (MODE == 'P'){
@@ -370,10 +370,10 @@ void Write_PSConfig(int timestep, struct point r[], struct point rho[], struct p
             Write_ShellVelocities(sv);
         } else if (MODE == 'M'){
 
-            if (timestep%1 == 0){
-                Write_PartPositions(r,timestep);
-                Write_PartVelocities(v,timestep);
-            }
+            
+            Write_PartPositions(r,timestep);
+            Write_PartVelocities(v,timestep);
+            
 
         }
     }
@@ -416,8 +416,8 @@ void Write_PartPositions(struct point r[], int time){
     char outputpath0[_MAX_STR_LENGTH];
     char outputpath1[_MAX_STR_LENGTH];
 
-    sprintf(outputpath0, "%sPSconfig/r_neg_t%d.txt", OUTPUTFOL,time);
-    sprintf(outputpath1, "%sPSconfig/r_pos_t%d.txt", OUTPUTFOL,time);
+    sprintf(outputpath0, "%sPSconfig/r_neg_t.txt", OUTPUTFOL);
+    sprintf(outputpath1, "%sPSconfig/r_pos_t.txt", OUTPUTFOL);
 
     if ((fp_partpos_out0 = fopen(outputpath0, "a")) == NULL){
 
@@ -539,8 +539,8 @@ void Write_PartVelocities(struct point v[], int time){
     char outputpath0[_MAX_STR_LENGTH];
     char outputpath1[_MAX_STR_LENGTH];
 
-    sprintf(outputpath0, "%sPSconfig/v_neg_t%d.txt", OUTPUTFOL,time);
-    sprintf(outputpath1, "%sPSconfig/v_pos_t%d.txt", OUTPUTFOL,time);
+    sprintf(outputpath0, "%sPSconfig/v_neg_t.txt", OUTPUTFOL);
+    sprintf(outputpath1, "%sPSconfig/v_pos_t.txt", OUTPUTFOL);
 
     if ((fp_partvel_out0 = fopen(outputpath0, "a")) == NULL){
 

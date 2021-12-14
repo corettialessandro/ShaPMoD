@@ -169,8 +169,8 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
     int i, j, k;
     int counterLCG = 0;
     double alpha=0., alpha_num, alpha_denom, beta=0., beta_num, beta_denom, errorNorm = 0.;
+    double matrixTimesVector[ndimension];
     //double testb[2];
-
 
     for (i=0; i<ndimension; i++) {
         RESIDUE_OLD[i] = 0.;
@@ -190,25 +190,15 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
 
         }
 
+        errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
         DIRECTION_OLD[i] = RESIDUE_OLD[i];
 
     }
 
-
-    for (i=0; i<ndimension; i++) {
-
-        ERRORVECTOR[i] = vector_b[i];
-
-        for (j=0; j<ndimension; j++) {
-
-            ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j]);
-
-        }
-        errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
-    }
-
     errorNorm = sqrt(errorNorm);
 
+    
     while (errorNorm > LCG_TOL) {
 
         alpha_num = 0.;
@@ -228,13 +218,22 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
 
         for (i=0; i<ndimension; i++) {
 
-            alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+            matrixTimesVector[i] = 0.;
 
             for (j=0; j<ndimension; j++) {
 
-                alpha_denom += DIRECTION_OLD[i]*matrix[i][j]*DIRECTION_OLD[j];
+                matrixTimesVector[i] += matrix[i][j]*DIRECTION_OLD[j];
 
             }
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+            alpha_denom += DIRECTION_OLD[i]*matrixTimesVector[i];
+
+            
         }
 
         alpha = alpha_num/alpha_denom;
@@ -243,15 +242,15 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
         for (i=0; i<ndimension; i++) {
 
             vector_x[i] += alpha*DIRECTION_OLD[i];
-            //printf("x = %.4e \n", vector_x[i]);
+
             RESIDUE[i] = RESIDUE_OLD[i];
 
-            for (j=0; j<ndimension; j++) {
+            RESIDUE[i] -= (alpha*matrixTimesVector[i]);
 
-                RESIDUE[i] -= (alpha*matrix[i][j]*DIRECTION_OLD[j]);
-
-            }
+            beta_num += RESIDUE[i]*RESIDUE[i];
+            beta_denom += RESIDUE_OLD[i]*RESIDUE_OLD[i];
         }
+        
 
         for (i=0; i<ndimension; i++) {
 
@@ -272,24 +271,11 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
 
             DIRECTION_OLD[i] = DIRECTION[i];
             RESIDUE_OLD[i] = RESIDUE[i];
+            errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
 
-        }
-
-        for (i=0; i<ndimension; i++) {
-
-            ERRORVECTOR[i] = vector_b[i];
-
-            for (j=0; j<ndimension; j++) {
-
-                ERRORVECTOR[i] -= (matrix[i][j]*vector_x[j]);
-
-            }
-            errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
         }
 
         errorNorm = sqrt(errorNorm);
-
-
 
     }
     // printf("%.4e", errorNorm);
@@ -309,6 +295,7 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
     int counterLCG = 0;
     double alpha=0., alpha_num, alpha_denom, beta=0., beta_num, beta_denom, errorNorm = 0.;
     double gammaPrime[ndimension], directionPrime[ndimension];
+    double matrixTimesVector[ndimension];
     //double testb[2];
 
 
@@ -344,20 +331,10 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
 
         DIRECTION_OLD[i] = RESIDUE_OLD[i];
 
+        errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
     }
 
-
-    for (i=0; i<ndimension; i++) {
-
-        ERRORVECTOR[i] = vector_b[i];
-
-        for (j=0; j<ndimension; j++) {
-
-            ERRORVECTOR[i] -= (Bmatrix[i][j]*gammaPrime[j]);
-
-        }
-        errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
-    }
 
     errorNorm = sqrt(errorNorm);
 
@@ -391,29 +368,34 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
 
         for (i=0; i<ndimension; i++) {
 
-            alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+            matrixTimesVector[i] = 0.;
 
             for (j=0; j<ndimension; j++) {
 
-                alpha_denom += DIRECTION_OLD[i]*Bmatrix[i][j]*directionPrime[j];
+                matrixTimesVector[i] += Bmatrix[i][j]*directionPrime[j];
 
             }
         }
 
-        alpha = alpha_num/alpha_denom;
+        for (i=0; i<ndimension; i++) {
 
+            alpha_num += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+            alpha_denom += DIRECTION_OLD[i]*matrixTimesVector[i];
+
+        }
+
+        alpha = alpha_num/alpha_denom;
 
         for (i=0; i<ndimension; i++) {
 
             vector_x[i] += alpha*DIRECTION_OLD[i];
-            //printf("x = %.4e \n", vector_x[i]);
+
             RESIDUE[i] = RESIDUE_OLD[i];
 
-            for (j=0; j<ndimension; j++) {
+            RESIDUE[i] -= (alpha*matrixTimesVector[i]);
 
-                RESIDUE[i] -= (alpha*Bmatrix[i][j]*directionPrime[j]);
-
-            }
+            
         }
 
         for (i=0; i<ndimension; i++) {
@@ -436,30 +418,10 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
             DIRECTION_OLD[i] = DIRECTION[i];
             RESIDUE_OLD[i] = RESIDUE[i];
 
+            errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
         }
 
-        for (i=0; i<ndimension; i++) {
-
-            gammaPrime[i] = 0.;
-
-            for (j=0; j<ndimension; j++) {
-                
-                gammaPrime[i] += Bmatrix[i][j]*vector_x[j];
-
-            }
-        }
-
-        for (i=0; i<ndimension; i++) {
-
-            ERRORVECTOR[i] = vector_b[i];
-
-            for (j=0; j<ndimension; j++) {
-
-                ERRORVECTOR[i] -= (Bmatrix[i][j]*gammaPrime[j]);
-
-            }
-            errorNorm += ERRORVECTOR[i]*ERRORVECTOR[i];
-        }
 
         errorNorm = sqrt(errorNorm);
 

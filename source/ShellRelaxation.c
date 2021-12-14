@@ -1618,6 +1618,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     }
 
     // Compute symmetry Shake matrix for each component
+
     // for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
     //     for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
     //         SHAKEMATRIX[k][i] = 0.;
@@ -1625,42 +1626,9 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
     // }
 
-
-    // NATOMSPERSPEC[0] = 2;
-    //
-    // DPHIDRHO_T[0][0].fx.x = 3;
-    // DPHIDRHO_T[0][0].fx.y = 1;
-    // DPHIDRHO_T[0][0].fx.z = 1;
-    // DPHIDRHO_T[0][1].fx.x = -2;
-    // DPHIDRHO_T[0][1].fx.y = 6;
-    // DPHIDRHO_T[0][1].fx.z = 2;
-    //
-    // DPHIDRHO_T[0][0].fy.x = 2;
-    // DPHIDRHO_T[0][0].fy.y = 3;
-    // DPHIDRHO_T[0][0].fy.z = 0;
-    // DPHIDRHO_T[0][1].fy.x = 1;
-    // DPHIDRHO_T[0][1].fy.y = 6;
-    // DPHIDRHO_T[0][1].fy.z = -1;
-    //
-    // DPHIDRHO_T[1][0].fy.x = 3;
-    // DPHIDRHO_T[1][0].fy.y = 1;
-    // DPHIDRHO_T[1][0].fy.z = -5;
-    // DPHIDRHO_T[1][1].fy.x = 1;
-    // DPHIDRHO_T[1][1].fy.y = 2;
-    // DPHIDRHO_T[1][1].fy.z = -1;
-    //
-    // DPHIDRHO_T[1][0].fz.x = 2;
-    // DPHIDRHO_T[1][0].fz.y = -2;
-    // DPHIDRHO_T[1][0].fz.z = -10;
-    // DPHIDRHO_T[1][1].fz.x = 1;
-    // DPHIDRHO_T[1][1].fz.y = 3;
-    // DPHIDRHO_T[1][1].fz.z = -2;
-
-
     // for (k=0; k<NATOMSPERSPEC[0]; k++) {
     //     for (i=0; i<NATOMSPERSPEC[0]; i++) {
     //         for (j=0; j<NATOMSPERSPEC[0]; j++) {
-    //             //printf("%d\n",k*i +j);
 
     //             SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
     //             SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
@@ -1676,9 +1644,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
     //         }
-    //     //printf("%.4e ", SHAKEMATRIX[k][i]);
     //     }
-    // //printf("\n");
     // }
     // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
     //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
