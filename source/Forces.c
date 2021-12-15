@@ -492,7 +492,6 @@ struct point Force_WCA(struct point r[], int i) {
     //if (fabs(fy>0.000001)) printf("Interaction %d (%lf,%lf,%lf) along y wrong!\n",i,r[i].x+0.5*LBOX,r[i].y+0.5*LBOX,r[i].z+0.5*LBOX);
     //if (fabs(fz>0.000001)) printf("Interaction %d (%lf,%lf,%lf) along z wrong!\n",i,r[i].x+0.5*LBOX,r[i].y+0.5*LBOX,r[i].z+0.5*LBOX);
     //if (i==100) printf(" (%d)\n",nn);
-    //if (i==100) {printf("Force: %lf %lf %lf (%lf %lf %lf)\n",F.x,F.y,F.z,fx,fy,fz);}
 
     return F;
 }
