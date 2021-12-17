@@ -1565,6 +1565,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce, testdForcex, testdForcey, testdForcez, CC_d;
 
     FILE *fp_constraints_out;
+    //FILE *fp_matrix_out = fopen("BmatrixCellListd0_0127rc11.txt", "w");
     char outputpath[_MAX_STR_LENGTH];
     sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
 
@@ -1576,15 +1577,15 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
     //    struct point s;
 
-    // for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
-    //     Rem_Point_From_Cell(i);
-    //     Add_Point_To_Cell(r_t[i],i);
-    // }
-    //
-    // for (i=0; i<NATOMSPERSPEC[0]; i++) {
-    //     Rem_Point_From_Cell(i);
-    //     Add_Point_To_Cell(rho_t[i],i);
-    // }
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(r_t[i],i);
+    }
+    
+    for (i=0; i<NATOMSPERSPEC[0]; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_t[i],i);
+    }
 
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
 
@@ -1608,7 +1609,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 DPHIDRHO_T[k][i] = ConstTens_LJ(rho_t, r_t, k, i);
 
             }
-            //if (k==i)printf(" %d / %d dFxold = %.4e %.4e %.4e \n dFyold = %.4e %.4e %.4e \n dFzold = %.4e %.4e %.4e\n\n", k, i,  DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
+            //printf("%.8e %.8e %.8e \n %.8e %.8e %.8e \n %.8e %.8e %.8e\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
 
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
                 printf("DPHIDRHO_T[%d][%d] =\n", k, i);
@@ -1616,6 +1617,8 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             }
         }
     }
+
+    //exit(0);
 
     // Compute symmetry Shake matrix for each component
 
@@ -1671,6 +1674,29 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             BMATRIX[3*k + 2][3*i + 2] = DPHIDRHO_T[k][i].fz.z;
             
         }
+    }
+
+    // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+    //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
+    //         if (sqrt(BMATRIX[k][i]*BMATRIX[k][i]) > 0){
+    //             fprintf(fp_matrix_out, "1 ");
+
+    //         }else{
+    //             fprintf(fp_matrix_out, "0 ");
+    //         }
+    //     }
+    // fprintf(fp_matrix_out,"\n");
+    // }
+    // exit(0);
+
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(r_tp1[i],i);
+    }
+    
+    for (i=0; i<NATOMSPERSPEC[0]; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_OLD[i],i);
     }
 
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
@@ -1759,7 +1785,18 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
         discr = 0;
 
+        for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(r_t[i],i);
+        }
+        
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(rho_t[i],i);
+    }
+
         TrickyLinearConjugateGradient(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        //TrickyLinearConjugateGradientCellList(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
         //LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
 
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
@@ -1780,8 +1817,8 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 rho_OLD[k].z -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.z + GAMMA[i].y*DPHIDRHO_T[i][k].fy.z + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
 
             }
-            // Rem_Point_From_Cell(k);
-            // Add_Point_To_Cell(rho_OLD[k],k);
+            Rem_Point_From_Cell(k);
+            Add_Point_To_Cell(rho_OLD[k],k);
             //printf("RHO_NEW[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
         }
 
