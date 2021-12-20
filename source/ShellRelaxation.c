@@ -1559,7 +1559,8 @@ void MultiSHAKE(struct point rho_t[], struct point rho_OLD[], struct point r_t[]
 
 void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct point r_t[], struct point r_tp1[], int timestep, int ccount){
 
-    int k, i, j, indx_i, count = 0;
+    int k, i, j, p, indx_i, count = 0;
+    int neighlist[1000];
     double discr = 0, kdiscr = -1.;
     double denom, denomx, denomy, denomz, CC_r;
     struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce, testdForcex, testdForcey, testdForcez, CC_d;
@@ -1689,6 +1690,26 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     // }
     // exit(0);
 
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+            indx_i = INDX[i];
+
+            rho_OLD[k].x -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.x + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.x + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.x);
+            rho_OLD[k].y -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.y + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.y + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.y);
+            rho_OLD[k].z -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.z + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.z + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.z);
+
+        }
+        Rem_Point_From_Cell(k);
+        Add_Point_To_Cell(rho_OLD[k],k);
+
+        GAMMATOT[k].x += GAMMATOT_TM1[k].x;
+        GAMMATOT[k].y += GAMMATOT_TM1[k].y;
+        GAMMATOT[k].z += GAMMATOT_TM1[k].z;
+    }
+
+    //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);
+
     for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
         Rem_Point_From_Cell(i);
         Add_Point_To_Cell(r_tp1[i],i);
@@ -1795,17 +1816,24 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             Add_Point_To_Cell(rho_t[i],i);
     }
 
-        TrickyLinearConjugateGradient(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
-        //TrickyLinearConjugateGradientCellList(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        //TrickyLinearConjugateGradient(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+           
+        TrickyLinearConjugateGradientCellList(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        
         //LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
 
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
             GAMMA[k].x = FULLGAMMA[3*k];
             GAMMA[k].y = FULLGAMMA[3*k + 1];
             GAMMA[k].z = FULLGAMMA[3*k + 2];
+            GAMMATOT[k].x += GAMMA[k].x;
+            GAMMATOT[k].y += GAMMA[k].y;
+            GAMMATOT[k].z += GAMMA[k].z;
             //printf("%.4e %.4e %.4e \n",GAMMA[k].x, GAMMA[k].y, GAMMA[k].z);
-
         }
+
+        //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);
+
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
             //printf("RHO_OLD[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
@@ -1817,6 +1845,17 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
                 rho_OLD[k].z -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.z + GAMMA[i].y*DPHIDRHO_T[i][k].fy.z + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
 
             }
+
+            // List_Of_Neighs(k,neighlist,1);
+            // for (p=1;p<=neighlist[0];p++) {
+
+            //     j = neighlist[p];
+
+            //     rho_OLD[k].x -= SOR*(GAMMA[j].x*DPHIDRHO_T[j][k].fx.x + GAMMA[j].y*DPHIDRHO_T[j][k].fy.x + GAMMA[j].z*DPHIDRHO_T[j][k].fz.x);
+            //     rho_OLD[k].y -= SOR*(GAMMA[j].x*DPHIDRHO_T[j][k].fx.y + GAMMA[j].y*DPHIDRHO_T[j][k].fy.y + GAMMA[j].z*DPHIDRHO_T[j][k].fz.y);
+            //     rho_OLD[k].z -= SOR*(GAMMA[j].x*DPHIDRHO_T[j][k].fx.z + GAMMA[j].y*DPHIDRHO_T[j][k].fy.z + GAMMA[j].z*DPHIDRHO_T[j][k].fz.z);
+
+            // }
             Rem_Point_From_Cell(k);
             Add_Point_To_Cell(rho_OLD[k],k);
             //printf("RHO_NEW[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
@@ -1876,9 +1915,20 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
 
-        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
     } //End while(constraint condition)
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+
+        GAMMATOT_TM1[k].x = GAMMATOT[k].x;
+        GAMMATOT_TM1[k].y = GAMMATOT[k].y;
+        GAMMATOT_TM1[k].z = GAMMATOT[k].z;
+
+        GAMMATOT[k].x = 0.;
+        GAMMATOT[k].y = 0.;
+        GAMMATOT[k].z = 0.;
+
+    }
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);
     fclose(fp_constraints_out);

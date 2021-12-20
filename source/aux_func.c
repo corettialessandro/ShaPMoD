@@ -469,17 +469,20 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
         for (p=1;p<=neighlist[0];p++) {
             j = neighlist[p];
 
-            gammaPrime[3*i] += Bmatrix[3*i][3*j]*vector_x[3*j];
-            gammaPrime[3*i] += Bmatrix[3*i][3*j+1]*vector_x[3*j+1];
-            gammaPrime[3*i] += Bmatrix[3*i][3*j+2]*vector_x[3*j+2];
+            if (j < NATOMSPERSPEC[0]) {
 
-            gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j]*vector_x[3*j];
-            gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*vector_x[3*j+1];
-            gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*vector_x[3*j+2];
+                gammaPrime[3*i] += Bmatrix[3*i][3*j]*vector_x[3*j];
+                gammaPrime[3*i] += Bmatrix[3*i][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i] += Bmatrix[3*i][3*j+2]*vector_x[3*j+2];
 
-            gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j]*vector_x[3*j];
-            gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*vector_x[3*j+1];
-            gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*vector_x[3*j+2];
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j]*vector_x[3*j];
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*vector_x[3*j+2];
+
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j]*vector_x[3*j];
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*vector_x[3*j+2];
+            }
 
 
         }
@@ -495,17 +498,20 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
         for (p=1;p<=neighlist[0];p++) {
             j = neighlist[p];
 
-            RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j]*gammaPrime[3*j];
-            RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+1]*gammaPrime[3*j+1];
-            RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+2]*gammaPrime[3*j+2];
+            if (j < NATOMSPERSPEC[0]) {
 
-            RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j]*gammaPrime[3*j];
-            RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+1]*gammaPrime[3*j+1];
-            RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+2]*gammaPrime[3*j+2];
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+2]*gammaPrime[3*j+2];
 
-            RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j]*gammaPrime[3*j];
-            RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+1]*gammaPrime[3*j+1];
-            RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+2]*gammaPrime[3*j+2];
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+2]*gammaPrime[3*j+2];
+
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+2]*gammaPrime[3*j+2];
+            }
 
         }
 
@@ -548,17 +554,21 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
             for (p=1;p<=neighlist[0];p++) {
                 j = neighlist[p];
 
-                directionPrime[3*i] += Bmatrix[3*i][3*j]*DIRECTION_OLD[3*j];
-                directionPrime[3*i] += Bmatrix[3*i][3*j+1]*DIRECTION_OLD[3*j+1];
-                directionPrime[3*i] += Bmatrix[3*i][3*j+2]*DIRECTION_OLD[3*j+2];
+                if (j < NATOMSPERSPEC[0]) {
 
-                directionPrime[3*i+1] += Bmatrix[3*i+1][3*j]*DIRECTION_OLD[3*j];
-                directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*DIRECTION_OLD[3*j+1];
-                directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*DIRECTION_OLD[3*j+2];
+                    directionPrime[3*i] += Bmatrix[3*i][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i] += Bmatrix[3*i][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i] += Bmatrix[3*i][3*j+2]*DIRECTION_OLD[3*j+2];
 
-                directionPrime[3*i+2] += Bmatrix[3*i+2][3*j]*DIRECTION_OLD[3*j];
-                directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*DIRECTION_OLD[3*j+1];
-                directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*DIRECTION_OLD[3*j+2];
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*DIRECTION_OLD[3*j+2];
+
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*DIRECTION_OLD[3*j+2];
+
+                }
 
 
             }
@@ -575,18 +585,20 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
             for (p=1;p<=neighlist[0];p++) {
                 j = neighlist[p];
 
-                matrixTimesVector[3*i] += Bmatrix[3*i][3*j]*directionPrime[3*j];
-                matrixTimesVector[3*i] += Bmatrix[3*i][3*j+1]*directionPrime[3*j+1];
-                matrixTimesVector[3*i] += Bmatrix[3*i][3*j+2]*directionPrime[3*j+2];
+                if (j < NATOMSPERSPEC[0]) {
 
-                matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j]*directionPrime[3*j];
-                matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+1]*directionPrime[3*j+1];
-                matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+2]*directionPrime[3*j+2];
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j+2]*directionPrime[3*j+2];
 
-                matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j]*directionPrime[3*j];
-                matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+1]*directionPrime[3*j+1];
-                matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+2]*directionPrime[3*j+2];
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+2]*directionPrime[3*j+2];
 
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+2]*directionPrime[3*j+2];
+                }
 
             }
         }
@@ -642,7 +654,7 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
 
 
     }
-    // printf("%.4e", errorNorm);
+    //printf("%.d \n", counterLCG);
     
     // printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
     // for (i=0; i<ndimension; i++) {

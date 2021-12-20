@@ -40,6 +40,7 @@ double *ERRORVECTOR;
 
 struct point *GAMMA;
 struct point *GAMMATOT;
+struct point *GAMMATOT_TM1;
 
 struct point *PHI;
 struct point *PHI_OLD;
@@ -267,6 +268,7 @@ void ReadInput(){
         if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
         if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
+        if ((GAMMATOT_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
 
         if ((SHAKEMATRIX = (double **)calloc((3*NATOMSPERSPEC[0]), sizeof(double *))) == NULL) pointer_flag = 100;
         if ((BMATRIX = (double **)calloc((3*NATOMSPERSPEC[0]), sizeof(double *))) == NULL) pointer_flag = 100;
@@ -857,6 +859,7 @@ void FreePointers(void){
         free(DPHIDRHO_T);
         free(GAMMA);
         free(GAMMATOT);
+        free(GAMMATOT_TM1);
 
         free(SHAKEMATRIX);
         free(BMATRIX);

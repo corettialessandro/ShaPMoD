@@ -55,6 +55,7 @@ extern double *ERRORVECTOR;
 
 extern struct point *GAMMA;
 extern struct point *GAMMATOT;
+extern struct point *GAMMATOT_TM1;
 
 extern struct point *PHI;
 extern struct point *PHI_OLD;
