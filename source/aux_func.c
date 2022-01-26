@@ -457,6 +457,8 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
         RESIDUE[i] = 0.;
         DIRECTION[i] = 0.;
         ERRORVECTOR[i] = 0.;
+        
+        vector_x[i] = 0.; // seems to faster the convergence
     }
 
     for (i=0; i<ndimension/3.; i++) {
@@ -654,7 +656,7 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
 
 
     }
-    //printf("%.d \n", counterLCG);
+    printf("%.d \n", counterLCG);
     
     // printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
     // for (i=0; i<ndimension; i++) {
@@ -664,3 +666,242 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
     return;
 
 }
+
+void TrickyPreconditionedLinearConjugateGradientCellList(double **Bmatrix, double **Cmatrix, double *vector_b, double *vector_x, int ndimension){
+
+    int i, j, k;
+    int counterLCG = 0;
+    double alpha=0., alpha_num, alpha_denom, beta=0., beta_num, beta_denom, errorNorm = 0.;
+    double gammaPrime[ndimension], directionPrime[ndimension], preconditioned[ndimension], preconditioned_old[ndimension];
+    double matrixTimesVector[ndimension];
+    //double testb[2];
+    int neighlist[1000];
+    int p;
+
+
+    for (i=0; i<ndimension; i++) {
+        RESIDUE_OLD[i] = 0.;
+        DIRECTION_OLD[i] = 0.;
+        RESIDUE[i] = 0.;
+        DIRECTION[i] = 0.;
+        ERRORVECTOR[i] = 0.;
+        preconditioned[i] = 0.;
+        preconditioned_old[i]= 0.;
+        vector_x[i] = 0.; // seems to faster the convergence
+    }
+
+    for (i=0; i<ndimension/3.; i++) {
+
+        gammaPrime[3*i] = 0.;
+        gammaPrime[3*i+1] = 0.;
+        gammaPrime[3*i+2] = 0.;
+
+        List_Of_Neighs(i,neighlist,1);
+        for (p=1;p<=neighlist[0];p++) {
+            j = neighlist[p];
+
+            if (j < NATOMSPERSPEC[0]) {
+
+                gammaPrime[3*i] += Bmatrix[3*i][3*j]*vector_x[3*j];
+                gammaPrime[3*i] += Bmatrix[3*i][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i] += Bmatrix[3*i][3*j+2]*vector_x[3*j+2];
+
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j]*vector_x[3*j];
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*vector_x[3*j+2];
+
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j]*vector_x[3*j];
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*vector_x[3*j+1];
+                gammaPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*vector_x[3*j+2];
+            }
+
+
+        }
+    }
+
+    for (i=0; i<ndimension/3.; i++) {
+
+        RESIDUE_OLD[3*i] = vector_b[3*i];
+        RESIDUE_OLD[3*i+1] = vector_b[3*i+1];
+        RESIDUE_OLD[3*i+2] = vector_b[3*i+2];
+
+        List_Of_Neighs(i,neighlist,1);
+        for (p=1;p<=neighlist[0];p++) {
+            j = neighlist[p];
+
+            if (j < NATOMSPERSPEC[0]) {
+
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i] -= Bmatrix[3*i][3*j+2]*gammaPrime[3*j+2];
+
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i+1] -= Bmatrix[3*i+1][3*j+2]*gammaPrime[3*j+2];
+
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j]*gammaPrime[3*j];
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+1]*gammaPrime[3*j+1];
+                RESIDUE_OLD[3*i+2] -= Bmatrix[3*i+2][3*j+2]*gammaPrime[3*j+2];
+            }
+
+        }
+
+        preconditioned_old[3*i] = 1/Cmatrix[3*i][3*i]*RESIDUE_OLD[3*i];
+        preconditioned_old[3*i + 1] = 1/Cmatrix[3*i + 1][3*i + 1]*RESIDUE_OLD[3*i + 1];
+        preconditioned_old[3*i + 2] = 1/Cmatrix[3*i + 2][3*i + 2]*RESIDUE_OLD[3*i + 2];
+
+        DIRECTION_OLD[3*i] = RESIDUE_OLD[3*i];
+        DIRECTION_OLD[3*i+1] = RESIDUE_OLD[3*i+1];
+        DIRECTION_OLD[3*i+2] = RESIDUE_OLD[3*i+2];
+        
+
+        errorNorm += RESIDUE_OLD[3*i]*RESIDUE_OLD[3*i] + RESIDUE_OLD[3*i+1]*RESIDUE_OLD[3*i+1] + RESIDUE_OLD[3*i+2]*RESIDUE_OLD[3*i+2];
+    }
+
+
+    errorNorm = sqrt(errorNorm);
+
+    while (errorNorm > LCG_TOL) {
+
+        alpha_num = 0.;
+        alpha_denom = 0.;
+        beta_num = 0.;
+        beta_denom = 0.;
+        errorNorm = 0.;
+
+        counterLCG++;
+
+        if (counterLCG > _MAX_ITER) {
+
+            printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
+            exit(EXIT_FAILURE);
+
+        }
+
+
+        for (i=0; i<ndimension/3.; i++) {
+
+            directionPrime[3*i] = 0.;
+            directionPrime[3*i+1] = 0.;
+            directionPrime[3*i+2] = 0.;
+
+            List_Of_Neighs(i,neighlist,1);
+            for (p=1;p<=neighlist[0];p++) {
+                j = neighlist[p];
+
+                if (j < NATOMSPERSPEC[0]) {
+
+                    directionPrime[3*i] += Bmatrix[3*i][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i] += Bmatrix[3*i][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i] += Bmatrix[3*i][3*j+2]*DIRECTION_OLD[3*j+2];
+
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i+1] += Bmatrix[3*i+1][3*j+2]*DIRECTION_OLD[3*j+2];
+
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j]*DIRECTION_OLD[3*j];
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+1]*DIRECTION_OLD[3*j+1];
+                    directionPrime[3*i+2] += Bmatrix[3*i+2][3*j+2]*DIRECTION_OLD[3*j+2];
+
+                }
+
+
+            }
+        }
+
+
+        for (i=0; i<ndimension/3.; i++) {
+
+            matrixTimesVector[3*i] = 0.;
+            matrixTimesVector[3*i+1] = 0.;
+            matrixTimesVector[3*i+2] = 0.;
+
+            List_Of_Neighs(i,neighlist,1);
+            for (p=1;p<=neighlist[0];p++) {
+                j = neighlist[p];
+
+                if (j < NATOMSPERSPEC[0]) {
+
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i] += Bmatrix[3*i][3*j+2]*directionPrime[3*j+2];
+
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i+1] += Bmatrix[3*i+1][3*j+2]*directionPrime[3*j+2];
+
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j]*directionPrime[3*j];
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+1]*directionPrime[3*j+1];
+                    matrixTimesVector[3*i+2] += Bmatrix[3*i+2][3*j+2]*directionPrime[3*j+2];
+                }
+
+            }
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            alpha_num += RESIDUE_OLD[i]*preconditioned_old[i];
+
+            alpha_denom += DIRECTION_OLD[i]*matrixTimesVector[i];
+
+        }
+
+        alpha = alpha_num/alpha_denom;
+
+        for (i=0; i<ndimension; i++) {
+
+            vector_x[i] += alpha*DIRECTION_OLD[i];
+
+            RESIDUE[i] = RESIDUE_OLD[i];
+
+            RESIDUE[i] -= (alpha*matrixTimesVector[i]);
+
+            preconditioned[i] = 1/Cmatrix[i][i]*RESIDUE[i];
+            //printf("invC = %.4e \n", 1/Cmatrix[i][i]);
+
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            beta_num += RESIDUE[i]*preconditioned[i];
+            beta_denom += RESIDUE_OLD[i]*preconditioned_old[i];
+
+
+        }
+        beta = beta_num/beta_denom;
+        
+
+
+        for (i=0; i<ndimension; i++) {
+
+            DIRECTION[i] = preconditioned[i] + beta*DIRECTION_OLD[i];
+
+        }
+
+        for (i=0; i<ndimension; i++) {
+
+            DIRECTION_OLD[i] = DIRECTION[i];
+            RESIDUE_OLD[i] = RESIDUE[i];
+
+            errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
+
+        }
+
+
+        errorNorm = sqrt(errorNorm);
+        printf("error = %.4e \n", errorNorm);
+
+
+
+    }
+    printf("%.d \n", counterLCG);
+    exit(0);
+    // printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
+    // for (i=0; i<ndimension; i++) {
+    //     printf("lambda %d = %.8e\n",i, vector_x[i]);
+    
+    // }
+    return;
+
+}
+
