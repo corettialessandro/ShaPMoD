@@ -640,7 +640,7 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
             DIRECTION[i] = RESIDUE[i] + beta*DIRECTION_OLD[i];
 
         }
-
+        //printf("New Direction = %.4e %.4e %.4e\n", DIRECTION[0], DIRECTION[1], DIRECTION[2]);
         for (i=0; i<ndimension; i++) {
 
             DIRECTION_OLD[i] = DIRECTION[i];
@@ -652,6 +652,8 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
 
 
         errorNorm = sqrt(errorNorm);
+        //printf("error = %.4e \n alpha = %.4e \n beta = %4e \n", errorNorm, alpha, beta);
+
 
 
 
@@ -750,9 +752,9 @@ void TrickyPreconditionedLinearConjugateGradientCellList(double **Bmatrix, doubl
         preconditioned_old[3*i + 1] = 1/Cmatrix[3*i + 1][3*i + 1]*RESIDUE_OLD[3*i + 1];
         preconditioned_old[3*i + 2] = 1/Cmatrix[3*i + 2][3*i + 2]*RESIDUE_OLD[3*i + 2];
 
-        DIRECTION_OLD[3*i] = RESIDUE_OLD[3*i];
-        DIRECTION_OLD[3*i+1] = RESIDUE_OLD[3*i+1];
-        DIRECTION_OLD[3*i+2] = RESIDUE_OLD[3*i+2];
+        DIRECTION_OLD[3*i] = preconditioned_old[3*i];
+        DIRECTION_OLD[3*i+1] = preconditioned_old[3*i+1];
+        DIRECTION_OLD[3*i+2] = preconditioned_old[3*i+2];
         
 
         errorNorm += RESIDUE_OLD[3*i]*RESIDUE_OLD[3*i] + RESIDUE_OLD[3*i+1]*RESIDUE_OLD[3*i+1] + RESIDUE_OLD[3*i+2]*RESIDUE_OLD[3*i+2];
@@ -877,25 +879,25 @@ void TrickyPreconditionedLinearConjugateGradientCellList(double **Bmatrix, doubl
             DIRECTION[i] = preconditioned[i] + beta*DIRECTION_OLD[i];
 
         }
+        //printf("New Direction = %.4e %.4e %.4e\n", DIRECTION[0], DIRECTION[1], DIRECTION[2]);
 
         for (i=0; i<ndimension; i++) {
 
             DIRECTION_OLD[i] = DIRECTION[i];
             RESIDUE_OLD[i] = RESIDUE[i];
+            preconditioned_old[i] = preconditioned[i];
 
             errorNorm += RESIDUE_OLD[i]*RESIDUE_OLD[i];
 
         }
 
-
         errorNorm = sqrt(errorNorm);
-        printf("error = %.4e \n", errorNorm);
+        //printf("error = %.4e \n alpha = %.4e \n beta = %4e \n", errorNorm, alpha, beta);
 
 
 
     }
     printf("%.d \n", counterLCG);
-    exit(0);
     // printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
     // for (i=0; i<ndimension; i++) {
     //     printf("lambda %d = %.8e\n",i, vector_x[i]);
