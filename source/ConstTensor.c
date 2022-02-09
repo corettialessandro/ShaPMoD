@@ -459,14 +459,15 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
         W.fz.x = W.fz.y = W.fz.z = 0.;
 
         //for (j=0; j<NPART; j++){
-        // int p;
-        // int neighlist[1000];
-        // List_Of_Neighs(i,neighlist,1);
+        int p;
+        int neighlist[1000];
+        List_Of_Neighs(i,neighlist,1);
         // // if (k == 752) printf("Const %d\n", neighlist[0]);
-        // for (p=1;p<=neighlist[0];p++) {
-        for (j=0; j<NPART; j++){
+        //printf("number of neighbours = %d \t",neighlist[0]);
+        for (p=1;p<=neighlist[0];p++) {
+        //for (j=0; j<NPART; j++){
 
-            //j = neighlist[p];
+            j = neighlist[p];
 
             if (j!=i) {
 
@@ -482,34 +483,35 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
                 //if (k == 752) printf("dForce : r = %.4e and rcut = %.4e\n", SS_r, rCUT);
 
 
+                if (SS_r <= rCUT) {
+
+                    rinv = 1.0/SS_r;
+                    r2inv = rinv*rinv;
+                    r6inv = r2inv*r2inv*r2inv;
+                    rc2inv = 1.0/(rCUT*rCUT);
+                    rc6inv = rc2inv*rc2inv*rc2inv;
+                    sigma_r6 = LJ_sigma6*r6inv;
+                    sigma_r12 = LJ_sigma12*r6inv*r6inv;
+                    ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                    //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
+                    dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
+                    dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
+
+                    //rounding the force
 
 
-                rinv = 1.0/SS_r;
-                r2inv = rinv*rinv;
-                r6inv = r2inv*r2inv*r2inv;
-                rc2inv = 1.0/(rCUT*rCUT);
-                rc6inv = rc2inv*rc2inv*rc2inv;
-                sigma_r6 = LJ_sigma6*r6inv;
-                sigma_r12 = LJ_sigma12*r6inv*r6inv;
-                ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
-                //ljatrc = 4. * LJEPS[indx_i][indx_j] * rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6); // computing the shift
-                dU = 24.0 * LJEPS[indx_i][indx_j]*rinv * (-2.0*sigma_r12 + sigma_r6);
-                dU2 = 24.0 * LJEPS[indx_i][indx_j]*r2inv * (26.0*sigma_r12 - 7.0*sigma_r6);
-
-                //rounding the force
 
 
-
-
-                W.fx.x += (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
-                W.fx.y += (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
-                W.fx.z += (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
-                W.fy.x += (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
-                W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv)*r2inv*dU);
-                W.fy.z += (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
-                W.fz.x += (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
-                W.fz.y += (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
-                W.fz.z += (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
+                    W.fx.x += (- SS_d.x*SS_d.x*r2inv*dU2 - (SS_r - SS_d.x*SS_d.x*rinv)*r2inv*dU);
+                    W.fx.y += (- SS_d.x*SS_d.y*r2inv*dU2 + (SS_d.x*SS_d.y*rinv)*r2inv*dU);
+                    W.fx.z += (- SS_d.x*SS_d.z*r2inv*dU2 + (SS_d.x*SS_d.z*rinv)*r2inv*dU);
+                    W.fy.x += (- SS_d.y*SS_d.x*r2inv*dU2 + (SS_d.y*SS_d.x*rinv)*r2inv*dU);
+                    W.fy.y += (- SS_d.y*SS_d.y*r2inv*dU2 - (SS_r - SS_d.y*SS_d.y*rinv)*r2inv*dU);
+                    W.fy.z += (- SS_d.y*SS_d.z*r2inv*dU2 + (SS_d.y*SS_d.z*rinv)*r2inv*dU);
+                    W.fz.x += (- SS_d.z*SS_d.x*r2inv*dU2 + (SS_d.z*SS_d.x*rinv)*r2inv*dU);
+                    W.fz.y += (- SS_d.z*SS_d.y*r2inv*dU2 + (SS_d.z*SS_d.y*rinv)*r2inv*dU);
+                    W.fz.z += (- SS_d.z*SS_d.z*r2inv*dU2 - (SS_r - SS_d.z*SS_d.z*rinv)*r2inv*dU);
+                }
 
             }
         }

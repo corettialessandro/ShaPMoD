@@ -612,41 +612,45 @@ double EnerPot_LJ(struct point r[]){
 //        SC_d = d_rhoirj(rho[i], r[i], r[i]);
 //        SC_d = Distance(rho[i], r[i]);
 
-        //List_Of_Neighs(i,neighlist,1);
-        //for (p=1;p<=neighlist[0];p++) {
-            //j = neighlist[p];
-        for (j=0; j<NPART; j++) {
+        List_Of_Neighs(i,neighlist,1);
+        for (p=1;p<=neighlist[0];p++) {
+            j = neighlist[p];
+        // for (j=0; j<NPART; j++) {
             if (i!=j) {
 
-              indx_j = INDX[j];
+                indx_j = INDX[j];
 
-              indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+                indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
-              rCUT = LJRCUT[indx_i][indx_j];
-              lround = LJLROUND[indx_i][indx_j];
-              LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
-              LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+                rCUT = LJRCUT[indx_i][indx_j];
+                lround = LJLROUND[indx_i][indx_j];
+                LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+                LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
 
-              //Core-Core interactions
-//              CC_d = d_rirj(r[i], r[j]);
-              CC_d = Distance(r[i], r[j]);
-              CC_r = mod(CC_d);
+                //Core-Core interactions
+    //              CC_d = d_rirj(r[i], r[j]);
+                CC_d = Distance(r[i], r[j]);
+                CC_r = mod(CC_d);
 
-              r2inv = 1.0/(CC_r*CC_r);
-              r6inv = r2inv*r2inv*r2inv;
-              rc2inv = 1.0/(rCUT*rCUT);
-              rc6inv = rc2inv*rc2inv*rc2inv;
-              ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+                if (CC_r <= rCUT) {
 
-              ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
+                    r2inv = 1.0/(CC_r*CC_r);
+                    r6inv = r2inv*r2inv*r2inv;
+                    rc2inv = 1.0/(rCUT*rCUT);
+                    rc6inv = rc2inv*rc2inv*rc2inv;
+                    ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+
+                    ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
 
 
-              EPot += ep;
-              epi += ep;
+                    EPot += ep;
+                    epi += ep;
+                }
+
 
             }
 
-
+        
         }
 
 
