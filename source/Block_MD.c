@@ -654,6 +654,7 @@ void Block_MD_MultiMaze(void){
         SHELLPOS_T[i].z = PARTPOS_T[i].z;
         //printf("indx %d \n", INDX[i]);
     }
+
     // printf("%d %d\n", NATOMSPERSPEC[0], NPART);
     // exit(0);
     for (i=0; i<NPART; i++) {
@@ -669,6 +670,7 @@ void Block_MD_MultiMaze(void){
         SHELLACC_TP1[i].z = 0;
 
     }
+
     
     for (i=0; i<NATOMSPERSPEC[0]; i++) {
 
@@ -681,7 +683,6 @@ void Block_MD_MultiMaze(void){
         GAMMATOT_TM1[i].z = 0.;
 
     }
-
 
     for (t=t0; t<NTIMESTEPS; t++) {
 
@@ -711,6 +712,7 @@ void Block_MD_MultiMaze(void){
             DToverMi = DT*overMi;
             DTover2 = DT*0.5;
             DTover4 = DT*0.25;
+            
 
             if (POT == 'J') {
 
@@ -777,6 +779,7 @@ void Block_MD_MultiMaze(void){
 
 
         }
+        
 
         // Updating the cells
 
@@ -823,12 +826,12 @@ void Block_MD_MultiMaze(void){
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 //printf("%indx = %d\n", INDX[i]);
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
-                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
-                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
-                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }
@@ -935,6 +938,8 @@ void Block_MD_MultiMaze(void){
             SHELLPOS_TM1[i] = SHELLPOS_T[i];
             SHELLPOS_T[i] = SHELLPOS_TP1[i];
 
+            // CF_t = Force_LJ(PARTPOS_TP1, i);
+            // printf("force %d = %.4e %.4e %.4e \n", i, CF_t.x, CF_t.y, CF_t.z);
             // Updating the cells
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_T[i],i);
