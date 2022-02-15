@@ -261,6 +261,8 @@ void ReadInput(){
         if ((PHI_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((SEARCHDIR = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((RHO_OLD = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
+        if ((GAMMATOT_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
     }
 
     if (SRMODE == 'W') {
@@ -481,19 +483,19 @@ void ReadInput(){
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][0]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][0]);
-    //LJRCUT[0][0] = pow(2.0,1./6.) * LJSIGMA[0][0];
+    if (POT == 'W') LJRCUT[0][0] = pow(2.0,1./6.) * LJSIGMA[0][0];
     LJLROUND[0][0] = 0.01*LJRCUT[0][0];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[1][1]);
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[1][1]);
-    //LJRCUT[1][1] = pow(2.0,1./6.) * LJSIGMA[1][1];
+    if (POT == 'W') LJRCUT[1][1] = pow(2.0,1./6.) * LJSIGMA[1][1];
     LJLROUND[1][1] = 0.01*LJRCUT[1][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJSIGMA[0][1]); LJSIGMA[1][0] = LJSIGMA[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJEPS[0][1]); LJEPS[1][0] = LJEPS[0][1];
     fscanf(fp_input, "%lf %*[^\n]\n", &LJRCUT[0][1]); LJRCUT[1][0] = LJRCUT[0][1];
-    //LJRCUT[0][1] = pow(2.0,1./6.) * LJSIGMA[0][1];
+    if (POT == 'W') LJRCUT[0][1] = pow(2.0,1./6.) * LJSIGMA[0][1];
     LJLROUND[0][1] = 0.01*LJRCUT[0][1];
-    //LJRCUT[1][0] = pow(2.0,1./6.) * LJSIGMA[1][0];
+    if (POT == 'W') LJRCUT[1][0] = pow(2.0,1./6.) * LJSIGMA[1][0];
     LJLROUND[1][0] = 0.01*LJRCUT[1][0];
 
     // Cell list
@@ -569,7 +571,7 @@ void ReadInput(){
 
           if (EWALD == 'F') {
               fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLVEL[i].x, &SHELLVEL[i].y, &SHELLVEL[i].z);
-
+        
               if (MODE == 'S') {
 
                 //fscanf(fp_input, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", &PARTPOS_T[i].x, &PARTPOS_T[i].y, &PARTPOS_T[i].z, &PARTVEL[i].x, &PARTVEL[i].y, &PARTVEL[i].z, &SHELLPOS_TM1[i].x, &SHELLPOS_TM1[i].y, &SHELLPOS_TM1[i].z, &SHELLPOS_T[i].x, &SHELLPOS_T[i].y, &SHELLPOS_T[i].z);
@@ -854,6 +856,8 @@ void FreePointers(void){
         free(PHI_OLD);
         free(SEARCHDIR);
         free(RHO_OLD);
+        free(GAMMATOT);
+        free(GAMMATOT_TM1);
     }
 
     if (SRMODE == 'W') {

@@ -897,7 +897,7 @@ void TrickyPreconditionedLinearConjugateGradientCellList(double **Bmatrix, doubl
 
 
     }
-    printf("%.d \n", counterLCG);
+    //printf("%.d \n", counterLCG);
     // printf(" \n vector x = %.4e %.4e \n", vector_x[0], vector_x[1]);
     // for (i=0; i<ndimension; i++) {
     //     printf("lambda %d = %.8e\n",i, vector_x[i]);

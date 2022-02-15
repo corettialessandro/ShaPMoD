@@ -1566,7 +1566,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce, testdForcex, testdForcey, testdForcez, CC_d;
 
     FILE *fp_constraints_out;
-    //FILE *fp_matrix_out = fopen("BmatrixCellListd0_0127rc11.txt", "w");
+    FILE *fp_matrix_out = fopen("SHAKEmatrix.txt", "w");
     char outputpath[_MAX_STR_LENGTH];
     sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
 
@@ -1587,6 +1587,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         Rem_Point_From_Cell(i);
         Add_Point_To_Cell(rho_t[i],i);
     }
+
 
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
 
@@ -1621,35 +1622,35 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
     //exit(0);
 
-    // Compute symmetry Shake matrix for each component
+    //Compute symmetry Shake matrix for each component
 
-    // for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
-    //     for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
-    //         SHAKEMATRIX[k][i] = 0.;
-    //     }
+    for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
+        for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
+            SHAKEMATRIX[k][i] = 0.;
+        }
 
-    // }
+    }
 
-    // for (k=0; k<NATOMSPERSPEC[0]; k++) {
-    //     for (i=0; i<NATOMSPERSPEC[0]; i++) {
-    //         for (j=0; j<NATOMSPERSPEC[0]; j++) {
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            for (j=0; j<NATOMSPERSPEC[0]; j++) {
 
-    //             SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
-    //             SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
-    //             SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
+                SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
 
-    //             SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
-    //             SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
-    //             SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
+                SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
 
-    //             SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
-    //             SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
-    //             SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
+                SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
 
 
-    //         }
-    //     }
-    // }
+            }
+        }
+    }
     // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
     //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
     //       printf("%.4e ", SHAKEMATRIX[k][i]);
@@ -1719,7 +1720,12 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
 
-
+     for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
+            fprintf(fp_matrix_out, "%.8e ",SHAKEMATRIX[k][i]);
+        }
+    fprintf(fp_matrix_out,"\n");
+    }
     // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
     //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
     //         if (sqrt(BMATRIX[k][i]*BMATRIX[k][i]) > 0){
@@ -1731,7 +1737,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     }
     // fprintf(fp_matrix_out,"\n");
     // }
-    // exit(0);
 
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
         for (i=0; i<NATOMSPERSPEC[0]; i++) {
@@ -1818,7 +1823,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     //     printf("%.4e \n",FULLPHI[k]);
     //
     // }
-    // exit(0);
 
 
     while (discr > LOW_TOL) { //Verifying the constraint condition
@@ -1864,7 +1868,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         //TrickyLinearConjugateGradientCellList(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
 
         TrickyPreconditionedLinearConjugateGradientCellList(BMATRIX, CMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
-        
+
         //LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
         
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
@@ -1959,7 +1963,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
 
-        //printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
     } //End while(constraint condition)
     for (k=0; k<NATOMSPERSPEC[0]; k++) {

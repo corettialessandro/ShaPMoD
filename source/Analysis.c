@@ -510,59 +510,59 @@ double EnerPot_WCA(struct point r[]){
 
         }
 
-        for(j=0; j<NPART; j++){
+//         for(j=0; j<NPART; j++){
 
-            n2 = 0;
+//             n2 = 0;
 
-            if (i!=j){
+//             if (i!=j){
 
-              indx_j = INDX[j];
+//               indx_j = INDX[j];
 
-              indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
+//               indx_int = indx_i+indx_j; //indx_int = 0 -> ANAN, indx_int = 1 -> ANACAT, indx_int = 2 -> CATCAT
 
-              rCUT = LJRCUT[indx_i][indx_j];
-              LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
-              LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
+//               rCUT = LJRCUT[indx_i][indx_j];
+//               LJ_sigma6 = pow((double)LJSIGMA[indx_i][indx_j],6.);
+//               LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
 
-              //Core-Core interactions
-//              CC_d = d_rirj(r[i], r[j]);
-              CC_d = Distance(r[i], r[j]);
-              CC_r = mod(CC_d);
+//               //Core-Core interactions
+// //              CC_d = d_rirj(r[i], r[j]);
+//               CC_d = Distance(r[i], r[j]);
+//               CC_r = mod(CC_d);
 
-              if (CC_r <= rCUT) {
+//               if (CC_r <= rCUT) {
 
-                  neigh2[n2] = j;
-                  n2++;
-                  r2inv = 1.0/(CC_r*CC_r);
-                  r6inv = r2inv*r2inv*r2inv;
-                  rc2inv = 1.0/(rCUT*rCUT);
-                  rc6inv = rc2inv*rc2inv*rc2inv;
-                  ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
+//                   neigh2[n2] = j;
+//                   n2++;
+//                   r2inv = 1.0/(CC_r*CC_r);
+//                   r6inv = r2inv*r2inv*r2inv;
+//                   rc2inv = 1.0/(rCUT*rCUT);
+//                   rc6inv = rc2inv*rc2inv*rc2inv;
+//                   ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
 
-                  ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
+//                   ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
 
-                  if (CC_r > (rCUT-lround)) {
-                      Rround = (CC_r - rCUT + lround)/lround;
-                      ep += Rround*Rround*(2.*Rround - 3.) * ep;
+//                   if (CC_r > (rCUT-lround)) {
+//                       Rround = (CC_r - rCUT + lround)/lround;
+//                       ep += Rround*Rround*(2.*Rround - 3.) * ep;
 
-                  }
+//                   }
 
-                  //EPot += ep;
-                  epi -= ep;
+//                   //EPot += ep;
+//                   epi -= ep;
 
-              }
-            }
-        }
+//               }
+//             }
+//         }
 
-        if (epi>0.001 || epi<-0.001) {
-            printf("Wrong computation of force for particle %d\n",i);
-            printf("%d neighbours: [ ",n1);
-            for (j=0;j<n1;j++) printf("%d ",neigh1[j]);
-            printf("]\n");
-            printf("%d neighbours: [ ",n2);
-            for (j=0;j<n2;j++) printf("%d ",neigh2[j]);
-            printf("]\n");
-        }
+//         if (epi>0.001 || epi<-0.001) {
+//             printf("Wrong computation of force for particle %d\n",i);
+//             printf("%d neighbours: [ ",n1);
+//             for (j=0;j<n1;j++) printf("%d ",neigh1[j]);
+//             printf("]\n");
+//             printf("%d neighbours: [ ",n2);
+//             for (j=0;j<n2;j++) printf("%d ",neigh2[j]);
+//             printf("]\n");
+//         }
 
 
     }
