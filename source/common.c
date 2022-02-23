@@ -659,29 +659,43 @@ void ReadInput(){
 
     }else if (MODE == 'M'){
 
-        printf("* Multi Mode\n");
+        printf("* MultiMaze Mode\n");
 
         if (SRMODE == 'S') {
 
-            printf("Multi using SHAKE algorithm\n\n");
+            printf("MultiMaze using SHAKE algorithm\n\n");
 
         }else if (SRMODE == 'D') {
 
-            printf("Multi using Steepest Descent algorithm\n\n");
+            printf("MultiMaze using Steepest Descent algorithm\n\n");
 
         }else if (SRMODE == 'C') {
 
-            printf("Multi using Conjugate Gradient algorithm\n\n");
+            printf("MultiMaze using Conjugate Gradient algorithm\n\n");
 
         }else if (SRMODE == 'W') {
 
-            printf("Multi using Weinbach-Elber algorithm\n\n");
+            printf("MultiMaze using Weinbach-Elber algorithm\n\n");
 
         } else {
 
             printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Shell Relaxation Mode: SRMODE = '%c'", SRMODE);
         }
 
+    }else if (MODE == 'N'){
+
+        printf("* MultiNoze Mode\n");
+
+        if (SRMODE == 'W') {
+
+            printf("MultiNoze using Weinbach-Elber algorithm\n\n");
+
+        } else {
+
+            printf("\ncommon.c -> ReadInput() ERROR: Unrecognized Shell Relaxation Mode: SRMODE = '%c'", SRMODE);
+        }
+
+    
     }else{
 
         printf("\ncommon.c -> ReadInput() ERROR: Unrecognized mode of simulation: MODE = '%c'\n", MODE);

@@ -1880,8 +1880,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             GAMMATOT[k].z += GAMMA[k].z;
             //printf("%.4e %.4e %.4e \n",GAMMA[k].x, GAMMA[k].y, GAMMA[k].z);
         }
-        //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);
-
+        //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);        
         for (k=0; k<NATOMSPERSPEC[0]; k++) {
             //printf("RHO_OLD[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
@@ -1907,6 +1906,456 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             Rem_Point_From_Cell(k);
             Add_Point_To_Cell(rho_OLD[k],k);
             //printf("RHO_NEW[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+        }
+
+        for (k=0; k<NATOMSPERSPEC[0]; k++) {
+
+            if (POT == 'J') {
+
+                Phi_old = ShellForce_Jac(rho_OLD, r_t, k);
+
+            } else if (POT == 'C') {
+
+                Phi_old = ShellForce_Cicc(rho_OLD, r_t, k);
+
+            } else if (POT == 'W') {
+
+                Phi_old = Force_WCA(rho_OLD, k);
+                //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+            } else if (POT == 'L') {
+
+                Phi_old = Force_LJ(rho_OLD, k);
+                //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+            }
+
+            PHI[k].x = Phi_old.x;
+            PHI[k].y = Phi_old.y;
+            PHI[k].z = Phi_old.z;
+            //printf("Phi_NEW[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
+            FULLPHI[3*k] = Phi_old.x;
+            FULLPHI[3*k + 1] = Phi_old.y;
+            FULLPHI[3*k + 2] = Phi_old.z;
+
+
+            //printf("PHI_new = %.4e %.4e %.4e \n", PHI[k].x, PHI[k].y, PHI[k].z);
+
+
+            if (fabs(Phi_old.x) > discr) {
+
+                discr = fabs(Phi_old.x);
+                kdiscr = k + 0.1;
+            }
+
+            if (fabs(Phi_old.y) > discr) {
+
+                discr = fabs(Phi_old.y);
+                kdiscr = k + 0.2;
+            }
+
+            if (fabs(Phi_old.z) > discr) {
+
+                discr = fabs(Phi_old.z);
+                kdiscr = k + 0.3;
+            }
+
+        }
+
+
+
+        printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
+    } //End while(constraint condition)
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+
+        GAMMATOT_TM1[k].x = GAMMATOT[k].x;
+        GAMMATOT_TM1[k].y = GAMMATOT[k].y;
+        GAMMATOT_TM1[k].z = GAMMATOT[k].z;
+
+        GAMMATOT[k].x = 0.;
+        GAMMATOT[k].y = 0.;
+        GAMMATOT[k].z = 0.;
+
+    }
+    fprintf(fp_constraints_out, "\n");
+    fflush(fp_constraints_out);
+    fclose(fp_constraints_out);
+
+    SR_ITERS = count;
+    SR_DISCR = discr;
+
+//    Uncomment for direct comparison with Conjugate Gradient method
+//
+//    for (i=0; i<NPART; i++) {
+//
+//        GAMMA[i] = ShellForce_Jac(rho_OLD, r_tp1, i);
+//    }
+//
+//    SR_DISCR = Variance(GAMMA, NPART);
+
+    if (VERBOSE_FLAG && _V_SHAKE) printf("Convergence of SHAKE reached after %d iteration(s)\ndiscr = (%.4e)\n\n", count, discr);
+}
+
+void MultiNozeWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct point r_t[], struct point r_tp1[], int timestep, int ccount){
+
+    int k, i, j, p, indx_i, count = 0;
+    int neighlist[1000];
+    double discr = 0, kdiscr = -1.;
+    double denom, denomx, denomy, denomz, CC_r;
+    struct point Phi_old, DPhixDrho_old, DPhiyDrho_old, DPhizDrho_old, testForce, testdForcex, testdForcey, testdForcez, CC_d;
+
+    FILE *fp_constraints_out;
+    FILE *fp_matrix_out = fopen("SHAKEmatrix.txt", "w");
+    char outputpath[_MAX_STR_LENGTH];
+    sprintf(outputpath, "%sConstraints.txt", OUTPUTFOL);
+
+    double moverM = M[0]/M[1];
+
+    if ((fp_constraints_out = fopen(outputpath, "a")) == NULL){
+
+        printf("\noutput.c -> Analysis_output() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath);
+        exit(EXIT_FAILURE);
+    }
+
+    //    struct point s;
+
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(r_t[i],i);
+    }
+    
+    for (i=0; i<NATOMSPERSPEC[0]; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_t[i],i);
+    }
+
+
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+
+        for (i=0; i<NPART; i++) {
+
+            if (POT == 'J') {
+
+                DPHIDRHO_T[k][i] = ConstTens_Jac(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+
+            } else if (POT == 'C') {
+
+                DPHIDRHO_T[k][i] = ConstTens_Cicc(rho_t, r_t, k, i); // TO BE COMPUTED FOR r(t)
+
+            } else if (POT == 'W') {
+
+                DPHIDRHO_T[k][i] = ConstTens_WCA(rho_t, r_t, k, i);
+
+            } else if (POT == 'L') {
+
+                //DPHIDRHO_T[k][i] = ConstTens_LJ(rho_OLD, r_t, k, i);
+                DPHIDRHO_T[k][i] = ConstTens_LJ(rho_t, r_t, k, i);
+
+            }
+            //printf("%.8e %.8e %.8e \n %.8e %.8e %.8e \n %.8e %.8e %.8e\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
+
+            if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
+                printf("DPHIDRHO_T[%d][%d] =\n", k, i);
+                printf("%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
+            }
+        }
+    }
+
+    //exit(0);
+
+    //Compute symmetry Shake matrix for each component
+
+    for (k=0; k<(3*NATOMSPERSPEC[0]); k++) {
+        for (i=0; i<(3*NATOMSPERSPEC[0]); i++) {
+            SHAKEMATRIX[k][i] = 0.;
+        }
+
+    }
+
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            for (j=0; j<NATOMSPERSPEC[0]; j++) {
+
+                SHAKEMATRIX[3*k][3*i] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k][3*i + 1] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k][3*i + 2] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z;
+
+                SHAKEMATRIX[3*k + 1][3*i] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 1][3*i + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 1][3*i + 2] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z;
+
+                SHAKEMATRIX[3*k + 2][3*i] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z;
+                SHAKEMATRIX[3*k + 2][3*i + 1] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z;
+                SHAKEMATRIX[3*k + 2][3*i + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z;
+
+
+            }
+        }
+    }
+    // add part related to derivative w.r to heavy particles
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            for (j=NATOMSPERSPEC[0]; j<NPART; j++) {
+
+                SHAKEMATRIX[3*k][3*i] += moverM * (DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fx.z);
+                SHAKEMATRIX[3*k][3*i + 1] += moverM * (DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fy.z);
+                SHAKEMATRIX[3*k][3*i + 2] += moverM * (DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[i][j].fz.z);
+
+                SHAKEMATRIX[3*k + 1][3*i] += moverM * (DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fx.z);
+                SHAKEMATRIX[3*k + 1][3*i + 1] += moverM * (DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fy.z);
+                SHAKEMATRIX[3*k + 1][3*i + 2] += moverM * (DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[i][j].fz.z);
+
+                SHAKEMATRIX[3*k + 2][3*i] += moverM * (DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fx.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fx.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fx.z);
+                SHAKEMATRIX[3*k + 2][3*i + 1] += moverM * (DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fy.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fy.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fy.z);
+                SHAKEMATRIX[3*k + 2][3*i + 2] += moverM * (DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[i][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[i][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[i][j].fz.z);
+
+
+            }
+        }
+    }
+    // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+    //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
+    //       printf("%.4e ", SHAKEMATRIX[k][i]);
+    //     }
+    //     printf("\n");
+    // }
+
+
+    // for (k=0; k<NATOMSPERSPEC[0]; k++) {
+    //     for (i=0; i<NATOMSPERSPEC[0]; i++) {
+            
+
+    //         BMATRIX[3*k][3*i] = DPHIDRHO_T[k][i].fx.x;
+    //         BMATRIX[3*k][3*i + 1] = DPHIDRHO_T[k][i].fx.y;
+    //         BMATRIX[3*k][3*i + 2] = DPHIDRHO_T[k][i].fx.z;
+
+    //         BMATRIX[3*k + 1][3*i] = DPHIDRHO_T[k][i].fy.x;
+    //         BMATRIX[3*k + 1][3*i + 1] = DPHIDRHO_T[k][i].fy.y;
+    //         BMATRIX[3*k + 1][3*i + 2] = DPHIDRHO_T[k][i].fy.z;
+
+    //         BMATRIX[3*k + 2][3*i] = DPHIDRHO_T[k][i].fz.x;
+    //         BMATRIX[3*k + 2][3*i + 1] = DPHIDRHO_T[k][i].fz.y;
+    //         BMATRIX[3*k + 2][3*i + 2] = DPHIDRHO_T[k][i].fz.z;
+
+    //         // Initialize the preconditioner
+
+    //         CMATRIX[3*k][3*i] = 0.;
+    //         CMATRIX[3*k][3*i + 1] = 0.;
+    //         CMATRIX[3*k][3*i + 2] = 0.;
+
+    //         CMATRIX[3*k + 1][3*i] = 0.;
+    //         CMATRIX[3*k + 1][3*i + 1] = 0.;
+    //         CMATRIX[3*k + 1][3*i + 2] = 0.;
+
+    //         CMATRIX[3*k + 2][3*i] = 0.;
+    //         CMATRIX[3*k + 2][3*i + 1] = 0.;
+    //         CMATRIX[3*k + 2][3*i + 2] = 0.;
+
+    //         // if (k==i){
+
+    //         // CMATRIX[3*k][3*i] = DPHIDRHO_T[k][i].fx.x;
+
+    //         // CMATRIX[3*k + 1][3*i + 1] = DPHIDRHO_T[k][i].fy.y;
+
+    //         // CMATRIX[3*k + 2][3*i + 2] = DPHIDRHO_T[k][i].fz.z;
+
+    //         // }
+            
+    //     }
+    // }
+
+    // for (k=0; k<NATOMSPERSPEC[0]; k++) {
+    //     for (j=0; j<NATOMSPERSPEC[0]; j++) {
+
+    //         CMATRIX[3*k][3*k] += DPHIDRHO_T[k][j].fx.x*DPHIDRHO_T[k][j].fx.x + DPHIDRHO_T[k][j].fx.y*DPHIDRHO_T[k][j].fx.y + DPHIDRHO_T[k][j].fx.z*DPHIDRHO_T[k][j].fx.z;
+
+    //         CMATRIX[3*k + 1][3*k + 1] += DPHIDRHO_T[k][j].fy.x*DPHIDRHO_T[k][j].fy.x + DPHIDRHO_T[k][j].fy.y*DPHIDRHO_T[k][j].fy.y + DPHIDRHO_T[k][j].fy.z*DPHIDRHO_T[k][j].fy.z;
+
+    //         CMATRIX[3*k + 2][3*k + 2] += DPHIDRHO_T[k][j].fz.x*DPHIDRHO_T[k][j].fz.x + DPHIDRHO_T[k][j].fz.y*DPHIDRHO_T[k][j].fz.y + DPHIDRHO_T[k][j].fz.z*DPHIDRHO_T[k][j].fz.z;
+
+    //         // CMATRIX[3*k][3*k] = 1.;
+    //         // CMATRIX[3*k + 1][3*k + 1] = 1.;
+    //         // CMATRIX[3*k + 2][3*k + 2] = 1.;
+            
+    //     }
+    // }
+
+
+
+    for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
+            fprintf(fp_matrix_out, "%.8e ",SHAKEMATRIX[k][i]);
+        }
+    fprintf(fp_matrix_out,"\n");
+    }
+
+    // for (k=0; k<NATOMSPERSPEC[0]; k++) {
+    //     for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+    //         indx_i = INDX[i];
+
+    //         rho_OLD[k].x -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.x + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.x + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.x);
+    //         rho_OLD[k].y -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.y + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.y + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.y);
+    //         rho_OLD[k].z -= SOR*(GAMMATOT_TM1[i].x*DPHIDRHO_T[i][k].fx.z + GAMMATOT_TM1[i].y*DPHIDRHO_T[i][k].fy.z + GAMMATOT_TM1[i].z*DPHIDRHO_T[i][k].fz.z);
+
+    //     }
+    //     Rem_Point_From_Cell(k);
+    //     Add_Point_To_Cell(rho_OLD[k],k);
+
+    //     GAMMATOT[k].x += GAMMATOT_TM1[k].x;
+    //     GAMMATOT[k].y += GAMMATOT_TM1[k].y;
+    //     GAMMATOT[k].z += GAMMATOT_TM1[k].z;
+    // }
+
+    //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);
+
+    
+    for (i=0; i<NPART; i++) {
+        Rem_Point_From_Cell(i);
+        Add_Point_To_Cell(rho_OLD[i],i);
+    }
+
+    for (k=0; k<NATOMSPERSPEC[0]; k++) {
+
+        if (POT == 'J') {
+
+            Phi_old = ShellForce_Jac(rho_OLD, r_t, k);
+
+        } else if (POT == 'C') {
+
+            Phi_old = ShellForce_Cicc(rho_OLD, r_t, k);
+
+        } else if (POT == 'W') {
+
+            Phi_old = Force_WCA(rho_OLD, k);
+            //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+        } else if (POT == 'L') {
+
+            Phi_old = Force_LJ(rho_OLD, k);
+            //printf("%.4e %.4e %.4e \n", Phi_old.x, Phi_old.y, Phi_old.z);
+        }
+
+        PHI[k].x = Phi_old.x;
+        PHI[k].y = Phi_old.y;
+        PHI[k].z = Phi_old.z;
+        //printf("Phi_OLD[%d] = (%.4e, %.4e, %.4e)\n", k, PHI[k].x, PHI[k].y, PHI[k].z);
+        FULLPHI[3*k] = Phi_old.x;
+        FULLPHI[3*k + 1] = Phi_old.y;
+        FULLPHI[3*k + 2] = Phi_old.z;
+
+
+        //printf("%.4e\n", PHI[k].x);
+
+
+        if (fabs(Phi_old.x) > discr) {
+
+            discr = fabs(Phi_old.x);
+            kdiscr = k + 0.1;
+        }
+
+        if (fabs(Phi_old.y) > discr) {
+
+            discr = fabs(Phi_old.y);
+            kdiscr = k + 0.2;
+        }
+
+        if (fabs(Phi_old.z) > discr) {
+
+            discr = fabs(Phi_old.z);
+            kdiscr = k + 0.3;
+        }
+
+    }
+    // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+    //     printf("%.4e \n",FULLPHI[k]);
+    //
+    // }
+
+
+    while (discr > LOW_TOL) { //Verifying the constraint condition
+
+        if (VERBOSE_FLAG && _V_SHAKE){
+
+            printf("Iteration: %d\tdiscr = (%.25e)\tkdiscr = (%.1lf)\n", count, discr, kdiscr);
+        }
+
+        if (_O_SHAKE && timestep % ISHAKE == 0 && count != 0) Write_Gamma(timestep, count, GAMMA, r_tp1, rho_t, SHELLPOS_TM1);
+
+        if (_O_SHAKE && timestep % ISHAKE == 0 && count != 0) Write_S(timestep, count, rho_OLD, r_tp1);
+
+        if (timestep % ISHAKE == 0) Write_SHAKE_output(timestep, count, discr, kdiscr);
+
+        count++;
+
+        if (count>_MAX_ITER) {
+
+            printf("\nSHAKE.c -> SHAKE ERROR: Iteration limit exceeded. Convergence not reached!\niter = %d\tdiscr = %.10e\tkdiscr = %.1lf\n", count, discr, kdiscr);
+            exit(EXIT_FAILURE);
+
+        }else if (discr>_UP_TOL){
+
+            printf("\nSHAKE.c -> SHAKE ERROR: discr = (%.4e). The algorithm has exploded!\n", discr);
+            exit(EXIT_FAILURE);
+        }
+
+        discr = 0;
+        
+        for (i=0; i<NPART; i++) {
+            Rem_Point_From_Cell(i);
+            Add_Point_To_Cell(rho_t[i],i);
+    }
+
+        //TrickyLinearConjugateGradient(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+           
+        //TrickyLinearConjugateGradientCellList(BMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+
+        //TrickyPreconditionedLinearConjugateGradientCellList(BMATRIX, CMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+
+        LinearConjugateGradient(SHAKEMATRIX, FULLPHI, FULLGAMMA, 3*NATOMSPERSPEC[0]);
+        
+        for (k=0; k<NATOMSPERSPEC[0]; k++) {
+            GAMMA[k].x = FULLGAMMA[3*k];
+            GAMMA[k].y = FULLGAMMA[3*k + 1];
+            GAMMA[k].z = FULLGAMMA[3*k + 2];
+            GAMMATOT[k].x += GAMMA[k].x;
+            GAMMATOT[k].y += GAMMA[k].y;
+            GAMMATOT[k].z += GAMMA[k].z;
+            //printf("%.4e %.4e %.4e \n",GAMMA[k].x, GAMMA[k].y, GAMMA[k].z);
+        }
+        //printf("GammaTot[0] = %.4e %4e %4e \n", GAMMATOT[0].x, GAMMATOT[0].y, GAMMATOT[0].z);
+
+
+        // displace heavy particles using gamma
+        for (k=0; k<NATOMSPERSPEC[0]; k++) {
+            //printf("RHO_OLD[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+            for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+                indx_i = INDX[i];
+
+                rho_OLD[k].x -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.x + GAMMA[i].y*DPHIDRHO_T[i][k].fy.x + GAMMA[i].z*DPHIDRHO_T[i][k].fz.x);
+                rho_OLD[k].y -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.y + GAMMA[i].y*DPHIDRHO_T[i][k].fy.y + GAMMA[i].z*DPHIDRHO_T[i][k].fz.y);
+                rho_OLD[k].z -= SOR*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.z + GAMMA[i].y*DPHIDRHO_T[i][k].fy.z + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
+
+            }
+
+            Rem_Point_From_Cell(k);
+            Add_Point_To_Cell(rho_OLD[k],k);
+        }
+
+        // displace heavy particles using gamma
+        for (k=NATOMSPERSPEC[0]; k<NPART; k++) {
+            //printf("RHO_OLD[%d] = %.4e %.4e %.4e \n",k, rho_OLD[k].x, rho_OLD[k].y, rho_OLD[k].z);
+            for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+                indx_i = INDX[i];
+
+                rho_OLD[k].x -= SOR*moverM*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.x + GAMMA[i].y*DPHIDRHO_T[i][k].fy.x + GAMMA[i].z*DPHIDRHO_T[i][k].fz.x);
+                rho_OLD[k].y -= SOR*moverM*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.y + GAMMA[i].y*DPHIDRHO_T[i][k].fy.y + GAMMA[i].z*DPHIDRHO_T[i][k].fz.y);
+                rho_OLD[k].z -= SOR*moverM*(GAMMA[i].x*DPHIDRHO_T[i][k].fx.z + GAMMA[i].y*DPHIDRHO_T[i][k].fy.z + GAMMA[i].z*DPHIDRHO_T[i][k].fz.z);
+
+            }
+
+            Rem_Point_From_Cell(k);
+            Add_Point_To_Cell(rho_OLD[k],k);
         }
 
         for (k=0; k<NATOMSPERSPEC[0]; k++) {

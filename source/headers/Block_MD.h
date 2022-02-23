@@ -32,5 +32,6 @@ void Block_MD_Pol(void);
 void Block_MD_Pol_Ew(void);
 
 void Block_MD_MultiMaze(void);
+void Block_MD_MultiNoze(void);
 
 #endif /* Block_MD_h */
