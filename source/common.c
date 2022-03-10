@@ -10,10 +10,12 @@
 
 struct point *PARTPOS_TM1;
 struct point *PARTPOS_T;
+struct point *PARTPOS_TP05;
 struct point *PARTPOS_TP1;
 struct point *PARTVEL;
 struct point *PARTMOM_T;
 struct point *PARTMOM_TP05;
+struct point *KICKEDPARTMOM;
 struct point *PARTMOM_TP1;
 struct point *SHELLPOS_TM1;
 struct point *SHELLPOS_T;
@@ -223,8 +225,10 @@ void ReadInput(){
     if ((PARTPOS_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
     if ((PARTPOS_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 3;
     if ((PARTPOS_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 4;
+    if ((PARTPOS_TP05 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 4;
     if ((PARTMOM_T = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((PARTMOM_TP05 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
+    if ((KICKEDPARTMOM = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((PARTMOM_TP1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((PARTVEL = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 5;
     if ((SHELLPOS_TM1 = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 6;
@@ -741,9 +745,13 @@ void ReadInput(){
 
     if (THERMOSTAT == 'T') {
 
-        printf("* Equilibration Run - NVT Run\n\n");
+        printf("* Equilibration Run - NVT Run (Velocities Rescaling)\n\n");
 
-    } else if (THERMOSTAT == 'F'){
+    }else if (THERMOSTAT == 'L'){
+
+        printf("* Sampling Microcanonical Ensemble - NVT with Langevin Thermostat Run\n\n");
+
+    }else if (THERMOSTAT == 'F'){
 
         printf("* Sampling Microcanonical Ensemble - NVE Run\n\n");
 
@@ -836,9 +844,11 @@ void FreePointers(void){
     free(NATOMSPERSPEC);
     free(PARTPOS_TM1);
     free(PARTPOS_T);
+    free(PARTPOS_TP05);
     free(PARTPOS_TP1);
     free(PARTMOM_T);
     free(PARTMOM_TP05);
+    free(KICKEDPARTMOM);
     free(PARTMOM_TP1);
     free(PARTVEL);
     free(SHELLPOS_TM1);

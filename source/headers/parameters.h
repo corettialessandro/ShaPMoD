@@ -82,4 +82,7 @@
 // LCG parameter
 #define LCG_TOL 1e-8
 
+// Langevin Thermostat
+#define friction 20000.0
+
 #endif /* parameters_h */

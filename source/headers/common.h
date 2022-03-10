@@ -22,10 +22,12 @@
 
 extern struct point *PARTPOS_TM1;
 extern struct point *PARTPOS_T;
+extern struct point *PARTPOS_TP05;
 extern struct point *PARTPOS_TP1;
 extern struct point *PARTVEL;
 extern struct point *PARTMOM_T;
 extern struct point *PARTMOM_TP05;
+extern struct point *KICKEDPARTMOM;
 extern struct point *PARTMOM_TP1;
 extern struct point *SHELLPOS_TM1;
 extern struct point *SHELLPOS_T;
