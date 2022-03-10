@@ -8,6 +8,20 @@
 
 #include "aux_func.h"
 
+double gaussrand(double mean, double stdev) {
+
+	double x1, x2, w;
+	do {
+		x1 = 2.0 * drand48() - 1.0;
+		x2 = 2.0 * drand48() - 1.0;
+		w = x1 * x1 + x2 * x2;
+	} while (w >= 1.0);
+	w = sqrt((-2.0 * log(w)) / w);
+	x1 *= w;
+	/* x2 *= x2 */
+	return x1;
+}
+
 struct point Distance(struct point A, struct point B){
 
     struct point AB_d;

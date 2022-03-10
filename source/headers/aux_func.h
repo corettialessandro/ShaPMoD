@@ -16,6 +16,7 @@
 #include "structs.h"
 #include "common.h"
 
+double gaussrand(double mean, double stdev);
 struct point Distance(struct point A, struct point B);
 struct point d_rirj(struct point ri, struct point rj);
 struct point d_rirhoj(struct point ri, struct point rhoj, struct point rj);
