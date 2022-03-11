@@ -134,7 +134,6 @@ void Block_MD_St(void){
                 PARTPOS_TP05[i].y = PARTPOS_T[i].y + DTover2*overMi*PARTMOM_TP05[i].y;
                 PARTPOS_TP05[i].z = PARTPOS_T[i].z + DTover2*overMi*PARTMOM_TP05[i].z;
                 
-                //printf("05 : %.4e %.4e %.4e \n", PARTMOM_TP05[i].x, PARTMOM_TP05[i].y, PARTMOM_TP05[i].z);
                 // kick
                 randomGaussianNumber = gaussrand(0.0, 1.0);
                 KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
@@ -145,7 +144,6 @@ void Block_MD_St(void){
                 randomGaussianNumber = gaussrand(0.0, 1.0);
                 KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
                 
-                //printf("05 : %.4e %.4e %.4e \n", KICKEDPARTMOM[i].x, KICKEDPARTMOM[i].y, KICKEDPARTMOM[i].z);
 
                 // final step on positions
                 SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_TP05[i].x + DTover2*overMi*KICKEDPARTMOM[i].x;
@@ -641,7 +639,7 @@ void Block_MD_MultiMaze(void){
     int t, i, k, t0 = 0;
     int y, z, tlog;
     double DT2 = (DT*DT), DToverMi, DTover2, DTover4, overMi, Mi, alpha;
-    double cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday;
+    double cyclotronFreq, PARTMOM_Tilday, PARTPOS_Tilday, randomGaussianNumber;
     double sumLorentzForces, sumIntermolecularForces;
     struct point CF_t, SF_t, FLorentz;
     FILE *fp_dphidrho_out = fopen("dphidrho.txt", "w");
@@ -775,10 +773,6 @@ void Block_MD_MultiMaze(void){
             }
 
             // collect forces
-            sumIntermolecularForces += sqrt((CF_t.x + SF_t.x)*(CF_t.x + SF_t.x) + (CF_t.y + SF_t.y)*(CF_t.y + SF_t.y) + (CF_t.z + SF_t.z)*(CF_t.z + SF_t.z));
-            FLorentz.x = Q[INDX[i]]*B0*PARTVEL[i].y;
-            FLorentz.y = - Q[INDX[i]]*B0*PARTVEL[i].x;
-            sumLorentzForces += sqrt(FLorentz.x*FLorentz.x + FLorentz.y*FLorentz.y);
 
             // velocity -> momentum
             PARTMOM_T[i].x = Mi*(PARTVEL[i].x*alpha - cyclotronFreq*PARTPOS_T[i].y);
@@ -791,15 +785,42 @@ void Block_MD_MultiMaze(void){
             PARTMOM_TP05[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_T[i].y));
             PARTMOM_TP05[i].z = PARTMOM_T[i].z + DTover2*(CF_t.z + SF_t.z);
 
-            // // full step on positions
-            PARTPOS_Tilday = PARTPOS_T[i].y + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_T[i].x);
-            SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
-            SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
-            SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+            if (THERMOSTAT == 'L'){
+                
+
+                // half step on positions
+                PARTPOS_TP05[i].x = PARTPOS_T[i].x + DTover2*overMi*PARTMOM_TP05[i].x;
+                PARTPOS_TP05[i].y = PARTPOS_T[i].y + DTover2*overMi*PARTMOM_TP05[i].y;
+                PARTPOS_TP05[i].z = PARTPOS_T[i].z + DTover2*overMi*PARTMOM_TP05[i].z;
+                
+                // kick
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                KICKEDPARTMOM[i].y = exp(-friction*DT)*PARTMOM_TP05[i].y + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                
+
+                // final step on positions
+                SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_TP05[i].x + DTover2*overMi*KICKEDPARTMOM[i].x;
+                SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_TP05[i].y + DTover2*overMi*KICKEDPARTMOM[i].y;
+                SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_TP05[i].z + DTover2*overMi*KICKEDPARTMOM[i].z;
+
+            }else{
+
+                // full step on positions
+                PARTPOS_Tilday = PARTPOS_T[i].y + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_T[i].x);
+                SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x = PARTPOS_T[i].x + DT*(overMi*PARTMOM_TP05[i].x + cyclotronFreq*PARTPOS_Tilday);
+                SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y = PARTPOS_Tilday + DTover2*(overMi*PARTMOM_TP05[i].y - cyclotronFreq*PARTPOS_TP1[i].x);
+                SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z = PARTPOS_T[i].z + DT*overMi*PARTMOM_TP05[i].z;
+            }
+
 
 
         }
-        
 
         // Updating the cells
 
@@ -840,8 +861,11 @@ void Block_MD_MultiMaze(void){
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z; //= PARTPOS_T[i].z;
             }
 
+            
             MultiConjugateGradient(SHELLPOS_TP1, PARTPOS_TP1);
 
+            //printf("%.4e %.4e %.4e \n", SHELLPOS_TP1[0].x, SHELLPOS_TP1[0].y, SHELLPOS_TP1[0].z );
+            
         } else if (SRMODE == 'W') {
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
@@ -861,21 +885,36 @@ void Block_MD_MultiMaze(void){
 
         }
 
-        for (k=0; k<NATOMSPERSPEC[0]; k++) {
+        // kick light particles
+        if (THERMOSTAT == 'L'){
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
-            fprintf(fp_dphidrho_out, "%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t%.4e\t", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
-            
+
+                Mi = M[INDX[i]];
+                overMi = 1./Mi;
+
+                PARTMOM_T[i].x = Mi*PARTVEL[i].x;
+                PARTMOM_T[i].y = Mi*PARTVEL[i].y;
+                PARTMOM_T[i].z = Mi*PARTVEL[i].z;
+
+
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                PARTMOM_TP1[i].x = exp(-friction*DT)*PARTMOM_T[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                PARTMOM_TP1[i].y = exp(-friction*DT)*PARTMOM_T[i].y + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+
+                randomGaussianNumber = gaussrand(0.0, 1.0);
+                PARTMOM_TP1[i].z = exp(-friction*DT)*PARTMOM_T[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;  
+
+                PARTPOS_TP1[i].x = SHELLPOS_TP1[i].x = SHELLPOS_TP1[i].x + DT*overMi*PARTMOM_TP1[i].x;
+                PARTPOS_TP1[i].y = SHELLPOS_TP1[i].y = SHELLPOS_TP1[i].y + DT*overMi*PARTMOM_TP1[i].y;
+                PARTPOS_TP1[i].z = SHELLPOS_TP1[i].z = SHELLPOS_TP1[i].z + DT*overMi*PARTMOM_TP1[i].z;        
+
             }
         }
-        fprintf(fp_dphidrho_out, "\n");
 
-        // for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
-        //     SHELLPOS_TP1[i].x = PARTPOS_TP1[i].x;
-        //     SHELLPOS_TP1[i].y = PARTPOS_TP1[i].y;
-        //     SHELLPOS_TP1[i].z = PARTPOS_TP1[i].z;
-        //     Rem_Point_From_Cell(i);
-        //     Add_Point_To_Cell(PARTPOS_TP1[i],i);
-        // }
+
+        
 
         for (i=0; i<NATOMSPERSPEC[0]; i++) {
             PARTPOS_TP1[i].x = SHELLPOS_TP1[i].x;
@@ -889,6 +928,8 @@ void Block_MD_MultiMaze(void){
 
 
         }
+
+       
 
         for (i=NATOMSPERSPEC[0]; i<NPART; i++) { //only for Big
             Mi = M[INDX[i]];
@@ -937,10 +978,18 @@ void Block_MD_MultiMaze(void){
                 Ftot.z += (CF_t.z  + SF_t.z);
             }
 
-            PARTMOM_Tilday = PARTMOM_TP05[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
-            PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_TP1[i].x));
-            PARTMOM_TP1[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP1[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
-            PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
+            if (THERMOSTAT == 'L'){
+
+                PARTMOM_TP1[i].x = KICKEDPARTMOM[i].x + DTover2*(CF_t.x + SF_t.x);
+                PARTMOM_TP1[i].y = KICKEDPARTMOM[i].y + DTover2*(CF_t.y + SF_t.y);
+                PARTMOM_TP1[i].z = KICKEDPARTMOM[i].z + DTover2*(CF_t.z + SF_t.z);
+
+            }else{
+                PARTMOM_Tilday = PARTMOM_TP05[i].y + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP05[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
+                PARTMOM_TP1[i].x = PARTMOM_TP05[i].x + DTover2*((CF_t.x + SF_t.x) + cyclotronFreq*(PARTMOM_Tilday - Mi*cyclotronFreq*PARTPOS_TP1[i].x));
+                PARTMOM_TP1[i].y = PARTMOM_Tilday + DTover4*((CF_t.y + SF_t.y) - cyclotronFreq*(PARTMOM_TP1[i].x + Mi*cyclotronFreq*PARTPOS_TP1[i].y));
+                PARTMOM_TP1[i].z = PARTMOM_TP05[i].z + DTover2*(CF_t.z + SF_t.z);
+            }
 
             // momentum -> velocity
             SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi + cyclotronFreq*PARTPOS_TP1[i].y;
@@ -954,11 +1003,22 @@ void Block_MD_MultiMaze(void){
         if (DEBUG_FLAG && _D_TOT_FORCES) printf("\n****** CFtot = (%.4e, %.4e, %.4e) ******\n****** SFtot = (%.4e, %.4e, %.4e) ******\n****** Ftot = (%.4e, %.4e, %.4e) ******\n\n", CFtot.x, CFtot.y, CFtot.z, SFtot.x, SFtot.y, SFtot.z, Ftot.x, Ftot.y, Ftot.z);
 
         for (i=0; i<NPART; i++) {
+            Mi = M[INDX[i]];
+            overMi = 1./Mi;
 
             //PARTVEL[i] = Velocity(PARTPOS_TM1[i], PARTPOS_TP1[i]);
             //SHELLVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
-            if (i<NATOMSPERSPEC[0]){
-                SHELLVEL[i] = PARTVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+            if (THERMOSTAT == 'L'){
+                if (i<NATOMSPERSPEC[0]){
+                    SHELLVEL[i].x = PARTVEL[i].x = PARTMOM_TP1[i].x*overMi;
+                    SHELLVEL[i].y = PARTVEL[i].y = PARTMOM_TP1[i].y*overMi;
+                    SHELLVEL[i].z = PARTVEL[i].z = PARTMOM_TP1[i].z*overMi;
+                }
+
+            }else{
+                if (i<NATOMSPERSPEC[0]){
+                    SHELLVEL[i] = PARTVEL[i] = Velocity(SHELLPOS_TM1[i], SHELLPOS_TP1[i]);
+                }
             }
 
             PARTPOS_TM1[i] = PARTPOS_T[i];

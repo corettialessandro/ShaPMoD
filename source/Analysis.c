@@ -839,11 +839,12 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
         // ITEMP = Temp = Temperature(v);
     // }
     //printf("EKin Big = %.4e \n", MultiEnerKin(v)*_E_CONV);
-    if (MODE == 'M') {
-        EKin = MultiEnerKin(v)*_E_CONV;
-    } else {
-        EKin = EnerKin(v)*_E_CONV;
-    }
+    // if ((MODE == 'M')||(MODE == 'N')) {
+    //     EKin = MultiEnerKin(v)*_E_CONV;
+    // } else {
+    //     EKin = EnerKin(v)*_E_CONV;
+    // }
+    EKin = EnerKin(v)*_E_CONV;
     ITEMP = Temp = Temperature(v);
 
     for (i=0; i<NINTER; i++) {

@@ -547,7 +547,7 @@ struct point Force_LJ(struct point r[], int i) {
             // printf("rCUT = %.4e \n", rCUT);
             // exit(0);
             if (CC_r <= rCUT){
-
+                // printf("%d \n", j);
                 //if (i==100) printf(" %d",j);
 
                 r2inv = 1.0/(CC_r*CC_r);

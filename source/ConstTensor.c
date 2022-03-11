@@ -480,9 +480,9 @@ struct tensor ConstTens_LJ(struct point rho[], struct point r[], int k, int i) {
                 LJ_sigma12 = pow((double)LJSIGMA[indx_i][indx_j],12.);
                 SS_d = Distance(rho[i], rho[j]);
                 SS_r = mod(SS_d);
-                if ((i == 73) && (j == 55)){
-                    printf("r = %.4e and rcut = %.4e\n", SS_r, rCUT);
-                }
+                // if ((i == 73) && (j == 55)){
+                //     printf("r = %.4e and rcut = %.4e\n", SS_r, rCUT);
+                // }
 
 
                 if (SS_r <= rCUT) {
