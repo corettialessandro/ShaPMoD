@@ -1567,6 +1567,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
     FILE *fp_constraints_out;
     FILE *fp_matrix_out = fopen("SHAKEmatrix.txt", "w");
+    FILE *fp_det_out;
     //FILE *fp_dphidrho_out = fopen("dphidrho.txt", "w");
     FILE *fp_gammas_out = fopen("gammas.txt", "w");
     char outputpath[_MAX_STR_LENGTH];
@@ -1622,179 +1623,6 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
             }
 
-            // threshold = 1e-1;
-
-            // if ((fabs(DPHIDRHO_T[k][i].fx.x) < threshold) && (DPHIDRHO_T[k][i].fx.x != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.x);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fx.x =DPHIDRHO_T[k][i].fx.x/fabs(DPHIDRHO_T[k][i].fx.x) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fx.y) < threshold) && (DPHIDRHO_T[k][i].fx.y != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.y);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fx.y =DPHIDRHO_T[k][i].fx.y/fabs(DPHIDRHO_T[k][i].fx.y) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fx.z) < threshold) && (DPHIDRHO_T[k][i].fx.z != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.z);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fx.z =DPHIDRHO_T[k][i].fx.z/fabs(DPHIDRHO_T[k][i].fx.z) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fy.x) < threshold) && (DPHIDRHO_T[k][i].fy.x != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.x);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fy.x =DPHIDRHO_T[k][i].fy.x/fabs(DPHIDRHO_T[k][i].fy.x) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fy.y) < threshold) && (DPHIDRHO_T[k][i].fy.y != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.y);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fy.y =DPHIDRHO_T[k][i].fy.y/fabs(DPHIDRHO_T[k][i].fy.y) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fy.z) < threshold) && (DPHIDRHO_T[k][i].fy.z != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.z);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fy.z =DPHIDRHO_T[k][i].fy.z/fabs(DPHIDRHO_T[k][i].fy.z) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fz.x) < threshold) && (DPHIDRHO_T[k][i].fz.x != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.x);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fz.x =DPHIDRHO_T[k][i].fz.x/fabs(DPHIDRHO_T[k][i].fz.x) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fz.y) < threshold) && (DPHIDRHO_T[k][i].fz.y != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.y);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fz.y =DPHIDRHO_T[k][i].fz.y/fabs(DPHIDRHO_T[k][i].fz.y) * threshold;
-            // }
-
-            // if ((fabs(DPHIDRHO_T[k][i].fz.z) < threshold) && (DPHIDRHO_T[k][i].fz.z != 0)) {
-            //     // printf("smaller than 1e-9 : %d %d\n", k,i);
-            //     minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.z);
-            //     minIndex1 = k;
-            //     minIndex2 = i;
-            //     DPHIDRHO_T[k][i].fz.z = DPHIDRHO_T[k][i].fz.z/fabs(DPHIDRHO_T[k][i].fz.z) * threshold;
-            // }
-
-            // printf("DPHIDRHO_T[%d][%d] =\n", k, i);
-            // printf("%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n%.4e\t%.4e\t%.4e\n\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
-            
-
-
-
-
-
-            if ((fabs(DPHIDRHO_T[k][i].fx.x) < minDphiDrho) && (DPHIDRHO_T[k][i].fx.x != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.x);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 0;
-                indexPos2 = 0;
-                //DPHIDRHO_T[k][i].fx.x =DPHIDRHO_T[k][i].fx.x/fabs(DPHIDRHO_T[k][i].fx.x) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fx.y) < minDphiDrho) && (DPHIDRHO_T[k][i].fx.y != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.y);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 0;
-                indexPos2 = 1;
-                //DPHIDRHO_T[k][i].fx.y =DPHIDRHO_T[k][i].fx.y/fabs(DPHIDRHO_T[k][i].fx.y) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fx.z) < minDphiDrho) && (DPHIDRHO_T[k][i].fx.z != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fx.z);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 0;
-                indexPos2 = 2;
-                //DPHIDRHO_T[k][i].fx.z =DPHIDRHO_T[k][i].fx.z/fabs(DPHIDRHO_T[k][i].fx.z) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fy.x) < minDphiDrho) && (DPHIDRHO_T[k][i].fy.x != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.x);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 1;
-                indexPos2 = 0;
-                //DPHIDRHO_T[k][i].fy.x =DPHIDRHO_T[k][i].fy.x/fabs(DPHIDRHO_T[k][i].fy.x) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fy.y) < minDphiDrho) && (DPHIDRHO_T[k][i].fy.y != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.y);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 1;
-                indexPos2 = 1;
-                //DPHIDRHO_T[k][i].fy.y =DPHIDRHO_T[k][i].fy.y/fabs(DPHIDRHO_T[k][i].fy.y) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fy.z) < minDphiDrho) && (DPHIDRHO_T[k][i].fy.z != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fy.z);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 1;
-                indexPos2 = 2;
-                //DPHIDRHO_T[k][i].fy.z =DPHIDRHO_T[k][i].fy.z/fabs(DPHIDRHO_T[k][i].fy.z) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fz.x) < minDphiDrho) && (DPHIDRHO_T[k][i].fz.x != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.x);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 2;
-                indexPos2 = 0;
-                //DPHIDRHO_T[k][i].fz.x =DPHIDRHO_T[k][i].fz.x/fabs(DPHIDRHO_T[k][i].fz.x) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fz.y) < minDphiDrho) && (DPHIDRHO_T[k][i].fz.y != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.y);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 2;
-                indexPos2 = 1;
-                //DPHIDRHO_T[k][i].fz.y =DPHIDRHO_T[k][i].fz.y/fabs(DPHIDRHO_T[k][i].fz.y) *  1e-9;
-            }
-
-            if ((fabs(DPHIDRHO_T[k][i].fz.z) < minDphiDrho) && (DPHIDRHO_T[k][i].fz.z != 0)) {
-                // printf("smaller than 1e-9 : %d %d\n", k,i);
-                minDphiDrho = fabs(DPHIDRHO_T[k][i].fz.z);
-                minIndex1 = k;
-                minIndex2 = i;
-                indexPos1 = 2;
-                indexPos2 = 2;
-                //DPHIDRHO_T[k][i].fz.z = DPHIDRHO_T[k][i].fz.z/fabs(DPHIDRHO_T[k][i].fz.z) * 1e-9;
-            }
-            
-
             //printf("%.8e %.8e %.8e \n %.8e %.8e %.8e \n %.8e %.8e %.8e\n", DPHIDRHO_T[k][i].fx.x, DPHIDRHO_T[k][i].fx.y, DPHIDRHO_T[k][i].fx.z, DPHIDRHO_T[k][i].fy.x, DPHIDRHO_T[k][i].fy.y, DPHIDRHO_T[k][i].fy.z, DPHIDRHO_T[k][i].fz.x, DPHIDRHO_T[k][i].fz.y, DPHIDRHO_T[k][i].fz.z);
 
             if (DEBUG_FLAG && _D_SHAKE && _D_TENSOR) {
@@ -1804,7 +1632,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
         }
     }
 
-    printf("minDphiDrho [%d] [%d] pos: %d/%d = %.4e \n", minIndex1, minIndex2, indexPos1, indexPos2, minDphiDrho);
+    //printf("minDphiDrho [%d] [%d] pos: %d/%d = %.4e \n", minIndex1, minIndex2, indexPos1, indexPos2, minDphiDrho);
 
     //Compute symmetry Shake matrix for each component
 
@@ -1835,12 +1663,18 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
             }
         }
     }
-    // for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
-    //     for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
-    //       printf("%.4e ", SHAKEMATRIX[k][i]);
-    //     }
-    //     printf("\n");
-
+    for (k=0; k<3*NATOMSPERSPEC[0]; k++) {
+        for (i=0; i<3*NATOMSPERSPEC[0]; i++) {
+          printf("%.4e ", SHAKEMATRIX[k][i]);
+        }
+        printf("\n");
+    }
+    //printf("det = %.4e\n", SHAKEMATRIX[0][0]*SHAKEMATRIX[1][1]*SHAKEMATRIX[2][2]);
+    
+    fp_det_out = fopen("detAllRun.txt", "a");
+    fprintf(fp_det_out, "%.4e \t %.4e \n", mod(Distance(rho_t[0], r_t[1])), SHAKEMATRIX[0][0]*SHAKEMATRIX[1][1]*SHAKEMATRIX[2][2]);
+    
+    
 
     //exit(0);
 
@@ -2157,6 +1991,7 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
 
 
         printf("nb of iter = %d,\t discr = %e, \t discrk = %.1lf \n", count, discr,kdiscr);
+        //printf("nb of iter = %d, \t pos = %.4e \n", count, rho_OLD[0].x);
         fprintf(fp_constraints_out, "%d \t %.10e \t %f \n", count, discr, kdiscr);
     } //End while(constraint condition)
     for (k=0; k<NATOMSPERSPEC[0]; k++) {
@@ -2173,6 +2008,8 @@ void MultiWeinbachElber(struct point rho_t[], struct point rho_OLD[], struct poi
     fprintf(fp_constraints_out, "\n");
     fflush(fp_constraints_out);
     fclose(fp_constraints_out);
+    fflush(fp_det_out);
+    fclose(fp_det_out);
 
     SR_ITERS = count;
     SR_DISCR = discr;
@@ -3044,7 +2881,7 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         //printf("%.4e \n", SR_DISCR);
         line++;
 
-        if (line > _MAX_ITER) {
+        if (line > 100.0 * _MAX_ITER) {
 
             printf("\nShellRelaxation.c -> ConjugateGradient() ERROR: Iteration limit exceeded. Convergence not reached!\n");
             exit(EXIT_FAILURE);
@@ -3280,6 +3117,7 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
                 }
             }
         }
+        //printf("lambda_down = %.4e\n", lambda_down);
 //        Terminated search in selected direction
 
 //        Resetting variables after process completion
@@ -3324,5 +3162,6 @@ void MultiConjugateGradient(struct point rho[], struct point r[]) {
         }
 
         if (line > .1*_MAX_ITER) printf("line = %d\tRMSForce = %.20e\tdir = %c\n", SR_ITERS, SR_DISCR, dir);
+        //printf("pos_%d = %.4e %.4e %.4e\n", 49, RHO_OLD[49].x, RHO_OLD[49].y, RHO_OLD[49].z);
     }
 }

@@ -136,13 +136,13 @@ void Block_MD_St(void){
                 
                 // kick
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].y = exp(-friction*DT)*PARTMOM_TP05[i].y + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].y = exp(-friction*DT)*PARTMOM_TP05[i].y + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
                 
 
                 // final step on positions
@@ -643,6 +643,11 @@ void Block_MD_MultiMaze(void){
     double sumLorentzForces, sumIntermolecularForces;
     struct point CF_t, SF_t, FLorentz;
     FILE *fp_dphidrho_out = fopen("dphidrho.txt", "w");
+    FILE *plotForce = fopen("plotForce.txt", "w");
+    FILE *fp_distance_out;
+
+    char outputdistancepath[_MAX_STR_LENGTH];
+
 
     struct point Ftot = {0};
     struct point CFtot = {0}, SFtot = {0};
@@ -653,6 +658,10 @@ void Block_MD_MultiMaze(void){
 
     clock_t t_start, t_end;
 
+    sprintf(outputdistancepath, "distanceAllRun.txt");
+
+
+    
     // printf("%.4e %.4e %.4e \n", PARTPOS_T[1].x, PARTPOS_T[1].y, PARTPOS_T[1].z);
     // exit(0);
     // for (i=0; i<NPART; i++) {
@@ -664,6 +673,7 @@ void Block_MD_MultiMaze(void){
         t0 = 1;
     }
 
+
     // Filling the list of cells
     for (i=0; i<NPART; i++) {
         Add_Point_To_Cell(PARTPOS_T[i],i);
@@ -672,6 +682,19 @@ void Block_MD_MultiMaze(void){
         SHELLPOS_T[i].z = PARTPOS_T[i].z;
         //printf("indx %d \n", INDX[i]);
     }
+
+
+    // PARTPOS_T[0].x = 6.0;
+    // for (t=0; t<2000; t++){
+
+    //     PARTPOS_T[0].x = PARTPOS_T[0].x + 0.01;
+    //     CF_t = Force_LJ(PARTPOS_T, 0);
+    //     DPHIDRHO_T[0][0] = ConstTens_LJ(PARTPOS_T, PARTPOS_T, 0, 0);
+    //     fprintf(plotForce, "%.4e %.4e %.4e %.4e %.4e %.4e %.4e %.4e\n", PARTPOS_T[0].x, EnerPot_LJ(PARTPOS_T), CF_t.x, DPHIDRHO_T[0][0].fx.x, DPHIDRHO_T[0][0].fy.y, DPHIDRHO_T[0][0].fz.z, DPHIDRHO_T[0][0].fx.z, DPHIDRHO_T[0][0].fz.x, DPHIDRHO_T[0][0].fz.y);
+    //     //fprintf(plotForce, "%.4e %.4e %.4e \n", PARTPOS_T[0].x, CF_t.x, DPHIDRHO_T[0][0].fx.x);
+        
+    // }
+    // exit(0);
 
     // printf("%d %d\n", NATOMSPERSPEC[0], NPART);
     // exit(0);
@@ -701,9 +724,9 @@ void Block_MD_MultiMaze(void){
         GAMMATOT_TM1[i].z = 0.;
 
     }
-
+    
     for (t=t0; t<NTIMESTEPS; t++) {
-
+        
         t_start = clock();
 
         alpha = 1.;
@@ -795,13 +818,13 @@ void Block_MD_MultiMaze(void){
                 
                 // kick
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].x = exp(-friction*DT)*PARTMOM_TP05[i].x + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].y = exp(-friction*DT)*PARTMOM_TP05[i].y + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].y = exp(-friction*DT)*PARTMOM_TP05[i].y + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                KICKEDPARTMOM[i].z = exp(-friction*DT)*PARTMOM_TP05[i].z + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
                 
 
                 // final step on positions
@@ -856,9 +879,29 @@ void Block_MD_MultiMaze(void){
         } else if (SRMODE == 'C') {
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+                // if (POT == 'L') {
+                //     CF_t = Force_LJ(PARTPOS_T, i);
+                //     //printf("%.4e %.4e %.4e \n", CF_t.x, CF_t.y, CF_t.z );
+                //     SF_t.x = 0;
+                //     SF_t.y = 0;
+                //     SF_t.z = 0;
+                // }
+                Mi = M[INDX[i]];
+                overMi = 1./Mi;
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x; //= PARTPOS_T[i].x;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y; //= PARTPOS_T[i].y;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z; //= PARTPOS_T[i].z;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + DT*overMi*PARTMOM_T[i].x; 
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + DT*overMi*PARTMOM_T[i].y; 
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + DT*overMi*PARTMOM_T[i].z; 
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + DT*overMi*PARTMOM_T[i].x + 0.5*DT*DT*overMi*CF_t.x; 
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + DT*overMi*PARTMOM_T[i].y + 0.5*DT*DT*overMi*CF_t.y; 
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + DT*overMi*PARTMOM_T[i].z + 0.5*DT*DT*overMi*CF_t.z; 
+
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + DT*SHELLVEL[i].x; 
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + DT*SHELLVEL[i].y; 
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + DT*SHELLVEL[i].z; 
             }
 
             
@@ -870,15 +913,16 @@ void Block_MD_MultiMaze(void){
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 //printf("%indx = %d\n", INDX[i]);
-                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
-                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
-                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }
+            printf("GUESS : t = %d \t dist = %.4e \t dx = %.4e \n", t, mod(Distance(SHELLPOS_TP1[0], PARTPOS_TP1[1])), (SHELLPOS_T[0].x - SHELLPOS_TM1[0].x));
 
             MultiWeinbachElber(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
 
@@ -898,13 +942,13 @@ void Block_MD_MultiMaze(void){
 
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                PARTMOM_TP1[i].x = exp(-friction*DT)*PARTMOM_T[i].x + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                PARTMOM_TP1[i].x = exp(-friction*DT)*PARTMOM_T[i].x + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                PARTMOM_TP1[i].y = exp(-friction*DT)*PARTMOM_T[i].y + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;
+                PARTMOM_TP1[i].y = exp(-friction*DT)*PARTMOM_T[i].y + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;
 
                 randomGaussianNumber = gaussrand(0.0, 1.0);
-                PARTMOM_TP1[i].z = exp(-friction*DT)*PARTMOM_T[i].z + sqrt(TEMP*(1-exp(-2*friction))*Mi)*randomGaussianNumber;  
+                PARTMOM_TP1[i].z = exp(-friction*DT)*PARTMOM_T[i].z + sqrt(TEMP*(1-exp(-2*friction*DT))*Mi)*randomGaussianNumber;  
 
                 PARTPOS_TP1[i].x = SHELLPOS_TP1[i].x = SHELLPOS_TP1[i].x + DT*overMi*PARTMOM_TP1[i].x;
                 PARTPOS_TP1[i].y = SHELLPOS_TP1[i].y = SHELLPOS_TP1[i].y + DT*overMi*PARTMOM_TP1[i].y;
@@ -1031,7 +1075,13 @@ void Block_MD_MultiMaze(void){
             // Updating the cells
             Rem_Point_From_Cell(i);
             Add_Point_To_Cell(PARTPOS_T[i],i);
+            
         }
+        fp_distance_out = fopen(outputdistancepath, "a");
+        //printf("%d \t %.4e %4.e \n", t, PARTPOS_TM1[0].x, PARTPOS_TM1[1].x);
+        printf("%d old \t %.4e \n", t, mod(Distance(PARTPOS_TM1[0], PARTPOS_TM1[1])));
+        printf("%d new \t %.4e \n", t, mod(Distance(PARTPOS_T[0], PARTPOS_T[1])));
+        fprintf(fp_distance_out, "%d \t %.4e \n", t, mod(Distance(PARTPOS_TM1[0], PARTPOS_TM1[1])));
 
         if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
         if ((t+1) % IPS == 0)  Write_PSConfig(t+1, PARTPOS_TM1, SHELLPOS_TM1, PARTVEL, SHELLVEL);
@@ -1051,7 +1101,14 @@ void Block_MD_MultiMaze(void){
         //         }
         //     }
         // }
+        fflush(fp_dphidrho_out);
+        fclose(fp_dphidrho_out);
 
+        fflush(plotForce);
+        fclose(plotForce);
+
+        fflush(fp_distance_out);
+        fclose(fp_distance_out);
 
         t_end = clock();
 

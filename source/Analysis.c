@@ -641,8 +641,8 @@ double EnerPot_LJ(struct point r[]){
                     ljatrc = rc6inv * (LJ_sigma12*rc6inv - LJ_sigma6);
 
                     ep = 4.*LJEPS[indx_i][indx_j] * (r6inv*(r6inv*LJ_sigma12 - LJ_sigma6) - ljatrc) ;
-
-
+                    //printf("E %d %d = %.4e , epsilon = %.4e\n",i, j, ep, LJEPS[indx_i][indx_j]);
+                    //if ((indx_i = 0) && (indx_i != indx_j)) ep = 0.0; 
                     EPot += ep;
                     epi += ep;
                 }
@@ -722,12 +722,19 @@ double MultiTemperature(struct point v[]){
     double T = 0;
 
     int i;
-    double g = 3*(NPART - 1.);
+    double g = 3*(NATOMSPERSPEC[1] - 1.);
 
-    for (i=NATOMSPERSPEC[1]; i<NPART; i++) {
+    for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
 
         T += M[INDX[i]]*modsq(v[i]);
     }
+
+    // double g = 3*(NATOMSPERSPEC[0] - 1.);
+
+    // for (i=0; i<NATOMSPERSPEC[0]; i++) {
+
+    //     T += M[INDX[i]]*modsq(v[i]);
+    // }
 
     return T/g;
 }
@@ -839,14 +846,14 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
         // ITEMP = Temp = Temperature(v);
     // }
     //printf("EKin Big = %.4e \n", MultiEnerKin(v)*_E_CONV);
-    // if ((MODE == 'M')||(MODE == 'N')) {
-    //     EKin = MultiEnerKin(v)*_E_CONV;
-    // } else {
-    //     EKin = EnerKin(v)*_E_CONV;
-    // }
-    EKin = EnerKin(v)*_E_CONV;
+    if ((MODE == 'M')||(MODE == 'N')) {
+        EKin = MultiEnerKin(v)*_E_CONV;
+    } else {
+        EKin = EnerKin(v)*_E_CONV;
+    }
+    //EKin = EnerKin(v)*_E_CONV;
     ITEMP = Temp = Temperature(v);
-
+    //ITEMP = Temp = MultiTemperature(v);
     for (i=0; i<NINTER; i++) {
 
         Press = C_PTAIL[i] + S_PTAIL[i];
