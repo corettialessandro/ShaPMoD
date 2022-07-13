@@ -420,6 +420,7 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
 
         }
         beta = beta_num/beta_denom;
+        //printf("beta denom = %.4e\n", beta_denom);
 
         for (i=0; i<ndimension; i++) {
 

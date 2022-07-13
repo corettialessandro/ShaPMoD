@@ -35,6 +35,7 @@ void Write_PartVelocities(struct point v[], int time);
 void Write_LogPartVelocities(struct point v[], int time);
 void Write_ShellVelocities(struct point sv[]);
 void Write_Trajectory(struct point r[], struct point rho[]);
+void Write_Iterations(struct point r[]);
 
 void Write_Elapsed_timeperstep(int timestep, double elapsed_time);
 void Write_Gamma(int timestep, int iteration, struct point gamma[], struct point r_tp1[], struct point rho_t[], struct point rho_tm1[]);

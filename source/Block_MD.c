@@ -643,7 +643,8 @@ void Block_MD_MultiMaze(void){
     double sumLorentzForces, sumIntermolecularForces;
     struct point CF_t, SF_t, FLorentz;
     FILE *fp_dphidrho_out = fopen("dphidrho.txt", "w");
-    FILE *plotForce = fopen("plotForce.txt", "w");
+    FILE *plotForce1 = fopen("plotForce1.txt", "w");
+    FILE *plotForce2 = fopen("plotForce2.txt", "w");
     FILE *fp_distance_out;
 
     char outputdistancepath[_MAX_STR_LENGTH];
@@ -684,17 +685,6 @@ void Block_MD_MultiMaze(void){
     }
 
 
-    // PARTPOS_T[0].x = 6.0;
-    // for (t=0; t<2000; t++){
-
-    //     PARTPOS_T[0].x = PARTPOS_T[0].x + 0.01;
-    //     CF_t = Force_LJ(PARTPOS_T, 0);
-    //     DPHIDRHO_T[0][0] = ConstTens_LJ(PARTPOS_T, PARTPOS_T, 0, 0);
-    //     fprintf(plotForce, "%.4e %.4e %.4e %.4e %.4e %.4e %.4e %.4e\n", PARTPOS_T[0].x, EnerPot_LJ(PARTPOS_T), CF_t.x, DPHIDRHO_T[0][0].fx.x, DPHIDRHO_T[0][0].fy.y, DPHIDRHO_T[0][0].fz.z, DPHIDRHO_T[0][0].fx.z, DPHIDRHO_T[0][0].fz.x, DPHIDRHO_T[0][0].fz.y);
-    //     //fprintf(plotForce, "%.4e %.4e %.4e \n", PARTPOS_T[0].x, CF_t.x, DPHIDRHO_T[0][0].fx.x);
-        
-    // }
-    // exit(0);
 
     // printf("%d %d\n", NATOMSPERSPEC[0], NPART);
     // exit(0);
@@ -724,8 +714,10 @@ void Block_MD_MultiMaze(void){
         GAMMATOT_TM1[i].z = 0.;
 
     }
-    
+    if ((t+1) % IVMD == 0) Write_Trajectory(PARTPOS_T, SHELLPOS_T);
     for (t=t0; t<NTIMESTEPS; t++) {
+
+        remove("output/default/Iterations.xyz");
         
         t_start = clock();
 
@@ -744,7 +736,7 @@ void Block_MD_MultiMaze(void){
                 printf("|∆T| = %.4e\t|∆T|_M = %.4e\talpha = %.4e\n", fabs(TEMP - ITEMP), _TEMP_TOL*TEMP, alpha);
             }
         }
-
+        
         for (i=NATOMSPERSPEC[0]; i<NPART; i++) { //only for Big
 
             Mi = M[INDX[i]];
@@ -852,6 +844,29 @@ void Block_MD_MultiMaze(void){
             Add_Point_To_Cell(PARTPOS_TP1[i],i);
         }
 
+        
+        // PARTPOS_T[0].x = 23.2;
+        // for (t=0; t<1000; t++){
+        //     PARTPOS_T[1].x = 36.7;
+        //     PARTPOS_T[0].x = PARTPOS_T[0].x + 0.0001;
+        //     for (i=0; i<1000; i++){
+        //         PARTPOS_T[1].x = PARTPOS_T[1].x + 0.0001;
+        //         CF_t = Force_LJ(PARTPOS_T, 0);
+
+        //         fprintf(plotForce1, "%.8e %.8e %.8e %.8e \n", PARTPOS_T[0].x, PARTPOS_T[1].x, EnerPot_LJ(PARTPOS_T), fabs(CF_t.x));
+
+        //         CF_t = Force_LJ(PARTPOS_T, 1);
+        //         printf("%d \n",i);
+                
+        //         fprintf(plotForce2, "%.8e %.8e %.8e %.8e \n", PARTPOS_T[0].x, PARTPOS_T[1].x, EnerPot_LJ(PARTPOS_T), fabs(CF_t.x));
+        //     }
+        //     //DPHIDRHO_T[0][0] = ConstTens_LJ(PARTPOS_T, PARTPOS_T, 0, 0);
+        //     //fprintf(plotForce, "%.4e %.4e %.4e %.4e %.4e %.4e %.4e %.4e\n", PARTPOS_T[0].x, EnerPot_LJ(PARTPOS_T), CF_t.x, DPHIDRHO_T[0][0].fx.x, DPHIDRHO_T[0][0].fy.y, DPHIDRHO_T[0][0].fz.z, DPHIDRHO_T[0][0].fx.z, DPHIDRHO_T[0][0].fz.x, DPHIDRHO_T[0][0].fz.y);
+        //     //fprintf(plotForce, "%.4e %.4e %.4e \n", PARTPOS_T[0].x, CF_t.x, DPHIDRHO_T[0][0].fx.x);
+            
+        // }
+        // exit(0);
+
         // for (i=0; i<NPART; i++) {
         //     printf("indx = %d , partpos = %.4e %.4e %.4e , shellpos = %.4e %.4e %.4e \n",i, PARTPOS_TP1[i].x, PARTPOS_TP1[i].y, PARTPOS_TP1[i].z ,SHELLPOS_TP1[i].x, SHELLPOS_TP1[i].y, SHELLPOS_TP1[i].z);
         // }
@@ -913,19 +928,27 @@ void Block_MD_MultiMaze(void){
 
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 //printf("%indx = %d\n", INDX[i]);
+                
                 SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
                 SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
                 SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                
                 // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
                 // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
                 // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
             }
-            printf("GUESS : t = %d \t dist = %.4e \t dx = %.4e \n", t, mod(Distance(SHELLPOS_TP1[0], PARTPOS_TP1[1])), (SHELLPOS_T[0].x - SHELLPOS_TM1[0].x));
-
+            // printf("%.4e %.4e \n", SHELLPOS_TP1[0].x, SHELLPOS_TP1[1].x);
+            // // SHELLPOS_TP1[0].x =  22.4075485; 
+            // // SHELLPOS_TP1[1].x = 37.5924515;
+            // SHELLPOS_TP1[0].x = 22.3; 
+            // SHELLPOS_TP1[1].x = 37.5;
+            //printf("GUESS : t = %d \t dist = %.4e \t dx = %.4e \n", t, mod(Distance(SHELLPOS_TP1[0], PARTPOS_TP1[1])), (SHELLPOS_T[0].x - SHELLPOS_TM1[0].x));
+            //printf("Pos =%.4e\n", SHELLPOS_TP1[1].x);
             MultiWeinbachElber(SHELLPOS_T, SHELLPOS_TP1, PARTPOS_T, PARTPOS_TP1, 1, 0);
-
+            //printf("Pos =%.4e\n", SHELLPOS_TP1[1].x);
 
         }
 
@@ -1079,8 +1102,8 @@ void Block_MD_MultiMaze(void){
         }
         fp_distance_out = fopen(outputdistancepath, "a");
         //printf("%d \t %.4e %4.e \n", t, PARTPOS_TM1[0].x, PARTPOS_TM1[1].x);
-        printf("%d old \t %.4e \n", t, mod(Distance(PARTPOS_TM1[0], PARTPOS_TM1[1])));
-        printf("%d new \t %.4e \n", t, mod(Distance(PARTPOS_T[0], PARTPOS_T[1])));
+        // printf("%d old \t %.4e \n", t, mod(Distance(PARTPOS_TM1[0], PARTPOS_TM1[1])));
+        // printf("%d new \t %.4e \n", t, mod(Distance(PARTPOS_T[0], PARTPOS_T[1])));
         fprintf(fp_distance_out, "%d \t %.4e \n", t, mod(Distance(PARTPOS_TM1[0], PARTPOS_TM1[1])));
 
         if ((t+1) % IANFILE == 0) Analyse(t+1, PARTPOS_T, SHELLPOS_T, PARTVEL, therm);
@@ -1104,8 +1127,11 @@ void Block_MD_MultiMaze(void){
         fflush(fp_dphidrho_out);
         fclose(fp_dphidrho_out);
 
-        fflush(plotForce);
-        fclose(plotForce);
+        fflush(plotForce1);
+        fclose(plotForce1);
+
+        fflush(plotForce2);
+        fclose(plotForce2);
 
         fflush(fp_distance_out);
         fclose(fp_distance_out);

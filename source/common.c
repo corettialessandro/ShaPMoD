@@ -46,6 +46,7 @@ struct point *GAMMATOT;
 struct point *GAMMATOT_TM1;
 
 struct point *PHI;
+struct point *SAVED_RHO;
 struct point *PHI_OLD;
 struct point *SEARCHDIR;
 struct point *RHO_OLD;
@@ -272,6 +273,7 @@ void ReadInput(){
     if (SRMODE == 'W') {
 
         if ((PHI = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 2;
+        if ((SAVED_RHO = (struct point *)calloc(NATOMSPERSPEC[0], sizeof(struct point))) == NULL) pointer_flag = 2;
         if ((DPHIDRHO_T = (struct tensor **)calloc(NPART, sizeof(struct tensor *))) == NULL) pointer_flag = 100;
         if ((GAMMA = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
         if ((GAMMATOT = (struct point *)calloc(NPART, sizeof(struct point))) == NULL) pointer_flag = 9;
@@ -591,36 +593,36 @@ void ReadInput(){
 
         fclose(fp_input);
 
-        CMV = CMVelocity(PARTVEL);
+        // CMV = CMVelocity(PARTVEL);
 
-        for (i=0; i<NPART; i++) {
+        // for (i=0; i<NPART; i++) {
 
-            PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
-            PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
-            PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
-        }
-
-        // if (MODE == 'S'){
-        //     CMV = CMVelocity(PARTVEL);
-        //
-        //     for (i=0; i<NPART; i++) {
-        //
-        //         PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
-        //         PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
-        //         PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
-        //     }
-        // }else if (MODE == 'M'){
-        //     CMV = CMVelocity(PARTVEL);
-        //
-        //     for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
-        //
-        //         PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
-        //         PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
-        //         PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
-        //     }
-        //
-        //
+        //     PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+        //     PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+        //     PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
         // }
+
+        if (MODE == 'S'){
+            CMV = CMVelocity(PARTVEL);
+        
+            for (i=0; i<NPART; i++) {
+        
+                PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+                PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+                PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+            }
+        }else if (MODE == 'M'){
+            CMV = MultiCMVelocity(PARTVEL);
+        
+            for (i=NATOMSPERSPEC[0]; i<NPART; i++) {
+        
+                PARTVEL[i].x = (PARTVEL[i].x - CMV.x);
+                PARTVEL[i].y = (PARTVEL[i].y - CMV.y);
+                PARTVEL[i].z = (PARTVEL[i].z - CMV.z);
+            }
+        
+        
+        }
 
     }else{
 
@@ -887,6 +889,7 @@ void FreePointers(void){
     if (SRMODE == 'W') {
 
         free(PHI);
+        free(SAVED_RHO);
         free(DPHIDRHO_T);
         free(GAMMA);
         free(GAMMATOT);
