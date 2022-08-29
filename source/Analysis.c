@@ -851,7 +851,7 @@ void Analyse(int timestep, struct point r[], struct point rho[], struct point v[
     } else {
         EKin = EnerKin(v)*_E_CONV;
     }
-    //EKin = EnerKin(v)*_E_CONV;
+    // EKin = EnerKin(v)*_E_CONV;
     ITEMP = Temp = Temperature(v);
     //ITEMP = Temp = MultiTemperature(v);
     for (i=0; i<NINTER; i++) {

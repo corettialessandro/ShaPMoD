@@ -223,7 +223,7 @@ void LinearConjugateGradient(double **matrix, double *vector_b, double *vector_x
 
         counterLCG++;
 
-        if (counterLCG > _MAX_ITER) {
+        if (counterLCG > _MAX_ITER_LCG) {
 
             printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
             exit(EXIT_FAILURE);
@@ -362,7 +362,7 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
 
         counterLCG++;
 
-        if (counterLCG > _MAX_ITER) {
+        if (counterLCG > _MAX_ITER_LCG) {
 
             printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
             exit(EXIT_FAILURE);
@@ -420,6 +420,7 @@ void TrickyLinearConjugateGradient(double **Bmatrix, double *vector_b, double *v
 
         }
         beta = beta_num/beta_denom;
+        //printf("beta denom = %.4e\n", beta_denom);
 
         for (i=0; i<ndimension; i++) {
 
@@ -552,7 +553,7 @@ void TrickyLinearConjugateGradientCellList(double **Bmatrix, double *vector_b, d
 
         counterLCG++;
 
-        if (counterLCG > _MAX_ITER) {
+        if (counterLCG > _MAX_ITER_LCG) {
 
             printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
             exit(EXIT_FAILURE);
@@ -787,7 +788,7 @@ void TrickyPreconditionedLinearConjugateGradientCellList(double **Bmatrix, doubl
 
         counterLCG++;
 
-        if (counterLCG > _MAX_ITER) {
+        if (counterLCG > _MAX_ITER_LCG) {
 
             printf("\n Iteration limit exceeded for LinearConjugateGradient \n");
             exit(EXIT_FAILURE);

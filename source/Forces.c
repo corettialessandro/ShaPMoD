@@ -546,6 +546,10 @@ struct point Force_LJ(struct point r[], int i) {
             // printf("CC_r = %.4e \n", CC_r);
             // printf("rCUT = %.4e \n", rCUT);
             // exit(0);
+
+            // if (i == 2){
+            //         printf("Force : r = %.4e and rcut = %.4e\n", CC_r, rCUT);
+            // }
             if (CC_r <= rCUT){
                 // printf("%d \n", j);
                 //if (i==100) printf(" %d",j);
@@ -564,6 +568,10 @@ struct point Force_LJ(struct point r[], int i) {
                 F.x += CC_d.x*fpair;
                 F.y += CC_d.y*fpair;
                 F.z += CC_d.z*fpair;
+
+                // if (i == 2){
+                //     printf("Force = %.4e\t %.4e\t %.4e\n", F.x, F.y, F.z);
+                // }
             }
 
         }

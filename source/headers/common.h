@@ -61,6 +61,7 @@ extern struct point *GAMMATOT;
 extern struct point *GAMMATOT_TM1;
 
 extern struct point *PHI;
+extern struct point *SAVED_RHO;
 extern struct point *PHI_OLD;
 extern struct point *SEARCHDIR;
 extern struct point *RHO_OLD;

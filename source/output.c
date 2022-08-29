@@ -687,6 +687,40 @@ void Write_Trajectory(struct point r[], struct point rho[]){
     fclose(fp_vmd_out);
 }
 
+void Write_Iterations(struct point r[]){
+
+    FILE * fp_it_out;
+
+    int i, indx_i;
+    char core_name[10];
+    struct point zero = {0};
+
+    char outputpath[_MAX_STR_LENGTH];
+
+    sprintf(outputpath, "%sIterations.xyz", OUTPUTFOL);
+    
+    if ((fp_it_out = fopen(outputpath, "a")) == NULL){
+
+        printf("\noutput.c -> Write_it() ERROR: File %s not found.\nExecution aborted.\n\n", outputpath);
+        exit(EXIT_FAILURE);
+    }
+
+    fprintf(fp_it_out, "%d\n", NPART);
+    fprintf(fp_it_out, "\n");
+
+    for (i=0; i<NPART; i++) {
+
+        indx_i = INDX[i];
+
+        sprintf(core_name, "%s", NAME[indx_i]);
+
+        fprintf(fp_it_out, "%s\t%lf\t%lf\t%lf\n", core_name, d_rirj(r[i], zero).x*_L_CONV, d_rirj(r[i], zero).y*_L_CONV, d_rirj(r[i], zero).z*_L_CONV);
+//        fprintf(fp_it_out, "%s\t%lf\t%lf\t%lf\n%s\t%lf\t%lf\t%lf\n", core_name, Distance(r[i], zero).x*_L_CONV, Distance(r[i], zero).y*_L_CONV, Distance(r[i], zero).z*_L_CONV, shell_name, Distance(rho[i], zero).x*_L_CONV, Distance(rho[i], zero).y*_L_CONV, Distance(rho[i], zero).z*_L_CONV);
+    }
+
+    fclose(fp_it_out);
+}
+
 void Write_Elapsed_timeperstep(int timestep, double elapsed_time){
 
     FILE *fp_time;
