@@ -917,6 +917,9 @@ void Block_MD_MultiMaze(void){
                 // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + DT*SHELLVEL[i].x; 
                 // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + DT*SHELLVEL[i].y; 
                 // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + DT*SHELLVEL[i].z; 
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
             }
 
             
@@ -929,13 +932,13 @@ void Block_MD_MultiMaze(void){
             for (i=0; i<NATOMSPERSPEC[0]; i++) {
                 //printf("%indx = %d\n", INDX[i]);
                 
-                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
-                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
-                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
+                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x;
+                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y;
+                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z;
                 
-                // SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
-                // SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
-                // SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
+                SHELLPOS_TP1[i].x = SHELLPOS_T[i].x + (SHELLPOS_T[i].x - SHELLPOS_TM1[i].x)*alpha;
+                SHELLPOS_TP1[i].y = SHELLPOS_T[i].y + (SHELLPOS_T[i].y - SHELLPOS_TM1[i].y)*alpha;
+                SHELLPOS_TP1[i].z = SHELLPOS_T[i].z + (SHELLPOS_T[i].z - SHELLPOS_TM1[i].z)*alpha;
                 
                 Rem_Point_From_Cell(i);
                 Add_Point_To_Cell(SHELLPOS_TP1[i],i);
